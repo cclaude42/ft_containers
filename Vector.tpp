@@ -8,22 +8,35 @@
 template <class T, class Alloc = std::allocator<T>>
 class Vector {
 public:
+
+	//////////////////////////////
+	// Iterator subclass
+	//////////////////////////////
+
+	class MyIterator {
+	public:
+
+
+	private:
+		typename allocator_type::pointer	_ptr;
+	};
+
 	//////////////////////////////
 	// Member types
 	//////////////////////////////
 
-	typedef		value_type				T;
-	typedef		allocator_type			Alloc;
-	typedef		reference				allocator_type::reference;
-	typedef		const_reference			allocator_type::const_reference;
-	typedef		pointer					allocator_type::pointer;
-	typedef		const_pointer			allocator_type::const_pointer;
-	typedef		iterator				???;
-	typedef		const_iterator			???;
-	typedef		reverse_iterator		reverse_iterator<iterator>;
-	typedef		const_reverse_iterator	reverse_iterator<const_iterator>;
-	typedef		difference_type			iterator_traits<iterator>::difference_type;
-	typedef		size_type				size_t???;
+	typedef		T											value_type;
+	typedef		Alloc										allocator_type;
+	typedef		typename allocator_type::reference			reference;
+	typedef		typename allocator_type::const_reference	const_reference;
+	typedef		typename allocator_type::pointer			pointer;
+	typedef		typename allocator_type::const_pointer		const_pointer;
+	typedef		MyIterator									iterator;
+	typedef		int											const_iterator;
+	typedef		int											reverse_iterator;
+	typedef		int											const_reverse_iterator;
+	typedef		ptrdiff_t									difference_type;
+	typedef		size_t										size_type;
 
 	//////////////////////////////
 	// Constructors
@@ -32,7 +45,10 @@ public:
 	explicit Vector (const allocator_type & alloc = allocator_type())
 	{
 		_vct = NULL;
-		_size = 0;
+		_occupied = 0;
+		_allocated = 0;
+
+		std::cout << "Allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 	}
 
 	explicit Vector (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
@@ -62,7 +78,7 @@ public:
 
 		std::cout << "Allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 
-		while (first != last)
+		for (int i = 0 ; first != last ; i++)
 			_vct[i] = *first++;
 	}
 
