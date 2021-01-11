@@ -14,17 +14,36 @@ public:
 	//////////////////////////////
 
 	class VectorIterator {
-	private:
-		VectorIterator (void) { /* Wait, that's illegal */ }
-
 	public:
+		// -structors
+		VectorIterator (void) { _ptr = NULL; }
 		VectorIterator (typename Alloc::pointer ptr) { _ptr = ptr; }
 		VectorIterator (const VectorIterator & x) { _ptr = x._ptr; }
 		~VectorIterator (void) {}
-		VectorIterator & operator= (const VectorIterator & x) { _ptr = x._ptr; return (*this); }
-		VectorIterator & operator== (const VectorIterator & x) { _ptr == x._ptr; return (*this); }
-		VectorIterator & operator!= (const VectorIterator & x) { _ptr != x._ptr; return (*this); }
-		T & operator* (void) { return (*_ptr); }
+		// Assignment
+		VectorIterator &	operator=  (const VectorIterator & x)	{ _ptr = x._ptr; return (*this); }
+		VectorIterator &	operator+= (int n)						{ _ptr += n; return (*this); }
+		VectorIterator &	operator-= (int n)						{ _ptr -= n; return (*this); }
+		VectorIterator &	operator+= (const VectorIterator & x)	{ _ptr += x._ptr; return (*this); }
+		VectorIterator &	operator-= (const VectorIterator & x)	{ _ptr -= x._ptr; return (*this); }
+		// Comparison
+		bool				operator== (const VectorIterator & x)	{ return (_ptr == x._ptr); }
+		bool				operator!= (const VectorIterator & x)	{ return (_ptr != x._ptr); }
+		bool				operator<  (const VectorIterator & x)	{ return (_ptr < x._ptr); }
+		bool				operator>  (const VectorIterator & x)	{ return (_ptr > x._ptr); }
+		bool				operator<= (const VectorIterator & x)	{ return (_ptr <= x._ptr); }
+		bool				operator>= (const VectorIterator & x)	{ return (_ptr >= x._ptr); }
+		// -crementation
+		VectorIterator &	operator++ (void)						{ _ptr++; return (*this); }
+		VectorIterator &	operator-- (void)						{ _ptr--; return (*this); }
+		VectorIterator		operator++ (int)						{ VectorIterator x(*this); _ptr++; return (x); }
+		VectorIterator		operator-- (int)						{ VectorIterator x(*this); _ptr--; return (x); }
+		// Operation
+		VectorIterator		operator+  (int n)						{ return (_ptr + n); }
+		VectorIterator		operator-  (int n)						{ return (_ptr - n); }
+		int					operator-  (const VectorIterator & x)	{ return (_ptr - x._ptr); }
+		// Indirection
+		T &					operator*  (void)						{ return (*_ptr); }
 
 	private:
 		typename Alloc::pointer	_ptr;
@@ -66,29 +85,26 @@ public:
 		_allocated = _occupied / _factor * _factor + _factor;
 		_vct = new T[_allocated];
 
-		std::cerr << "FILL CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
-
 		for (int i = 0 ; i < _occupied ; i++)
 			_vct[i] = val;
+
+		std::cerr << "FILL CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 	}
 
 	template <class InputIterator>
 	Vector (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(), typename std::enable_if<!std::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		InputIterator	copy = first;
-		unsigned int	size = 0;
+		if (last - first < 0)
+			throw std::bad_alloc();
 
-		while (copy++ < last)
-			size++;
-
-		_occupied = size;
+		_occupied = last - first;
 		_allocated = _occupied / _factor * _factor + _factor;
 		_vct = new T[_allocated];
 
-		std::cerr << "RANGE CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
-
 		for (int i = 0 ; first != last ; i++)
 			_vct[i] = *first++;
+
+		std::cerr << "RANGE CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 	}
 
 	Vector (const Vector & x)
@@ -97,10 +113,10 @@ public:
 		_allocated = x._allocated;
 		_vct = new T[_allocated];
 
-		std::cerr << "COPY CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
-
 		for (int i = 0 ; i < _occupied ; i++)
 			_vct[i] = x[i];
+
+		std::cerr << "COPY CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 	}
 
 	//////////////////////////////
@@ -126,31 +142,31 @@ public:
 		_allocated = x._allocated;
 		_vct = new T[_allocated];
 
-		std::cout << "Allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
-
 		for (int i = 0 ; i < _occupied ; i++)
 			_vct[i] = x[i];
+
+		std::cerr << "Allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 	}
 
 	//////////////////////////////
 	// Iterators
 	//////////////////////////////
 
-	// iterator begin()
-	// {
-	// 	return (_vct);
-	// }
-	//
+	iterator begin()
+	{
+		return (VectorIterator(_vct));
+	}
+
 	// const_iterator begin() const
 	// {
 	// 	return (_vct);
 	// }
-	//
-	// iterator end()
-	// {
-	// 	return (_vct + _occupied);
-	// }
-	//
+
+	iterator end()
+	{
+		return (VectorIterator(_vct + _occupied));
+	}
+
 	// const_iterator end() const
 	// {
 	// 	return (_vct + _occupied);
