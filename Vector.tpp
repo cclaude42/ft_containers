@@ -13,12 +13,21 @@ public:
 	// Iterator subclass
 	//////////////////////////////
 
-	class MyIterator {
-	public:
+	class VectorIterator {
+	private:
+		VectorIterator (void) { /* Wait, that's illegal */ }
 
+	public:
+		VectorIterator (typename Alloc::pointer ptr) { _ptr = ptr; }
+		VectorIterator (const VectorIterator & x) { _ptr = x._ptr; }
+		~VectorIterator (void) {}
+		VectorIterator & operator= (const VectorIterator & x) { _ptr = x._ptr; return (*this); }
+		VectorIterator & operator== (const VectorIterator & x) { _ptr == x._ptr; return (*this); }
+		VectorIterator & operator!= (const VectorIterator & x) { _ptr != x._ptr; return (*this); }
+		T & operator* (void) { return (*_ptr); }
 
 	private:
-		typename allocator_type::pointer	_ptr;
+		typename Alloc::pointer	_ptr;
 	};
 
 	//////////////////////////////
@@ -31,10 +40,10 @@ public:
 	typedef		typename allocator_type::const_reference	const_reference;
 	typedef		typename allocator_type::pointer			pointer;
 	typedef		typename allocator_type::const_pointer		const_pointer;
-	typedef		MyIterator									iterator;
-	typedef		int											const_iterator;
-	typedef		int											reverse_iterator;
-	typedef		int											const_reverse_iterator;
+	typedef		VectorIterator								iterator;
+	// typedef		int											const_iterator;
+	// typedef		int											reverse_iterator;
+	// typedef		int											const_reverse_iterator;
 	typedef		ptrdiff_t									difference_type;
 	typedef		size_t										size_type;
 
@@ -48,7 +57,7 @@ public:
 		_occupied = 0;
 		_allocated = 0;
 
-		std::cout << "Allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
+		std::cerr << "DEFAULT CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 	}
 
 	explicit Vector (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
@@ -57,26 +66,26 @@ public:
 		_allocated = _occupied / _factor * _factor + _factor;
 		_vct = new T[_allocated];
 
-		std::cout << "Allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
+		std::cerr << "FILL CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 
 		for (int i = 0 ; i < _occupied ; i++)
 			_vct[i] = val;
 	}
 
 	template <class InputIterator>
-	Vector (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type())
+	Vector (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(), typename std::enable_if<!std::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		InputIterator	copy = first;
-		unsigned int	size;
+		unsigned int	size = 0;
 
-		while (copy++ != last)
+		while (copy++ < last)
 			size++;
 
 		_occupied = size;
 		_allocated = _occupied / _factor * _factor + _factor;
 		_vct = new T[_allocated];
 
-		std::cout << "Allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
+		std::cerr << "RANGE CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 
 		for (int i = 0 ; first != last ; i++)
 			_vct[i] = *first++;
@@ -88,7 +97,7 @@ public:
 		_allocated = x._allocated;
 		_vct = new T[_allocated];
 
-		std::cout << "Allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
+		std::cerr << "COPY CONSTRUCTOR : allocating " << _allocated << " blocks for " << _occupied << " elements." << std::endl;
 
 		for (int i = 0 ; i < _occupied ; i++)
 			_vct[i] = x[i];
@@ -127,49 +136,49 @@ public:
 	// Iterators
 	//////////////////////////////
 
-	iterator begin()
-	{
-		return (_vct);
-	}
-
-	const_iterator begin() const
-	{
-		return (_vct);
-	}
-
-	iterator end()
-	{
-		return (_vct + _occupied);
-	}
-
-	const_iterator end() const
-	{
-		return (_vct + _occupied);
-	}
+	// iterator begin()
+	// {
+	// 	return (_vct);
+	// }
+	//
+	// const_iterator begin() const
+	// {
+	// 	return (_vct);
+	// }
+	//
+	// iterator end()
+	// {
+	// 	return (_vct + _occupied);
+	// }
+	//
+	// const_iterator end() const
+	// {
+	// 	return (_vct + _occupied);
+	// }
 
 	//////////////////////////////
 	// Reverse iterators
 	//////////////////////////////
 
-	reverse_iterator rbegin()
-	{
-		return (_vct + _occupied - 1);
-	}
-
-	const_reverse_iterator rbegin() const
-	{
-		return (_vct + _occupied - 1);
-	}
-
-	reverse_iterator rend()
-	{
-		return (_vct - 1);
-	}
-
-	const_reverse_iterator rend() const
-	{
-		return (_vct - 1);
-	}
+	// reverse_iterator rbegin()
+	// {
+	// 	return (_vct + _occupied - 1);
+	// }
+	//
+	// const_reverse_iterator rbegin() const
+	// {
+	// 	return (_vct + _occupied - 1);
+	// }
+	//
+	// reverse_iterator rend()
+	// {
+	// 	return (_vct - 1);
+	// }
+	//
+	// const_reverse_iterator rend() const
+	// {
+	// 	return (_vct - 1);
+	// }
 
 private:
 	unsigned int	_factor = 10;
