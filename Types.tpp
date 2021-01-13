@@ -24,6 +24,19 @@ namespace ft
 
 	template <class T>
 	struct is_same<T, T> { static const bool value = true; };
+
+	//////////////////////////////
+	// Conditional
+	//////////////////////////////
+
+	template <bool B, class T = void, class U = void>
+	struct conditional {};
+
+	template <class T, class U>
+	struct conditional<true, T, U> { typedef T type; };
+
+	template <class T, class U>
+	struct conditional<false, T, U> { typedef U type; };
 }
 
 #endif

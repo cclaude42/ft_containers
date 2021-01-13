@@ -14,7 +14,7 @@ namespace ft
 		// Iterator subclass
 		//////////////////////////////
 
-		template <bool IsConst = false>
+		// template <bool IsConst = false>
 		class VectorIterator {
 		public:
 			// typedef		typename std::conditional<IsConst, typename Alloc::const_pointer, typename Alloc::pointer>::type		RealPointer;
@@ -45,8 +45,9 @@ namespace ft
 			VectorIterator		operator+  (int n) const						{ return (_ptr + n); }
 			VectorIterator		operator-  (int n) const						{ return (_ptr - n); }
 			int					operator-  (const VectorIterator & x) const		{ return (_ptr - x._ptr); }
-			// Indirection
-			T &					operator*  (void) const							{ return (*_ptr); }
+			// Dereference
+			T &					operator*  (void)								{ return (*_ptr); }
+			const T &			operator*  (void) const							{ return (*_ptr); }
 
 		// private:
 			typename Alloc::pointer	_ptr;
@@ -62,8 +63,10 @@ namespace ft
 		typedef		typename allocator_type::const_reference	const_reference;
 		typedef		typename allocator_type::pointer			pointer;
 		typedef		typename allocator_type::const_pointer		const_pointer;
-		typedef		VectorIterator<false>						iterator;
-		typedef		VectorIterator<true>						const_iterator;
+		typedef		VectorIterator					iterator;
+		typedef		VectorIterator					const_iterator;
+		// typedef		VectorIterator<false>						iterator;
+		// typedef		VectorIterator<true>						const_iterator;
 		// typedef		int											reverse_iterator;
 		// typedef		int											const_reverse_iterator;
 		typedef		std::ptrdiff_t									difference_type;
@@ -158,20 +161,20 @@ namespace ft
 		// Iterators
 		//////////////////////////////
 
-		// iterator begin()
-		// {
-		// 	return (iterator(_vct));
-		// }
+		iterator begin()
+		{
+			return (iterator(_vct));
+		}
 
 		const_iterator begin() const
 		{
 			return (const_iterator(_vct));
 		}
 
-		// iterator end()
-		// {
-		// 	return (iterator(_vct + _occupied));
-		// }
+		iterator end()
+		{
+			return (iterator(_vct + _occupied));
+		}
 
 		const_iterator end() const
 		{

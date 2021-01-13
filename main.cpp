@@ -4,17 +4,17 @@
 
 // CHOOSE YOUR VECTOR :
 // typedef		std::vector<int>		TheVector;
-typedef		ft::Vector<int>				TheVector;
+typedef		ft::Vector<int>			TheVector;
 
 // CHOOSE YOUR ITERATOR :
 // typedef		TheVector::iterator				TheIterator;
-typedef		TheVector::const_iterator			TheIterator;
+typedef		TheVector::const_iterator		TheIterator;
 
 
 int		main(void)
 {
 	std::vector<int>			real(4, 100);
-	TheVector					vct(real.begin(), real.end());
+	const TheVector					vct(real.begin(), real.end());
 
 	int	idx = 0;
 	for ( TheIterator it = vct.begin() ; it != vct.end() ; it++ )
