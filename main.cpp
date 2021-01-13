@@ -14,15 +14,16 @@ typedef		TheVector::const_iterator		TheIterator;
 int		main(void)
 {
 	std::vector<int>			real(4, 100);
-	const TheVector					vct(real.begin(), real.end());
+	TheVector					vct(real.begin(), real.end());
 
 	int	idx = 0;
 	for ( TheIterator it = vct.begin() ; it != vct.end() ; it++ )
 		std::cout << "Vector[" << idx++ << "] : " << *it << std::endl;
 
-	for ( TheIterator it2 = vct.begin() ; it2 != vct.end() ; it2++ )
-		*it2 = 45;
+	// for ( TheIterator it2 = vct.begin() ; it2 != vct.end() ; it2++ )
+		// *it2 = 45;
 
+	idx = 0;
 	for ( TheIterator it3 = vct.begin() ; it3 != vct.end() ; it3++ )
 		std::cout << "Vector[" << idx++ << "] : " << *it3 << std::endl;
 
