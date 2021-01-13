@@ -4,7 +4,7 @@
 
 // CHOOSE YOUR VECTOR :
 // typedef		std::vector<int>		TheVector;
-typedef		Vector<int>				TheVector;
+typedef		ft::Vector<int>				TheVector;
 
 // CHOOSE YOUR ITERATOR :
 // typedef		TheVector::iterator				TheIterator;
