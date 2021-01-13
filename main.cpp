@@ -7,8 +7,8 @@
 typedef		ft::Vector<int>			TheVector;
 
 // CHOOSE YOUR ITERATOR :
-// typedef		TheVector::iterator				TheIterator;
-typedef		TheVector::const_iterator		TheIterator;
+typedef		TheVector::iterator				TheIterator;
+// typedef		TheVector::const_iterator		TheIterator;
 
 
 int		main(void)
@@ -20,8 +20,8 @@ int		main(void)
 	for ( TheIterator it = vct.begin() ; it != vct.end() ; it++ )
 		std::cout << "Vector[" << idx++ << "] : " << *it << std::endl;
 
-	// for ( TheIterator it2 = vct.begin() ; it2 != vct.end() ; it2++ )
-		// *it2 = 45;
+	for ( TheIterator it2 = vct.begin() ; it2 != vct.end() ; it2++ )
+		*it2 = 45;
 
 	idx = 0;
 	for ( TheIterator it3 = vct.begin() ; it3 != vct.end() ; it3++ )
