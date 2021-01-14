@@ -15,18 +15,20 @@ public:
 	// Iterator subclass
 	//////////////////////////////
 
-	template <bool IsConst>
+	template <bool IsConst, bool IsReverse>
 	class VectorIterator {
 	public:
 		// TO BE, OR NOT TO BE CONST ?
 		// Friends
-		friend class VectorIterator<false>;
-		friend class VectorIterator<true>;
+		friend class VectorIterator<false, false>;
+		friend class VectorIterator<true, false>;
+		friend class VectorIterator<false, true>;
+		friend class VectorIterator<true, true>;
 		// Value types
 		typedef typename ft::conditional<IsConst, const T, T>::type		ValueType;
 		typedef typename ft::conditional<IsConst, typename Alloc::const_pointer, typename Alloc::pointer>::type		PointerType;
 		// Cast
-		template <bool U> VectorIterator (const VectorIterator<U> & x, typename ft::enable_if<!U>::type* = 0)	{ _ptr = x._ptr; }
+		template <bool U, bool V> VectorIterator (const VectorIterator<U, V> & x, typename ft::enable_if<!U>::type* = 0)	{ _ptr = x._ptr; }
 
 		// MEMBER FUNCTIONS
 		// -structors
@@ -50,7 +52,7 @@ public:
 		// -crementation
 		VectorIterator &	operator++ (void)								{ _ptr++; return (*this); }
 		VectorIterator &	operator-- (void)								{ _ptr--; return (*this); }
-		VectorIterator		operator++ (int)								{ VectorIterator x(*this); _ptr++; return (x); }
+		VectorIterator		operator++ (int)								{ VectorIterator x(*this); IsReverse ? _ptr-- : _ptr++; return (x); }
 		VectorIterator		operator-- (int)								{ VectorIterator x(*this); _ptr--; return (x); }
 		// Operation
 		VectorIterator		operator+  (int n) const						{ return (_ptr + n); }
@@ -67,16 +69,16 @@ public:
 	// Member types
 	//////////////////////////////
 
-	typedef		T											value_type;
-	typedef		Alloc										allocator_type;
-	typedef		typename allocator_type::reference			reference;
-	typedef		typename allocator_type::const_reference	const_reference;
-	typedef		typename allocator_type::pointer			pointer;
-	typedef		typename allocator_type::const_pointer		const_pointer;
-	typedef		VectorIterator<false>						iterator;
-	typedef		VectorIterator<true>						const_iterator;
-	// typedef		int											reverse_iterator;
-	// typedef		int											const_reverse_iterator;
+	typedef		T												value_type;
+	typedef		Alloc											allocator_type;
+	typedef		typename allocator_type::reference				reference;
+	typedef		typename allocator_type::const_reference		const_reference;
+	typedef		typename allocator_type::pointer				pointer;
+	typedef		typename allocator_type::const_pointer			const_pointer;
+	typedef		VectorIterator<false, false>						iterator;
+	typedef		VectorIterator<true, false>						const_iterator;
+	typedef		VectorIterator<false, true>						reverse_iterator;
+	typedef		VectorIterator<true, true>						const_reverse_iterator;
 	typedef		std::ptrdiff_t									difference_type;
 	typedef		std::size_t										size_type;
 
@@ -183,25 +185,25 @@ public:
 	// Reverse iterators
 	//////////////////////////////
 
-	// reverse_iterator rbegin()
-	// {
-	// 	return (_vct + _occupied - 1);
-	// }
-	//
-	// const_reverse_iterator rbegin() const
-	// {
-	// 	return (_vct + _occupied - 1);
-	// }
-	//
-	// reverse_iterator rend()
-	// {
-	// 	return (_vct - 1);
-	// }
-	//
-	// const_reverse_iterator rend() const
-	// {
-	// 	return (_vct - 1);
-	// }
+	reverse_iterator rbegin()
+	{
+		return (reverse_iterator(_vct + _occupied - 1));
+	}
+
+	const_reverse_iterator rbegin() const
+	{
+		return (const_reverse_iterator(_vct + _occupied - 1));
+	}
+
+	reverse_iterator rend()
+	{
+		return (reverse_iterator(_vct - 1));
+	}
+
+	const_reverse_iterator rend() const
+	{
+		return (const_reverse_iterator(_vct - 1));
+	}
 
 private:
 	const static unsigned int	_factor = 10;
