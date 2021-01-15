@@ -15,54 +15,56 @@ public:
 	// Iterator subclass
 	//////////////////////////////
 
-	template <bool IsConst, bool IsReverse>
+	template <bool IsConst, bool IsRev>
 	class VectorIterator {
 	public:
-		// TO BE, OR NOT TO BE CONST ?
-		// Friends
-		friend class VectorIterator<false, false>;
-		friend class VectorIterator<true, false>;
-		friend class VectorIterator<false, true>;
-		friend class VectorIterator<true, true>;
-		// Value types
-		typedef typename ft::conditional<IsConst, const T, T>::type		ValueType;
-		typedef typename ft::conditional<IsConst, typename Alloc::const_pointer, typename Alloc::pointer>::type		PointerType;
-		// Cast
-		template <bool U, bool V> VectorIterator (const VectorIterator<U, V> & x, typename ft::enable_if<!U>::type* = 0)	{ _ptr = x._ptr; }
+		// Friend other instances
+		template <bool U, bool V>
+		friend class VectorIterator;
+		// Member types
+		typedef typename ft::conditional<IsConst, const T, T>::type			ValueType;
+		typedef typename ft::conditional<IsConst,
+		typename Alloc::const_pointer, typename Alloc::pointer>::type		PointerType;
+		typedef typename ft::conditional<IsConst,
+		typename Alloc::const_reference, typename Alloc::reference>::type	ReferenceType;
 
-		// MEMBER FUNCTIONS
 		// -structors
 		VectorIterator		(void)											{ _ptr = NULL; }
 		VectorIterator		(const PointerType ptr)							{ _ptr = ptr; }
 		VectorIterator		(const VectorIterator & x)						{ _ptr = x._ptr; }
 		~VectorIterator		(void)											{}
+		// Cast non-const => const
+		template <bool U, bool V>
+		VectorIterator		(const VectorIterator<U, V> & x,
+							typename ft::enable_if<!U>::type* = 0,
+							typename ft::enable_if<IsRev == V>::type* = 0)	{ _ptr = x._ptr; }
+
 		// Assignment
 		VectorIterator &	operator=  (const VectorIterator & x)			{ _ptr = x._ptr; return (*this); }
-		VectorIterator &	operator+= (int n)								{ _ptr += n; return (*this); }
-		VectorIterator &	operator-= (int n)								{ _ptr -= n; return (*this); }
-		VectorIterator &	operator+= (const VectorIterator & x)			{ _ptr += x._ptr; return (*this); }
-		VectorIterator &	operator-= (const VectorIterator & x)			{ _ptr -= x._ptr; return (*this); }
+		VectorIterator &	operator+= (int n)								{ _ptr = IsRev ? _ptr - n : _ptr + n; return (*this); }
+		VectorIterator &	operator-= (int n)								{ _ptr = IsRev ? _ptr + n : _ptr - n; return (*this); }
+		VectorIterator &	operator-= (const VectorIterator & x)			{ _ptr = IsRev ? x._ptr - _ptr : _ptr - x._ptr; return (*this); }
 		// Comparison
 		bool				operator== (const VectorIterator & x) const		{ return (_ptr == x._ptr); }
 		bool				operator!= (const VectorIterator & x) const		{ return (_ptr != x._ptr); }
-		bool				operator<  (const VectorIterator & x) const		{ return (_ptr < x._ptr); }
-		bool				operator>  (const VectorIterator & x) const		{ return (_ptr > x._ptr); }
-		bool				operator<= (const VectorIterator & x) const		{ return (_ptr <= x._ptr); }
-		bool				operator>= (const VectorIterator & x) const		{ return (_ptr >= x._ptr); }
+		bool				operator<  (const VectorIterator & x) const		{ return (IsRev ? _ptr > x._ptr : _ptr < x._ptr); }
+		bool				operator>  (const VectorIterator & x) const		{ return (IsRev ? _ptr < x._ptr : _ptr > x._ptr); }
+		bool				operator<= (const VectorIterator & x) const		{ return (IsRev ? _ptr >= x._ptr : _ptr <= x._ptr); }
+		bool				operator>= (const VectorIterator & x) const		{ return (IsRev ? _ptr <= x._ptr : _ptr >= x._ptr); }
 		// -crementation
-		VectorIterator &	operator++ (void)								{ _ptr++; return (*this); }
-		VectorIterator &	operator-- (void)								{ _ptr--; return (*this); }
-		VectorIterator		operator++ (int)								{ VectorIterator x(*this); IsReverse ? _ptr-- : _ptr++; return (x); }
-		VectorIterator		operator-- (int)								{ VectorIterator x(*this); _ptr--; return (x); }
+		VectorIterator &	operator++ (void)								{ IsRev ? _ptr-- : _ptr++; return (*this); }
+		VectorIterator &	operator-- (void)								{ IsRev ? _ptr++ : _ptr--; return (*this); }
+		VectorIterator		operator++ (int)								{ VectorIterator x(*this); IsRev ? _ptr-- : _ptr++; return (x); }
+		VectorIterator		operator-- (int)								{ VectorIterator x(*this); IsRev ? _ptr++ : _ptr--; return (x); }
 		// Operation
-		VectorIterator		operator+  (int n) const						{ return (_ptr + n); }
-		VectorIterator		operator-  (int n) const						{ return (_ptr - n); }
-		int					operator-  (const VectorIterator & x) const		{ return (_ptr - x._ptr); }
+		VectorIterator		operator+  (int n) const						{ return (IsRev ? _ptr - n : _ptr + n); }
+		VectorIterator		operator-  (int n) const						{ return (IsRev ? _ptr + n : _ptr - n); }
+		std::ptrdiff_t		operator-  (const VectorIterator & x) const		{ return (IsRev ? x._ptr - _ptr : _ptr - x._ptr); }
 		// Dereference
-		ValueType &			operator*  (void)								{ return (*_ptr); }
+		ReferenceType		operator*  (void)								{ return (*_ptr); }
 
 	private:
-		PointerType	_ptr;
+		PointerType		_ptr;
 	};
 
 	//////////////////////////////
@@ -75,7 +77,7 @@ public:
 	typedef		typename allocator_type::const_reference		const_reference;
 	typedef		typename allocator_type::pointer				pointer;
 	typedef		typename allocator_type::const_pointer			const_pointer;
-	typedef		VectorIterator<false, false>						iterator;
+	typedef		VectorIterator<false, false>					iterator;
 	typedef		VectorIterator<true, false>						const_iterator;
 	typedef		VectorIterator<false, true>						reverse_iterator;
 	typedef		VectorIterator<true, true>						const_reverse_iterator;
@@ -106,7 +108,8 @@ public:
 	}
 
 	template <class InputIterator>
-	Vector (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(), typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
+	Vector (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(),
+			typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		(void)alloc;
 		if (last - first < 0)
@@ -209,7 +212,7 @@ private:
 	const static unsigned int	_factor = 10;
 	unsigned int				_occupied;
 	unsigned int				_allocated;
-	T							*_vct;
+	T *							_vct;
 };
 
 } // Namespace ft
