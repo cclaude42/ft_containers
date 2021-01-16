@@ -93,15 +93,15 @@ public:
 	{
 		(void)alloc;
 		_vct = NULL;
-		_occupied = 0;
-		_allocated = 0;
+		_size = 0;
+		_capacity = 0;
 	}
 
 	explicit Vector (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
 	{
 		(void)alloc;
-		_occupied = n;
-		_allocated = n;
+		_size = n;
+		_capacity = n;
 		_vct = new T[n];
 
 		for (size_type i = 0 ; i < n ; i++)
@@ -118,9 +118,12 @@ public:
 
 		size_type		n = last - first;
 
-		_occupied = n;
-		_allocated = n;
-		_vct = new T[n];
+		_size = n;
+		_capacity = n;
+		if (n > 0)
+			_vct = new T[n];
+		else
+			_vct = NULL;
 
 		for (size_type i = 0 ; i < n ; i++)
 			_vct[i] = *first++;
@@ -128,11 +131,11 @@ public:
 
 	Vector (const Vector & x)
 	{
-		_occupied = x._occupied;
-		_allocated = x._allocated;
-		_vct = new T[_allocated];
+		_size = x._size;
+		_capacity = x._capacity;
+		_vct = new T[_capacity];
 
-		for (size_type i = 0 ; i < _occupied ; i++)
+		for (size_type i = 0 ; i < _size ; i++)
 			_vct[i] = x[i];
 	}
 
@@ -155,11 +158,11 @@ public:
 		if (_vct != NULL)
 			delete [] _vct;
 
-		_occupied = x._occupied;
-		_allocated = x._allocated;
-		_vct = new T[_allocated];
+		_size = x._size;
+		_capacity = x._capacity;
+		_vct = new T[_capacity];
 
-		for (size_type i = 0 ; i < _occupied ; i++)
+		for (size_type i = 0 ; i < _size ; i++)
 			_vct[i] = x[i];
 	}
 
@@ -167,46 +170,46 @@ public:
 	// Iterators
 	//////////////////////////////
 
-	iterator begin()
+	iterator begin (void)
 	{
 		return (iterator(_vct));
 	}
 
-	const_iterator begin() const
+	const_iterator begin (void) const
 	{
 		return (const_iterator(_vct));
 	}
 
-	iterator end()
+	iterator end (void)
 	{
-		return (iterator(_vct + _occupied));
+		return (iterator(_vct + _size));
 	}
 
-	const_iterator end() const
+	const_iterator end (void) const
 	{
-		return (const_iterator(_vct + _occupied));
+		return (const_iterator(_vct + _size));
 	}
 
 	//////////////////////////////
 	// Reverse iterators
 	//////////////////////////////
 
-	reverse_iterator rbegin()
+	reverse_iterator rbegin (void)
 	{
-		return (reverse_iterator(_vct + _occupied - 1));
+		return (reverse_iterator(_vct + _size - 1));
 	}
 
-	const_reverse_iterator rbegin() const
+	const_reverse_iterator rbegin (void) const
 	{
-		return (const_reverse_iterator(_vct + _occupied - 1));
+		return (const_reverse_iterator(_vct + _size - 1));
 	}
 
-	reverse_iterator rend()
+	reverse_iterator rend (void)
 	{
 		return (reverse_iterator(_vct - 1));
 	}
 
-	const_reverse_iterator rend() const
+	const_reverse_iterator rend (void) const
 	{
 		return (const_reverse_iterator(_vct - 1));
 	}
@@ -215,12 +218,12 @@ public:
 	// Capacity
 	//////////////////////////////
 
-	size_type size(void) const
+	size_type size (void) const
 	{
-		return (_occupied);
+		return (_size);
 	}
 
-	size_type max_size() const
+	size_type max_size (void) const
 	{
 		return (_max_size);
 	}
@@ -229,51 +232,103 @@ public:
 	{
 		size_type	i;
 
-		if (n > _allocated)
+		if (n > _capacity)
 		{
-			if (n > _allocated * 2)
-				_allocated = n;
+			if (n > _capacity * 2)
+				_capacity = n;
 			else
-				_allocated = _allocated * 2;
+				_capacity = _capacity * 2;
 
-			T *		new_vct = new T[_allocated];
+			T *		new_vct = new T[_capacity];
 
-			for ( i = 0 ; i < _occupied ; i++ )
+			for ( i = 0 ; i < _size ; i++ )
 				new_vct[i] = _vct[i];
-			while (i < _allocated)
+			while (i < _capacity)
 				new_vct[i++] = val;
 
 			if (_vct)
 				delete [] _vct;
 
-			_occupied = n;
+			_size = n;
 			_vct = new_vct;
 		}
-		else if (n > _occupied)
+		else if (n > _size)
 		{
-			for ( i = _occupied ; i < n ; i++ )
+			for ( i = _size ; i < n ; i++ )
 				_vct[i] = val;
 
-			_occupied = n;
+			_size = n;
 		}
 		else
-			_occupied = n;
+			_size = n;
 	}
 
-	size_type capacity() const
+	size_type capacity (void) const
 	{
-		return (_allocated);
+		return (_capacity);
 	}
 
-	bool empty(void) const
+	bool empty (void) const
 	{
-		return (_occupied == 0);
+		return (_size == 0);
 	}
+
+	//////////////////////////////
+	// Member access
+	//////////////////////////////
+
+	reference operator[] (size_type n)
+	{
+		return (_vct[n]);
+	}
+
+	const_reference operator[] (size_type n) const
+	{
+		return (_vct[n]);
+	}
+
+	reference at (size_type n)
+	{
+		if (n >= _size)
+			throw std::out_of_range("Index n >= vector size (out of bounds)");
+		return (_vct[n]);
+	}
+
+	const_reference at (size_type n) const
+	{
+		if (n >= _size)
+			throw std::out_of_range("Index n >= vector size (out of bounds)");
+		return (_vct[n]);
+	}
+
+	reference front (void)
+	{
+		return (_vct[0]);
+	}
+
+	const_reference front (void) const
+	{
+		return (_vct[0]);
+	}
+
+	reference back (void)
+	{
+		return (_vct[_size - 1]);
+	}
+
+	const_reference back (void) const
+	{
+		return (_vct[_size - 1]);
+	}
+
+	//////////////////////////////
+	// Modifiers
+	//////////////////////////////
 
 private:
 	const static size_type		_max_size = SIZE_MAX / 4;
-	size_type					_occupied;
-	size_type					_allocated;
+	size_type					_size;
+	size_type					_capacity;
 	T *							_vct;
 };
 
