@@ -20,9 +20,17 @@ typedef		TheVector::iterator					TheIterator;
 // typedef		TheVector::reverse_iterator			TheIterator;
 // typedef		TheVector::const_reverse_iterator	TheIterator;
 
+void	resize_print(TheVector & vct, unsigned int n)
+{
+	(void)n;
+	vct.resize(427387902);
+
+	std::cout << vct.size() << " " << vct.capacity() << " " << vct.max_size() << "\n";
+}
+
 int		main(void)
 {
-	std::vector<int>			real(7, 1);
+	std::vector<int>			real(1, 1);
 
 	int							idx = 1;
 	for (std::vector<int>::iterator it = real.begin() ; it != real.end() ; it++ )
@@ -42,16 +50,7 @@ int		main(void)
 		std::cout << "Vector[" << idx++ << "] : " << *(it--) << std::endl;
 	std::cout << std::endl;
 
-	ft::Vector<int>::const_iterator	it2 = it;
-
-	idx = 0;
-	it = BEGIN;
-	while (it < END)
-	{
-		std::cout << "Vector[" << idx << "] : " << *it << std::endl;
-		idx++;
-		it++;
-	}
+	resize_print(vct, 0);
 
 	return (0);
 }

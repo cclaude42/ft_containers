@@ -2,6 +2,7 @@
 # define VECTOR_TPP
 
 # include <iostream>
+# include <stdint.h>
 # include "Types.tpp"
 
 namespace ft
@@ -100,10 +101,10 @@ public:
 	{
 		(void)alloc;
 		_occupied = n;
-		_allocated = _occupied / _factor * _factor + _factor;
-		_vct = new T[_allocated];
+		_allocated = n;
+		_vct = new T[n];
 
-		for (int i = 0 ; i < _occupied ; i++)
+		for (size_type i = 0 ; i < n ; i++)
 			_vct[i] = val;
 	}
 
@@ -115,11 +116,13 @@ public:
 		if (last - first < 0)
 			throw std::bad_alloc();
 
-		_occupied = last - first;
-		_allocated = _occupied / _factor * _factor + _factor;
-		_vct = new T[_allocated];
+		size_type		n = last - first;
 
-		for (int i = 0 ; first != last ; i++)
+		_occupied = n;
+		_allocated = n;
+		_vct = new T[n];
+
+		for (size_type i = 0 ; i < n ; i++)
 			_vct[i] = *first++;
 	}
 
@@ -129,7 +132,7 @@ public:
 		_allocated = x._allocated;
 		_vct = new T[_allocated];
 
-		for (int i = 0 ; i < _occupied ; i++)
+		for (size_type i = 0 ; i < _occupied ; i++)
 			_vct[i] = x[i];
 	}
 
@@ -156,7 +159,7 @@ public:
 		_allocated = x._allocated;
 		_vct = new T[_allocated];
 
-		for (int i = 0 ; i < _occupied ; i++)
+		for (size_type i = 0 ; i < _occupied ; i++)
 			_vct[i] = x[i];
 	}
 
@@ -208,10 +211,69 @@ public:
 		return (const_reverse_iterator(_vct - 1));
 	}
 
+	//////////////////////////////
+	// Capacity
+	//////////////////////////////
+
+	size_type size(void) const
+	{
+		return (_occupied);
+	}
+
+	size_type max_size() const
+	{
+		return (_max_size);
+	}
+
+	void resize (size_type n, value_type val = value_type())
+	{
+		size_type	i;
+
+		if (n > _allocated)
+		{
+			if (n > _allocated * 2)
+				_allocated = n;
+			else
+				_allocated = _allocated * 2;
+
+			T *		new_vct = new T[_allocated];
+
+			for ( i = 0 ; i < _occupied ; i++ )
+				new_vct[i] = _vct[i];
+			while (i < _allocated)
+				new_vct[i++] = val;
+
+			if (_vct)
+				delete [] _vct;
+
+			_occupied = n;
+			_vct = new_vct;
+		}
+		else if (n > _occupied)
+		{
+			for ( i = _occupied ; i < n ; i++ )
+				_vct[i] = val;
+
+			_occupied = n;
+		}
+		else
+			_occupied = n;
+	}
+
+	size_type capacity() const
+	{
+		return (_allocated);
+	}
+
+	bool empty(void) const
+	{
+		return (_occupied == 0);
+	}
+
 private:
-	const static unsigned int	_factor = 10;
-	unsigned int				_occupied;
-	unsigned int				_allocated;
+	const static size_type		_max_size = SIZE_MAX / 4;
+	size_type					_occupied;
+	size_type					_allocated;
 	T *							_vct;
 };
 
