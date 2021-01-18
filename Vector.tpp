@@ -102,7 +102,10 @@ public:
 		(void)alloc;
 		_size = n;
 		_capacity = n;
-		_vct = new T[n];
+		if (n)
+			_vct = new T[n];
+		else
+			_vct = NULL;
 
 		for (size_type i = 0 ; i < n ; i++)
 			_vct[i] = val;
@@ -273,6 +276,26 @@ public:
 		return (_size == 0);
 	}
 
+	void reserve (size_type n)
+	{
+		if (n > _max_size)
+			throw std::length_error("Vector::reserve : Size n > _max_size");
+
+		if (n > _capacity)
+		{
+			T *		new_vct = new T[n];
+
+			for ( size_type i = 0 ; i < _size ; i++ )
+				new_vct[i] = _vct[i];
+
+			if (_vct)
+				delete [] _vct;
+
+			_capacity = n;
+			_vct = new_vct;
+		}
+	}
+
 	//////////////////////////////
 	// Member access
 	//////////////////////////////
@@ -290,14 +313,14 @@ public:
 	reference at (size_type n)
 	{
 		if (n >= _size)
-			throw std::out_of_range("Index n >= vector size (out of bounds)");
+			throw std::out_of_range("Vector::at : Index n >= _size");
 		return (_vct[n]);
 	}
 
 	const_reference at (size_type n) const
 	{
 		if (n >= _size)
-			throw std::out_of_range("Index n >= vector size (out of bounds)");
+			throw std::out_of_range("Vector::at : Index n >= _size");
 		return (_vct[n]);
 	}
 
@@ -322,7 +345,166 @@ public:
 	}
 
 	//////////////////////////////
-	// Modifiers
+	// Assignment modifiers
+	//////////////////////////////
+
+	template <class InputIterator>
+	void assign (InputIterator first, InputIterator last)
+	{
+		if (last - first < 0)
+			throw std::bad_alloc();
+
+		size_type		n = last - first;
+
+		_size = n;
+		if (n > _capacity)
+		{
+			_capacity = n;
+			if (_vct)
+				delete [] _vct;
+
+			if (n > 0)
+				_vct = new T[n];
+			else
+				_vct = NULL;
+		}
+
+		for (size_type i = 0 ; i < n ; i++)
+			_vct[i] = *first++;
+	}
+
+	void assign (size_type n, const value_type & val)
+	{
+		_size = n;
+		if (n > _capacity)
+			this->reserve(n);
+
+		for (size_type i = 0 ; i < n ; i++)
+			_vct[i] = val;
+	}
+
+	//////////////////////////////
+	// Insertion modifiers
+	//////////////////////////////
+
+	iterator insert (iterator position, const value_type & val)
+	{
+		if (_size == _capacity)
+		{
+			if (_capacity)
+				this->reserve(_capacity * 2);
+			else
+				this->reserve(1);
+		}
+
+		for ( size_type i = _size ; i > position - this->begin() ; i-- )
+			_vct[i] = _vct[i - 1];
+
+		_vct[position - this->begin()] = val;
+		_size++;
+	}
+
+	void insert (iterator position, size_type n, const value_type & val)
+	{
+		while (_size + n > _capacity)
+		{
+			if (_capacity)
+				this->reserve(_capacity * 2);
+			else
+				this->reserve(1);
+		}
+
+		for ( size_type i = _size + n - 1 ; i > position - this->begin() + n - 1 ; i-- )
+			_vct[i] = _vct[i - n];
+
+		for ( size_type j = position - this->begin() ; j < n ; j++ )
+			_vct[j] = val;
+		_size = _size + n;
+	}
+
+	template <class InputIterator>
+	void insert (iterator position, InputIterator first, InputIterator last)
+	{
+		size_type		n = last - first;
+
+		while (_size + n > _capacity)
+		{
+			if (_capacity)
+				this->reserve(_capacity * 2);
+			else
+				this->reserve(1);
+		}
+
+		for ( size_type i = _size + n - 1 ; i > position - this->begin() + n - 1 ; i-- )
+			_vct[i] = _vct[i - n];
+
+		for ( size_type j = position - this->begin() ; j < n ; j++ )
+			_vct[j] = *first++;
+		_size = _size + n;
+	}
+
+	//////////////////////////////
+	// Erasure modifiers
+	//////////////////////////////
+
+	iterator erase (iterator position)
+	{
+		for ( size_type i = position - this->begin() ; i < _size - 1 ; i++ )
+			_vct[i] = _vct[i + 1];
+		_size--;
+	}
+
+	iterator erase (iterator first, iterator last)
+	{
+		size_type	n = last - first;
+
+		for ( size_type i = first - this->begin() ; i < _size - n ; i++ )
+			_vct[i] = _vct[i + n];
+		_size = _size - n;
+	}
+
+	//////////////////////////////
+	// Common modifiers
+	//////////////////////////////
+
+	void push_back (const value_type & val)
+	{
+		if (_size == _capacity)
+			this->reserve(_capacity * 2);
+
+		_vct[_size] = val;
+		_size++;
+	}
+
+	void pop_back (void)
+	{
+		_size--;
+	}
+
+	void swap (Vector & x)
+	{
+		Vector	tmp(x);
+
+		x = *this;
+		*this = tmp;
+	}
+
+	void clear (void)
+	{
+		_size = 0;
+	}
+
+	//////////////////////////////
+	// Allocator
+	//////////////////////////////
+
+	allocator_type get_allocator() const
+	{
+		return (allocator_type());
+	}
+
+	//////////////////////////////
+	// Member variables
 	//////////////////////////////
 
 private:
@@ -331,6 +513,12 @@ private:
 	size_type					_capacity;
 	T *							_vct;
 };
+
+	//////////////////////////////
+	// Relational operators
+	//////////////////////////////
+
+	// TBD
 
 } // Namespace ft
 
