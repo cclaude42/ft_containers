@@ -4,6 +4,7 @@
 # include <iostream>
 # include <stdint.h>
 # include "types.hpp"
+# include "os.hpp"
 
 namespace ft
 {
@@ -280,7 +281,12 @@ public:
 	void reserve (size_type n)
 	{
 		if (n > _max_size)
-			throw std::length_error("vector::reserve : Size n > _max_size");
+		{
+			if (OS == MAC)
+				throw std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size");
+			else
+				throw std::length_error("vector");
+		}
 
 		if (n > _capacity)
 		{
@@ -314,14 +320,24 @@ public:
 	reference at (size_type n)
 	{
 		if (n >= _size)
-			throw std::out_of_range("vector");
+		{
+			if (OS == MAC)
+				throw std::out_of_range("vector");
+			else
+				throw std::out_of_range("vector");
+		}
 		return (_vct[n]);
 	}
 
 	const_reference at (size_type n) const
 	{
 		if (n >= _size)
-			throw std::out_of_range("vector");
+		{
+			if (OS == MAC)
+				throw std::out_of_range("vector");
+			else
+				throw std::out_of_range("vector");
+		}
 		return (_vct[n]);
 	}
 
