@@ -3,8 +3,9 @@
 
 # include <iostream>
 # include <stdint.h>
-# include "types.hpp"
-# include "os.hpp"
+# include "includes/types.hpp"
+# include "includes/os.hpp"
+# include "includes/string.hpp"
 
 namespace ft
 {
@@ -285,7 +286,7 @@ public:
 			if (OS == MAC)
 				throw std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size");
 			else
-				throw std::length_error("vector");
+				throw std::length_error("vector::reserve");
 		}
 
 		if (n > _capacity)
@@ -324,7 +325,7 @@ public:
 			if (OS == MAC)
 				throw std::out_of_range("vector");
 			else
-				throw std::out_of_range("vector");
+				throw std::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
 		}
 		return (_vct[n]);
 	}
@@ -336,7 +337,7 @@ public:
 			if (OS == MAC)
 				throw std::out_of_range("vector");
 			else
-				throw std::out_of_range("vector");
+				throw std::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
 		}
 		return (_vct[n]);
 	}
