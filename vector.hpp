@@ -119,10 +119,12 @@ public:
 			typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		(void)alloc;
-		if (last - first < 0)
-			throw std::bad_alloc();
+		// if (last - first < 0)
+		// 	throw std::bad_alloc();
 
-		size_type		n = last - first;
+		size_type		n = 0;
+		for (InputIterator cpy = first ; cpy != last ; cpy++)
+			n++;
 
 		_size = n;
 		_capacity = n;
@@ -247,7 +249,7 @@ public:
 
 			T *		new_vct = new T[_capacity];
 
-			for ( i = 0 ; i < _size ; i++ )
+			for (i = 0 ; i < _size ; i++)
 				new_vct[i] = _vct[i];
 			while (i < _capacity)
 				new_vct[i++] = val;
@@ -260,7 +262,7 @@ public:
 		}
 		else if (n > _size)
 		{
-			for ( i = _size ; i < n ; i++ )
+			for (i = _size ; i < n ; i++)
 				_vct[i] = val;
 
 			_size = n;
@@ -293,7 +295,7 @@ public:
 		{
 			T *		new_vct = new T[n];
 
-			for ( size_type i = 0 ; i < _size && i < n ; i++ )
+			for (size_type i = 0 ; i < _size && i < n ; i++)
 				new_vct[i] = _vct[i];
 
 			if (_vct)
@@ -370,10 +372,12 @@ public:
 	void assign (InputIterator first, InputIterator last,
 				typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		if (last - first < 0)
-			throw std::bad_alloc();
+		// if (last - first < 0)
+		// 	throw std::bad_alloc();
 
-		size_type		n = last - first;
+		size_type		n = 0;
+		for (InputIterator cpy = first ; cpy != last ; cpy++)
+			n++;
 
 		if (n > _capacity)
 			this->reserve(n);
@@ -407,7 +411,7 @@ public:
 				this->reserve(1);
 		}
 
-		for ( size_type i = _size ; i > position - this->begin() ; i-- )
+		for (size_type i = _size ; i > position - this->begin() ; i--)
 			_vct[i] = _vct[i - 1];
 
 		_vct[position - this->begin()] = val;
@@ -424,18 +428,20 @@ public:
 				this->reserve(1);
 		}
 
-		for ( size_type i = _size + n - 1 ; i > position - this->begin() + n - 1 ; i-- )
+		for (size_type i = _size + n - 1 ; i > position - this->begin() + n - 1 ; i--)
 			_vct[i] = _vct[i - n];
 
-		for ( size_type j = position - this->begin() ; j < n ; j++ )
+		for (size_type j = position - this->begin() ; j < n ; j++)
 			_vct[j] = val;
 		_size = _size + n;
 	}
 
 	template <class InputIterator>
-	void insert (InputIterator position, InputIterator first, InputIterator last)
+	void insert (iterator position, InputIterator first, InputIterator last)
 	{
-		size_type		n = last - first;
+		size_type		n = 0;
+		for (InputIterator cpy = first ; cpy != last ; cpy++)
+			n++;
 
 		while (_size + n > _capacity)
 		{
@@ -445,10 +451,10 @@ public:
 				this->reserve(1);
 		}
 
-		for ( size_type i = _size + n - 1 ; i > position - this->begin() + n - 1 ; i-- )
+		for (size_type i = _size + n - 1 ; i > position - this->begin() + n - 1 ; i--)
 			_vct[i] = _vct[i - n];
 
-		for ( size_type j = position - this->begin() ; j < n ; j++ )
+		for (size_type j = position - this->begin() ; j < n ; j++)
 			_vct[j] = *first++;
 		_size = _size + n;
 	}
@@ -459,16 +465,18 @@ public:
 
 	iterator erase (iterator position)
 	{
-		for ( size_type i = position - this->begin() ; i < _size - 1 ; i++ )
+		for (size_type i = position - this->begin() ; i < _size - 1 ; i++)
 			_vct[i] = _vct[i + 1];
 		_size--;
 	}
 
 	iterator erase (iterator first, iterator last)
 	{
-		size_type	n = last - first;
+		size_type		n = 0;
+		for (iterator cpy = first ; cpy != last ; cpy++)
+			n++;
 
-		for ( size_type i = first - this->begin() ; i < _size - n ; i++ )
+		for (size_type i = first - this->begin() ; i < _size - n ; i++)
 			_vct[i] = _vct[i + n];
 		_size = _size - n;
 	}
