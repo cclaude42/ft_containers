@@ -67,7 +67,7 @@ public:
 		ReferenceType		operator*	(void)								{ return (*_ptr); }
 		ReferenceType		operator[]	(size_t n)							{ return (IsRev ? *(_ptr - n) : *(_ptr + n)); }
 
-	private:
+	// private:
 		PointerType		_ptr;
 	};
 
@@ -163,15 +163,20 @@ public:
 
 	vector & operator= (const vector & x)
 	{
-		if (_vct != NULL)
+		if (_vct != NULL && x._size > _capacity)
 			delete [] _vct;
 
-		_size = x._size;
-		_capacity = x._capacity;
-		_vct = new T[_capacity];
+		if (_vct == NULL || x._size > _capacity)
+		{
+			_capacity = x._size;
+			_vct = new T[_capacity];
+		}
 
+		_size = x._size;
 		for (size_type i = 0 ; i < _size ; i++)
 			_vct[i] = x[i];
+
+		return (*this);
 	}
 
 	//////////////////////////////
@@ -372,9 +377,6 @@ public:
 	void assign (InputIterator first, InputIterator last,
 				typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		// if (last - first < 0)
-		// 	throw std::bad_alloc();
-
 		size_type		n = 0;
 		for (InputIterator cpy = first ; cpy != last ; cpy++)
 			n++;
@@ -403,59 +405,71 @@ public:
 
 	iterator insert (iterator position, const value_type & val)
 	{
-		if (_size == _capacity)
+		size_type		off = position - this->begin();
+
+		if (_size + 1 > _capacity)
 		{
-			if (_capacity)
-				this->reserve(_capacity * 2);
+			if (_size > 0)
+				this->reserve(_size * 2);
 			else
 				this->reserve(1);
 		}
 
-		for (size_type i = _size ; i > position - this->begin() ; i--)
+		for (size_type i = _size ; i > off ; i--)
 			_vct[i] = _vct[i - 1];
 
-		_vct[position - this->begin()] = val;
+		_vct[off] = val;
 		_size++;
+
+		return (iterator(_vct + off));
 	}
 
 	void insert (iterator position, size_type n, const value_type & val)
 	{
-		while (_size + n > _capacity)
+		size_type		off = position - this->begin();
+
+		if (_size + n > _capacity)
 		{
-			if (_capacity)
-				this->reserve(_capacity * 2);
+			if (_size + n > _size * 2)
+				this->reserve(_size + n);
+			else if (_size > 0)
+				this->reserve(_size * 2);
 			else
 				this->reserve(1);
 		}
 
-		for (size_type i = _size + n - 1 ; i > position - this->begin() + n - 1 ; i--)
+		for (size_type i = _size - 1 + n ; i >= off + n ; i--)
 			_vct[i] = _vct[i - n];
 
-		for (size_type j = position - this->begin() ; j < n ; j++)
-			_vct[j] = val;
+		for (size_type i = off ; i - off < n ; i++)
+			_vct[i] = val;
 		_size = _size + n;
 	}
 
 	template <class InputIterator>
-	void insert (iterator position, InputIterator first, InputIterator last)
+	void insert (iterator position, InputIterator first, InputIterator last,
+				typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
+		size_type		off = position - this->begin();
 		size_type		n = 0;
 		for (InputIterator cpy = first ; cpy != last ; cpy++)
 			n++;
 
-		while (_size + n > _capacity)
+		if (_size + n > _capacity)
 		{
-			if (_capacity)
-				this->reserve(_capacity * 2);
+			if (_size + n > _size * 2)
+				this->reserve(_size + n);
+			else if (_size > 0)
+				this->reserve(_size * 2);
 			else
 				this->reserve(1);
 		}
 
-		for (size_type i = _size + n - 1 ; i > position - this->begin() + n - 1 ; i--)
+		for (size_type i = _size - 1 + n ; i >= off + n ; i--)
 			_vct[i] = _vct[i - n];
 
-		for (size_type j = position - this->begin() ; j < n ; j++)
-			_vct[j] = *first++;
+		for (size_type i = off ; i - off < n ; i++)
+			_vct[i] = *first++;
 		_size = _size + n;
 	}
 
@@ -465,20 +479,27 @@ public:
 
 	iterator erase (iterator position)
 	{
-		for (size_type i = position - this->begin() ; i < _size - 1 ; i++)
+		size_type		off = position - this->begin();
+
+		for (size_type i = off ; i < _size - 1 ; i++)
 			_vct[i] = _vct[i + 1];
 		_size--;
+
+		return (iterator(_vct + off));
 	}
 
 	iterator erase (iterator first, iterator last)
 	{
+		size_type		off = first - this->begin();
 		size_type		n = 0;
 		for (iterator cpy = first ; cpy != last ; cpy++)
 			n++;
 
-		for (size_type i = first - this->begin() ; i < _size - n ; i++)
+		for (size_type i = off ; i < _size - n ; i++)
 			_vct[i] = _vct[i + n];
 		_size = _size - n;
+
+		return (iterator(_vct + off));
 	}
 
 	//////////////////////////////
@@ -487,8 +508,13 @@ public:
 
 	void push_back (const value_type & val)
 	{
-		if (_size == _capacity)
-			this->reserve(_capacity * 2);
+		if (_size + 1 > _capacity)
+		{
+			if (_size > 0)
+				this->reserve(_size * 2);
+			else
+				this->reserve(1);
+		}
 
 		_vct[_size] = val;
 		_size++;
@@ -526,7 +552,7 @@ public:
 	//////////////////////////////
 
 private:
-	const static size_type		_max_size = SIZE_MAX / 4;
+	const static size_type		_max_size = SIZE_MAX / sizeof(T);
 	size_type					_size;
 	size_type					_capacity;
 	T *							_vct;

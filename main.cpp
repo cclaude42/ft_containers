@@ -5,7 +5,8 @@ int	main(void)
 {
 	ft::vector<int>	vct;
 
-	vct.reserve(SIZE_MAX / 2);
+	std::cerr << vct.max_size() << std::endl;
+	std::cerr << sizeof(int) << std::endl;
 
 	return (0);
 }
