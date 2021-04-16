@@ -3,9 +3,16 @@
 
 # include <iostream>
 # include <stdint.h>
-# include "includes/types.hpp"
 # include "includes/os.hpp"
+# include "includes/iterator.hpp"
+# include "includes/types.hpp"
 # include "includes/string.hpp"
+
+# if __APPLE__
+#  define SIZE_OR_CAP _capacity
+# else
+#  define SIZE_OR_CAP _size
+# endif
 
 namespace ft
 {
@@ -18,57 +25,41 @@ public:
 	// Iterator subclass
 	//////////////////////////////
 
-	template <bool IsConst, bool IsRev>
 	class vectorIterator {
 	public:
-		// Friend other instances
-		template <bool U, bool V>
-		friend class vectorIterator;
-		// Member types
-		typedef typename ft::conditional<IsConst, const T, T>::type			ValueType;
-		typedef typename ft::conditional<IsConst,
-		typename Alloc::const_pointer, typename Alloc::pointer>::type		PointerType;
-		typedef typename ft::conditional<IsConst,
-		typename Alloc::const_reference, typename Alloc::reference>::type	ReferenceType;
-
+		typedef			T											value_type;
 		// -structors
-		vectorIterator		(void)											{ _ptr = NULL; }
-		vectorIterator		(const PointerType ptr)							{ _ptr = ptr; }
+		vectorIterator		(void)										{ _ptr = NULL; }
+		vectorIterator		(T * const ptr)								{ _ptr = ptr; }
 		vectorIterator		(const vectorIterator & x)						{ _ptr = x._ptr; }
-		~vectorIterator		(void)											{}
-		// Cast non-const => const
-		template <bool U, bool V>
-		vectorIterator		(const vectorIterator<U, V> & x,
-							typename ft::enable_if<!U>::type* = 0,
-							typename ft::enable_if<IsRev == V>::type* = 0)	{ _ptr = x._ptr; }
-
+		~vectorIterator		(void)										{}
 		// Assignment
 		vectorIterator &	operator=	(const vectorIterator & x)			{ _ptr = x._ptr; return (*this); }
-		vectorIterator &	operator+=	(int n)								{ _ptr = IsRev ? _ptr - n : _ptr + n; return (*this); }
-		vectorIterator &	operator-=	(int n)								{ _ptr = IsRev ? _ptr + n : _ptr - n; return (*this); }
-		vectorIterator &	operator-=	(const vectorIterator & x)			{ _ptr = IsRev ? x._ptr - _ptr : _ptr - x._ptr; return (*this); }
+		vectorIterator &	operator+=	(int n)							{ _ptr += n; return (*this); }
+		vectorIterator &	operator-=	(int n)							{ _ptr -= n; return (*this); }
 		// Comparison
-		bool				operator==	(const vectorIterator & x) const	{ return (_ptr == x._ptr); }
-		bool				operator!=	(const vectorIterator & x) const	{ return (_ptr != x._ptr); }
-		bool				operator<	(const vectorIterator & x) const	{ return (IsRev ? _ptr > x._ptr : _ptr < x._ptr); }
-		bool				operator>	(const vectorIterator & x) const	{ return (IsRev ? _ptr < x._ptr : _ptr > x._ptr); }
-		bool				operator<=	(const vectorIterator & x) const	{ return (IsRev ? _ptr >= x._ptr : _ptr <= x._ptr); }
-		bool				operator>=	(const vectorIterator & x) const	{ return (IsRev ? _ptr <= x._ptr : _ptr >= x._ptr); }
+		bool				operator==	(const vectorIterator & x) const		{ return (_ptr == x._ptr); }
+		bool				operator!=	(const vectorIterator & x) const		{ return (_ptr != x._ptr); }
+		bool				operator<	(const vectorIterator & x) const		{ return (_ptr < x._ptr); }
+		bool				operator>	(const vectorIterator & x) const		{ return (_ptr > x._ptr); }
+		bool				operator<=	(const vectorIterator & x) const		{ return (_ptr <= x._ptr); }
+		bool				operator>=	(const vectorIterator & x) const		{ return (_ptr >= x._ptr); }
 		// -crementation
-		vectorIterator &	operator++	(void)								{ IsRev ? _ptr-- : _ptr++; return (*this); }
-		vectorIterator &	operator--	(void)								{ IsRev ? _ptr++ : _ptr--; return (*this); }
-		vectorIterator		operator++	(int)								{ vectorIterator x(*this); IsRev ? _ptr-- : _ptr++; return (x); }
-		vectorIterator		operator--	(int)								{ vectorIterator x(*this); IsRev ? _ptr++ : _ptr--; return (x); }
+		vectorIterator &	operator++	(void)							{ _ptr++; return (*this); }
+		vectorIterator &	operator--	(void)							{ _ptr--; return (*this); }
+		vectorIterator		operator++	(int)							{ vectorIterator x(*this); _ptr++; return (x); }
+		vectorIterator		operator--	(int)							{ vectorIterator x(*this); _ptr--; return (x); }
 		// Operation
-		vectorIterator		operator+	(int n) const						{ return (IsRev ? _ptr - n : _ptr + n); }
-		vectorIterator		operator-	(int n) const						{ return (IsRev ? _ptr + n : _ptr - n); }
-		std::ptrdiff_t		operator-	(const vectorIterator & x) const	{ return (IsRev ? x._ptr - _ptr : _ptr - x._ptr); }
+		vectorIterator		operator+	(int n) const					{ return (_ptr + n); }
+		vectorIterator		operator-	(int n) const					{ return (_ptr - n); }
+		std::ptrdiff_t		operator-	(const vectorIterator & x) const		{ return (_ptr - x._ptr); }
 		// Dereference
-		ReferenceType		operator*	(void)								{ return (*_ptr); }
-		ReferenceType		operator[]	(size_t n)							{ return (IsRev ? *(_ptr - n) : *(_ptr + n)); }
+		T &					operator*	(void)							{ return (*_ptr); }
+		T &					operator[]	(size_t n)						{ return (*(_ptr + n)); }
 
-	// private:
-		PointerType		_ptr;
+		friend vectorIterator		operator+	(int n, const vectorIterator & x)				{ return (x._ptr + n); }
+	protected:
+		T*		_ptr;
 	};
 
 	//////////////////////////////
@@ -81,10 +72,10 @@ public:
 	typedef		typename allocator_type::const_reference		const_reference;
 	typedef		typename allocator_type::pointer				pointer;
 	typedef		typename allocator_type::const_pointer			const_pointer;
-	typedef		vectorIterator<false, false>					iterator;
-	typedef		vectorIterator<true, false>						const_iterator;
-	typedef		vectorIterator<false, true>						reverse_iterator;
-	typedef		vectorIterator<true, true>						const_reverse_iterator;
+	typedef		vectorIterator									iterator;
+	typedef		vectorIterator									const_iterator;
+	typedef		vectorIterator			reverse_iterator;
+	typedef		vectorIterator			const_reverse_iterator;
 	typedef		std::ptrdiff_t									difference_type;
 	typedef		std::size_t										size_type;
 
@@ -409,8 +400,8 @@ public:
 
 		if (_size + 1 > _capacity)
 		{
-			if (_size > 0)
-				this->reserve(_size * 2);
+			if (SIZE_OR_CAP > 0)
+				this->reserve(SIZE_OR_CAP * 2);
 			else
 				this->reserve(1);
 		}
@@ -430,10 +421,10 @@ public:
 
 		if (_size + n > _capacity)
 		{
-			if (_size + n > _size * 2)
+			if (_size + n > SIZE_OR_CAP * 2)
 				this->reserve(_size + n);
-			else if (_size > 0)
-				this->reserve(_size * 2);
+			else if (SIZE_OR_CAP > 0)
+				this->reserve(SIZE_OR_CAP * 2);
 			else
 				this->reserve(1);
 		}
@@ -457,10 +448,10 @@ public:
 
 		if (_size + n > _capacity)
 		{
-			if (_size + n > _size * 2)
+			if (_size + n > SIZE_OR_CAP * 2)
 				this->reserve(_size + n);
-			else if (_size > 0)
-				this->reserve(_size * 2);
+			else if (SIZE_OR_CAP > 0)
+				this->reserve(SIZE_OR_CAP * 2);
 			else
 				this->reserve(1);
 		}
@@ -510,8 +501,8 @@ public:
 	{
 		if (_size + 1 > _capacity)
 		{
-			if (_size > 0)
-				this->reserve(_size * 2);
+			if (SIZE_OR_CAP > 0)
+				this->reserve(SIZE_OR_CAP * 2);
 			else
 				this->reserve(1);
 		}
