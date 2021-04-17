@@ -3,6 +3,10 @@
 
 namespace ft
 {
+	//////////////////////////////
+	// Reverse iterator
+	//////////////////////////////
+
 	template <class it>
 	class reverse_iterator {
 	public:

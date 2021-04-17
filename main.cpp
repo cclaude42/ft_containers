@@ -5,16 +5,10 @@
 
 int	main(void)
 {
-	TESTED::vector<int>	vct;
-	TESTED::vector<int>::iterator			it;
-	it = vct.begin();
-	TESTED::vector<int>::const_iterator	cit;
-	cit = vct.begin();
+	std::vector<int>	vct(5, 100);
+	std::vector<int>	vct2(8, 100);
 
-	it = it;
-	cit = cit;
-	it = cit;
-	cit = it;
+	std::cout << (vct < vct2) << std::endl;
 
 	return (0);
 }

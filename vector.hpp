@@ -3,10 +3,9 @@
 
 # include <iostream>
 # include <stdint.h>
-# include "includes/os.hpp"
 # include "includes/iterator.hpp"
 # include "includes/types.hpp"
-# include "includes/string.hpp"
+# include "includes/utils.hpp"
 
 # if __APPLE__
 #  define SIZE_OR_CAP _capacity
@@ -553,7 +552,48 @@ private:
 	// Relational operators
 	//////////////////////////////
 
-	// TBD
+
+	template <class T, class Alloc>
+	bool operator== (const vector<T,Alloc> & lhs, const vector<T,Alloc> & rhs)
+	{
+		return (ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+	}
+
+	template <class T, class Alloc>
+	bool operator< (const vector<T,Alloc> & lhs, const vector<T,Alloc> & rhs)
+	{
+		return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+	}
+
+	template <class T, class Alloc>
+	bool operator!= (const vector<T,Alloc> & lhs, const vector<T,Alloc> & rhs)
+	{
+		return (!(lhs == rhs));
+	}
+
+	template <class T, class Alloc>
+	bool operator<= (const vector<T,Alloc> & lhs, const vector<T,Alloc> & rhs)
+	{
+		return (!(rhs < lhs));
+	}
+
+	template <class T, class Alloc>
+	bool operator> (const vector<T,Alloc> & lhs, const vector<T,Alloc> & rhs)
+	{
+		return (rhs < lhs);
+	}
+
+	template <class T, class Alloc>
+	bool operator>= (const vector<T,Alloc> & lhs, const vector<T,Alloc> & rhs)
+	{
+		return (!(lhs < rhs));
+	}
+
+	template <class T, class Alloc>
+	void swap (vector<T,Alloc> & x, vector<T,Alloc> & y)
+	{
+		x.swap(y);
+	}
 
 } // Namespace ft
 
