@@ -1,12 +1,20 @@
 #include "vector.hpp"
 #include <vector>
 
+#define TESTED std
+
 int	main(void)
 {
-	ft::vector<int>	vct;
+	TESTED::vector<int>	vct;
+	TESTED::vector<int>::iterator			it;
+	it = vct.begin();
+	TESTED::vector<int>::const_iterator	cit;
+	cit = vct.begin();
 
-	std::cerr << vct.max_size() << std::endl;
-	std::cerr << sizeof(int) << std::endl;
+	it = it;
+	cit = cit;
+	it = cit;
+	cit = it;
 
 	return (0);
 }

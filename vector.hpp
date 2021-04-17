@@ -25,41 +25,49 @@ public:
 	// Iterator subclass
 	//////////////////////////////
 
+	template <bool IsConst>
 	class vectorIterator {
 	public:
-		typedef			T											value_type;
+		// Member types
+		typedef typename		ft::conditional<IsConst, const T, T>::type			value_type;
 		// -structors
-		vectorIterator		(void)										{ _ptr = NULL; }
-		vectorIterator		(T * const ptr)								{ _ptr = ptr; }
-		vectorIterator		(const vectorIterator & x)						{ _ptr = x._ptr; }
-		~vectorIterator		(void)										{}
-		// Assignment
-		vectorIterator &	operator=	(const vectorIterator & x)			{ _ptr = x._ptr; return (*this); }
-		vectorIterator &	operator+=	(int n)							{ _ptr += n; return (*this); }
-		vectorIterator &	operator-=	(int n)							{ _ptr -= n; return (*this); }
-		// Comparison
-		bool				operator==	(const vectorIterator & x) const		{ return (_ptr == x._ptr); }
-		bool				operator!=	(const vectorIterator & x) const		{ return (_ptr != x._ptr); }
-		bool				operator<	(const vectorIterator & x) const		{ return (_ptr < x._ptr); }
-		bool				operator>	(const vectorIterator & x) const		{ return (_ptr > x._ptr); }
-		bool				operator<=	(const vectorIterator & x) const		{ return (_ptr <= x._ptr); }
-		bool				operator>=	(const vectorIterator & x) const		{ return (_ptr >= x._ptr); }
-		// -crementation
-		vectorIterator &	operator++	(void)							{ _ptr++; return (*this); }
-		vectorIterator &	operator--	(void)							{ _ptr--; return (*this); }
-		vectorIterator		operator++	(int)							{ vectorIterator x(*this); _ptr++; return (x); }
-		vectorIterator		operator--	(int)							{ vectorIterator x(*this); _ptr--; return (x); }
-		// Operation
-		vectorIterator		operator+	(int n) const					{ return (_ptr + n); }
-		vectorIterator		operator-	(int n) const					{ return (_ptr - n); }
-		std::ptrdiff_t		operator-	(const vectorIterator & x) const		{ return (_ptr - x._ptr); }
-		// Dereference
-		T &					operator*	(void)							{ return (*_ptr); }
-		T &					operator[]	(size_t n)						{ return (*(_ptr + n)); }
+		vectorIterator			(void)												{ _ptr = NULL; }
+		vectorIterator			(value_type * const ptr)							{ _ptr = ptr; }
+		~vectorIterator			(void)												{}
+		// Const stuff
+		template <bool B>		friend class										vectorIterator;
+		template <bool B>		vectorIterator
+			(const vectorIterator<B> & x, typename ft::enable_if<!B>::type* = 0)	{ _ptr = x._ptr; }
 
-		friend vectorIterator		operator+	(int n, const vectorIterator & x)				{ return (x._ptr + n); }
+		// Assignment
+		vectorIterator &		operator=	(const vectorIterator & x)				{ _ptr = x._ptr; return (*this); }
+		vectorIterator &		operator+=	(int n)									{ _ptr += n; return (*this); }
+		vectorIterator &		operator-=	(int n)									{ _ptr -= n; return (*this); }
+		// Comparison
+		template <bool B> bool	operator==	(const vectorIterator<B> & x) const		{ return (_ptr == x._ptr); }
+		template <bool B> bool	operator!=	(const vectorIterator<B> & x) const		{ return (_ptr != x._ptr); }
+		template <bool B> bool	operator<	(const vectorIterator<B> & x) const		{ return (_ptr < x._ptr); }
+		template <bool B> bool	operator>	(const vectorIterator<B> & x) const		{ return (_ptr > x._ptr); }
+		template <bool B> bool	operator<=	(const vectorIterator<B> & x) const		{ return (_ptr <= x._ptr); }
+		template <bool B> bool	operator>=	(const vectorIterator<B> & x) const		{ return (_ptr >= x._ptr); }
+		// -crementation
+		vectorIterator &		operator++	(void)									{ _ptr++; return (*this); }
+		vectorIterator &		operator--	(void)									{ _ptr--; return (*this); }
+		vectorIterator			operator++	(int)									{ vectorIterator<IsConst> x(*this); _ptr++; return (x); }
+		vectorIterator			operator--	(int)									{ vectorIterator<IsConst> x(*this); _ptr--; return (x); }
+		// Operation
+		vectorIterator			operator+	(int n) const							{ return (_ptr + n); }
+		vectorIterator			operator-	(int n) const							{ return (_ptr - n); }
+		std::ptrdiff_t			operator-	(const vectorIterator & x) const		{ return (_ptr - x._ptr); }
+		// Dereference
+		value_type &			operator[]	(size_t n)								{ return (*(_ptr + n)); }
+		value_type &			operator*	(void)									{ return (*_ptr); }
+		value_type *			operator->	(void)									{ return (_ptr); }
+		// Non-member functions
+		friend vectorIterator	operator+	(int n, const vectorIterator & x)		{ return (x._ptr + n); }
+
 	protected:
-		T*		_ptr;
+		value_type *			_ptr;
 	};
 
 	//////////////////////////////
@@ -72,10 +80,10 @@ public:
 	typedef		typename allocator_type::const_reference		const_reference;
 	typedef		typename allocator_type::pointer				pointer;
 	typedef		typename allocator_type::const_pointer			const_pointer;
-	typedef		vectorIterator									iterator;
-	typedef		vectorIterator									const_iterator;
-	typedef		vectorIterator			reverse_iterator;
-	typedef		vectorIterator			const_reverse_iterator;
+	typedef		vectorIterator<false>							iterator;
+	typedef		vectorIterator<true>							const_iterator;
+	typedef		ft::reverse_iterator<iterator>					reverse_iterator;
+	typedef		ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 	typedef		std::ptrdiff_t									difference_type;
 	typedef		std::size_t										size_type;
 
@@ -234,37 +242,23 @@ public:
 
 	void resize (size_type n, value_type val = value_type())
 	{
-		size_type	i;
-
-		if (n > _capacity)
+		if (n > _size)
 		{
-			if (n > _capacity * 2)
-				_capacity = n;
-			else
-				_capacity = _capacity * 2;
+			if (n > _capacity)
+			{
+				if (n > SIZE_OR_CAP * 2)
+					this->reserve(n);
+				else if (SIZE_OR_CAP > 0)
+					this->reserve(SIZE_OR_CAP * 2);
+				else
+					this->reserve(1);
+			}
 
-			T *		new_vct = new T[_capacity];
-
-			for (i = 0 ; i < _size ; i++)
-				new_vct[i] = _vct[i];
-			while (i < _capacity)
-				new_vct[i++] = val;
-
-			if (_vct)
-				delete [] _vct;
-
-			_size = n;
-			_vct = new_vct;
-		}
-		else if (n > _size)
-		{
-			for (i = _size ; i < n ; i++)
+			for (size_type i = _size ; i < n ; i++)
 				_vct[i] = val;
-
-			_size = n;
 		}
-		else
-			_size = n;
+
+		_size = n;
 	}
 
 	size_type capacity (void) const
@@ -518,10 +512,16 @@ public:
 
 	void swap (vector & x)
 	{
-		vector	tmp(x);
+		size_type	tmpsize = x._size;
+		size_type	tmpcap = x._capacity;
+		T *			tmptr = x._vct;
 
-		x = *this;
-		*this = tmp;
+		x._size = this->_size;
+		x._capacity = this->_capacity;
+		x._vct = this->_vct;
+		this->_size = tmpsize;
+		this->_capacity = tmpcap;
+		this->_vct = tmptr;
 	}
 
 	void clear (void)
