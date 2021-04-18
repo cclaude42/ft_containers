@@ -83,8 +83,8 @@ public:
 	typedef		vectorIterator<true>							const_iterator;
 	typedef		ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef		ft::reverse_iterator<const_iterator>			const_reverse_iterator;
-	typedef		std::ptrdiff_t									difference_type;
-	typedef		std::size_t										size_type;
+	typedef		typename allocator_type::difference_type		difference_type;
+	typedef		typename allocator_type::size_type				size_type;
 
 	//////////////////////////////
 	// Constructors
@@ -92,57 +92,49 @@ public:
 
 	explicit vector (const allocator_type & alloc = allocator_type())
 	{
-		(void)alloc;
-		_vct = NULL;
+		_alloc = alloc;
+		_vct = _alloc.allocate(0);
 		_size = 0;
 		_capacity = 0;
 	}
 
 	explicit vector (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
 	{
-		(void)alloc;
+		_alloc = alloc;
+		_vct = _alloc.allocate(n);
 		_size = n;
 		_capacity = n;
-		if (n)
-			_vct = new T[n];
-		else
-			_vct = NULL;
 
 		for (size_type i = 0 ; i < n ; i++)
-			_vct[i] = val;
+			_alloc.construct(_vct + i, val);
 	}
 
 	template <class InputIterator>
 	vector (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(),
 			typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		(void)alloc;
-		// if (last - first < 0)
-		// 	throw std::bad_alloc();
-
 		size_type		n = 0;
 		for (InputIterator cpy = first ; cpy != last ; cpy++)
 			n++;
 
+		_alloc = alloc;
 		_size = n;
 		_capacity = n;
-		if (n > 0)
-			_vct = new T[n];
-		else
-			_vct = NULL;
+		_vct = _alloc.allocate(n);
 
 		for (size_type i = 0 ; i < n ; i++)
-			_vct[i] = *first++;
+			_alloc.construct(_vct + i, *first++);
 	}
 
 	vector (const vector & x)
 	{
+		_alloc = x._alloc;
 		_size = x._size;
 		_capacity = x._capacity;
-		_vct = new T[_capacity];
+		_vct = _alloc.allocate(_capacity);
 
 		for (size_type i = 0 ; i < _size ; i++)
-			_vct[i] = x[i];
+			_alloc.construct(_vct + i, x[i]);
 	}
 
 	//////////////////////////////
@@ -151,8 +143,9 @@ public:
 
 	~vector (void)
 	{
-		if (_vct != NULL)
-			delete [] _vct;
+		for (size_type i = 0 ; i < _size ; i++)
+			_alloc.destroy(_vct + i);
+		_alloc.deallocate(_vct, _capacity);
 	}
 
 	//////////////////////////////
@@ -161,18 +154,19 @@ public:
 
 	vector & operator= (const vector & x)
 	{
-		if (_vct != NULL && x._size > _capacity)
-			delete [] _vct;
+		for (size_type i = 0 ; i < _size ; i++)
+			_alloc.destroy(_vct + i);
 
-		if (_vct == NULL || x._size > _capacity)
+		if (x._size > _capacity)
 		{
+			_alloc.deallocate(_vct, _capacity);
 			_capacity = x._size;
-			_vct = new T[_capacity];
+			_vct = _alloc.allocate(_capacity);
 		}
 
 		_size = x._size;
 		for (size_type i = 0 ; i < _size ; i++)
-			_vct[i] = x[i];
+			_alloc.construct(_vct + i, x[i]);
 
 		return (*this);
 	}
@@ -236,7 +230,7 @@ public:
 
 	size_type max_size (void) const
 	{
-		return (_max_size);
+		return (_alloc.max_size());
 	}
 
 	void resize (size_type n, value_type val = value_type())
@@ -254,7 +248,7 @@ public:
 			}
 
 			for (size_type i = _size ; i < n ; i++)
-				_vct[i] = val;
+				_alloc.construct(_vct + i, val);
 		}
 
 		_size = n;
@@ -272,7 +266,7 @@ public:
 
 	void reserve (size_type n)
 	{
-		if (n > _max_size)
+		if (n > _alloc.max_size())
 		{
 			if (OS == MAC)
 				throw std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size");
@@ -282,13 +276,14 @@ public:
 
 		if (n > _capacity)
 		{
-			T *		new_vct = new T[n];
+			T *		new_vct = _alloc.allocate(n);
 
 			for (size_type i = 0 ; i < _size && i < n ; i++)
-				new_vct[i] = _vct[i];
-
-			if (_vct)
-				delete [] _vct;
+			{
+				_alloc.construct(new_vct + i, _vct[i]);
+				_alloc.destroy(_vct + i);
+			}
+			_alloc.deallocate(_vct, _capacity);
 
 			_capacity = n;
 			_vct = new_vct;
@@ -301,12 +296,12 @@ public:
 
 	reference operator[] (size_type n)
 	{
-		return (_vct[n]);
+		return (*(_vct + n));
 	}
 
 	const_reference operator[] (size_type n) const
 	{
-		return (_vct[n]);
+		return (*(_vct + n));
 	}
 
 	reference at (size_type n)
@@ -368,8 +363,11 @@ public:
 		if (n > _capacity)
 			this->reserve(n);
 
+		for (size_type i = 0 ; i < _size ; i++)
+			_alloc.destroy(_vct + i);
 		for (size_type i = 0 ; i < n ; i++)
-			_vct[i] = *first++;
+			_alloc.construct(_vct + i, *first++);
+
 		_size = n;
 	}
 
@@ -378,8 +376,11 @@ public:
 		if (n > _capacity)
 			this->reserve(n);
 
+		for (size_type i = 0 ; i < _size ; i++)
+			_alloc.destroy(_vct + i);
 		for (size_type i = 0 ; i < n ; i++)
-			_vct[i] = val;
+			_alloc.construct(_vct + i, val);
+
 		_size = n;
 	}
 
@@ -399,10 +400,15 @@ public:
 				this->reserve(1);
 		}
 
+		_alloc.construct(_vct + _size, _vct[_size - 1]);
 		for (size_type i = _size ; i > off ; i--)
-			_vct[i] = _vct[i - 1];
+		{
+			_alloc.destroy(_vct + i);
+			_alloc.construct(_vct + i, _vct[i - 1]);
+		}
 
-		_vct[off] = val;
+		_alloc.destroy(_vct + off);
+		_alloc.construct(_vct + off, val);
 		_size++;
 
 		return (iterator(_vct + off));
@@ -422,11 +428,19 @@ public:
 				this->reserve(1);
 		}
 
-		for (size_type i = _size - 1 + n ; i >= off + n ; i--)
-			_vct[i] = _vct[i - n];
+		for (size_type i = _size + n - 1 ; i > _size - 1 ; i--)
+			_alloc.construct(_vct + i, _vct[i - n]);
+		for (size_type i = _size + n - 1 ; i > off + n - 1 ; i--)
+		{
+			_alloc.destroy(_vct + i);
+			_alloc.construct(_vct + i, _vct[i - n]);
+		}
 
-		for (size_type i = off ; i - off < n ; i++)
-			_vct[i] = val;
+		for (size_type i = off ; i < off + n ; i++)
+		{
+			_alloc.destroy(_vct + i);
+			_alloc.construct(_vct + i, val);
+		}
 		_size = _size + n;
 	}
 
@@ -449,11 +463,19 @@ public:
 				this->reserve(1);
 		}
 
-		for (size_type i = _size - 1 + n ; i >= off + n ; i--)
-			_vct[i] = _vct[i - n];
+		for (size_type i = _size + n - 1 ; i > _size - 1 ; i--)
+			_alloc.construct(_vct + i, _vct[i - n]);
+		for (size_type i = _size + n - 1 ; i > off + n - 1 ; i--)
+		{
+			_alloc.destroy(_vct + i);
+			_alloc.construct(_vct + i, _vct[i - n]);
+		}
 
-		for (size_type i = off ; i - off < n ; i++)
-			_vct[i] = *first++;
+		for (size_type i = off ; i < off + n ; i++)
+		{
+			_alloc.destroy(_vct + i);
+			_alloc.construct(_vct + i, *first++);
+		}
 		_size = _size + n;
 	}
 
@@ -466,7 +488,12 @@ public:
 		size_type		off = position - this->begin();
 
 		for (size_type i = off ; i < _size - 1 ; i++)
-			_vct[i] = _vct[i + 1];
+		{
+			_alloc.destroy(_vct + i);
+			_alloc.construct(_vct + i, _vct[i + 1]);
+		}
+		_alloc.destroy(_vct + _size - 1);
+
 		_size--;
 
 		return (iterator(_vct + off));
@@ -480,7 +507,13 @@ public:
 			n++;
 
 		for (size_type i = off ; i < _size - n ; i++)
-			_vct[i] = _vct[i + n];
+		{
+			_alloc.destroy(_vct + i);
+			_alloc.construct(_vct + i, _vct[i + n]);
+		}
+		for (size_type i = _size - n ; i < _size ; i++)
+			_alloc.destroy(_vct + i);
+
 		_size = _size - n;
 
 		return (iterator(_vct + off));
@@ -500,7 +533,7 @@ public:
 				this->reserve(1);
 		}
 
-		_vct[_size] = val;
+		_alloc.construct(_vct + _size, val);
 		_size++;
 	}
 
@@ -511,13 +544,16 @@ public:
 
 	void swap (vector & x)
 	{
-		size_type	tmpsize = x._size;
-		size_type	tmpcap = x._capacity;
-		T *			tmptr = x._vct;
+		allocator_type	tmpalloc = x._alloc;
+		size_type		tmpsize = x._size;
+		size_type		tmpcap = x._capacity;
+		T *				tmptr = x._vct;
 
+		x._alloc = this->_alloc;
 		x._size = this->_size;
 		x._capacity = this->_capacity;
 		x._vct = this->_vct;
+		this->_alloc = tmpalloc;
 		this->_size = tmpsize;
 		this->_capacity = tmpcap;
 		this->_vct = tmptr;
@@ -542,7 +578,7 @@ public:
 	//////////////////////////////
 
 private:
-	const static size_type		_max_size = SIZE_MAX / sizeof(T);
+	allocator_type				_alloc;
 	size_type					_size;
 	size_type					_capacity;
 	T *							_vct;

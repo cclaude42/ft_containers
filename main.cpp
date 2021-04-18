@@ -5,10 +5,8 @@
 
 int	main(void)
 {
-	std::vector<int>	vct(5, 100);
-	std::vector<int>	vct2(8, 100);
-
-	std::cout << (vct < vct2) << std::endl;
+	ft::vector<int>	vct;
+	ft::vector<int>	vct2;
 
 	return (0);
 }
