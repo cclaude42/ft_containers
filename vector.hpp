@@ -26,15 +26,18 @@ public:
 
 	template <bool IsConst>
 	class vectorIterator {
+		template <class it>
+		friend class		reverse_iterator;
+		friend class		vector;
 	public:
 		// Member types
 		typedef typename		ft::conditional<IsConst, const T, T>::type			value_type;
 		// -structors
 		vectorIterator			(void)												{ _ptr = NULL; }
-		vectorIterator			(value_type * const ptr)							{ _ptr = ptr; }
 		~vectorIterator			(void)												{}
 		// Const stuff
 		template <bool B>		friend class										vectorIterator;
+		friend class										vector;
 		template <bool B>		vectorIterator
 			(const vectorIterator<B> & x, typename ft::enable_if<!B>::type* = 0)	{ _ptr = x._ptr; }
 
@@ -64,6 +67,11 @@ public:
 		value_type *			operator->	(void)									{ return (_ptr); }
 		// Non-member functions
 		friend vectorIterator	operator+	(int n, const vectorIterator & x)		{ return (x._ptr + n); }
+
+# if __APPLE__
+	private:
+# endif
+		vectorIterator			(value_type * const ptr)							{ _ptr = ptr; }
 
 	protected:
 		value_type *			_ptr;
