@@ -5,6 +5,7 @@
 # include "includes/iterator.hpp"
 # include "includes/types.hpp"
 # include "includes/utils.hpp"
+# include "macros.h"
 
 # if __APPLE__
 #  define SIZE_OR_CAP _capacity
@@ -123,7 +124,7 @@ public:
 			typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		size_type		n = 0;
-		for (InputIterator cpy = first ; cpy != last ; cpy++)
+		for (InputIterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
 			n++;
 
 		_alloc = alloc;
@@ -366,8 +367,9 @@ public:
 				typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		size_type		n = 0;
-		for (InputIterator cpy = first ; cpy != last ; cpy++)
-			n++;
+		__glibcxx_check_valid_range(first, last);
+		for (InputIterator cpy = first ; cpy != last && n < 100000 ; cpy++)
+			std::cout << n++ << std::endl;
 
 		if (n > _capacity)
 			this->reserve(n);
@@ -459,7 +461,7 @@ public:
 	{
 		size_type		off = position - this->begin();
 		size_type		n = 0;
-		for (InputIterator cpy = first ; cpy != last ; cpy++)
+		for (InputIterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
 			n++;
 
 		if (_size + n > _capacity)
@@ -512,7 +514,7 @@ public:
 	{
 		size_type		off = first - this->begin();
 		size_type		n = 0;
-		for (iterator cpy = first ; cpy != last ; cpy++)
+		for (iterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
 			n++;
 
 		for (size_type i = off ; i < _size - n ; i++)
