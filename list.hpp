@@ -1,5 +1,5 @@
-#ifndef VECTOR_HPP
-# define VECTOR_HPP
+#ifndef LIST_HPP
+# define LIST_HPP
 
 # include <iostream>
 # include "includes/iterator.hpp"
@@ -7,16 +7,16 @@
 # include "includes/utils.hpp"
 
 # if __APPLE__
-#  define SIZE_OR_CAP _capacity
+// #  define SIZE_OR_CAP _capacity
 # else
-#  define SIZE_OR_CAP _size
+// #  define SIZE_OR_CAP _size
 # endif
 
 namespace ft
 {
 
 template <class T, class Alloc = std::allocator<T> >
-class vector {
+class list {
 public:
 
 	//////////////////////////////
@@ -24,55 +24,55 @@ public:
 	//////////////////////////////
 
 	template <bool IsConst>
-	class vectorIterator {
+	class listIterator {
 		template <class it>
 		friend class		reverse_iterator;
-		friend class		vector;
+		friend class		list;
 	public:
 		// Member types
 		typedef typename		ft::conditional<IsConst, const T, T>::type			value_type;
 		typedef					std::ptrdiff_t										difference_type;
 		typedef					std::size_t											size_type;
 		// -structors
-		vectorIterator			(void)												{ _ptr = NULL; }
-		~vectorIterator			(void)												{}
+		listIterator			(void)												{ _ptr = NULL; }
+		~listIterator			(void)												{}
 		// Const stuff
-		template <bool B>		friend class										vectorIterator;
-		friend class			vector;
-		template <bool B>		vectorIterator
-			(const vectorIterator<B> & x, typename ft::enable_if<!B>::type* = 0)	{ _ptr = x._ptr; }
+		template <bool B>		friend class										listIterator;
+		friend class			list;
+		template <bool B>		listIterator
+			(const listIterator<B> & x, typename ft::enable_if<!B>::type* = 0)	{ _ptr = x._ptr; }
 
 		// Assignment
-		vectorIterator &		operator=	(const vectorIterator & x)				{ _ptr = x._ptr; return (*this); }
-		vectorIterator &		operator+=	(int n)									{ _ptr += n; return (*this); }
-		vectorIterator &		operator-=	(int n)									{ _ptr -= n; return (*this); }
+		listIterator &			operator=	(const listIterator & x)				{ _ptr = x._ptr; return (*this); }
+		listIterator &			operator+=	(int n)									{ while (n > 0) {_ptr = _ptr->next; n--;} while (n++) {_ptr = _ptr->prev;} return (*this); }
+		listIterator &			operator-=	(int n)									{ while (n > 0) {_ptr = _ptr->prev; n--;} while (n++) {_ptr = _ptr->next;} return (*this); }
 		// Comparison
-		template <bool B> bool	operator==	(const vectorIterator<B> & x) const		{ return (_ptr == x._ptr); }
-		template <bool B> bool	operator!=	(const vectorIterator<B> & x) const		{ return (_ptr != x._ptr); }
-		template <bool B> bool	operator<	(const vectorIterator<B> & x) const		{ return (_ptr < x._ptr); }
-		template <bool B> bool	operator>	(const vectorIterator<B> & x) const		{ return (_ptr > x._ptr); }
-		template <bool B> bool	operator<=	(const vectorIterator<B> & x) const		{ return (_ptr <= x._ptr); }
-		template <bool B> bool	operator>=	(const vectorIterator<B> & x) const		{ return (_ptr >= x._ptr); }
+		template <bool B> bool	operator==	(const listIterator<B> & x) const		{ return (_ptr == x._ptr); }
+		template <bool B> bool	operator!=	(const listIterator<B> & x) const		{ return (_ptr != x._ptr); }
+		template <bool B> bool	operator<	(const listIterator<B> & x) const		{ return (_ptr < x._ptr); }
+		template <bool B> bool	operator>	(const listIterator<B> & x) const		{ return (_ptr > x._ptr); }
+		template <bool B> bool	operator<=	(const listIterator<B> & x) const		{ return (_ptr <= x._ptr); }
+		template <bool B> bool	operator>=	(const listIterator<B> & x) const		{ return (_ptr >= x._ptr); }
 		// -crementation
-		vectorIterator &		operator++	(void)									{ _ptr++; return (*this); }
-		vectorIterator &		operator--	(void)									{ _ptr--; return (*this); }
-		vectorIterator			operator++	(int)									{ vectorIterator<IsConst> x(*this); _ptr++; return (x); }
-		vectorIterator			operator--	(int)									{ vectorIterator<IsConst> x(*this); _ptr--; return (x); }
+		listIterator &			operator++	(void)									{ _ptr = _ptr->next; return (*this); }
+		listIterator &			operator--	(void)									{ _ptr = _ptr->prev; return (*this); }
+		listIterator			operator++	(int)									{ listIterator<IsConst> x(*this); _ptr++; return (x); }
+		listIterator			operator--	(int)									{ listIterator<IsConst> x(*this); _ptr--; return (x); }
 		// Operation
-		vectorIterator			operator+	(int n) const							{ return (_ptr + n); }
-		vectorIterator			operator-	(int n) const							{ return (_ptr - n); }
-		difference_type			operator-	(const vectorIterator & x) const		{ return (_ptr - x._ptr); }
+		listIterator			operator+	(int n) const							{ listIterator<IsConst> x(*this); x += n; return (x); }
+		listIterator			operator-	(int n) const							{ listIterator<IsConst> x(*this); x -= n; return (x); }
+		difference_type			operator-	(const listIterator & x) const			{ difference_type d = 0; while (x != *this) {x++; d++;} return (d); }
 		// Dereference
-		value_type &			operator[]	(size_type n)							{ return (*(_ptr + n)); }
+		value_type &			operator[]	(size_type n)								{ listIterator<IsConst> x(*this); x += n; return (*(x._ptr)); }
 		value_type &			operator*	(void)									{ return (*_ptr); }
 		value_type *			operator->	(void)									{ return (_ptr); }
 		// Non-member functions
-		friend vectorIterator	operator+	(int n, const vectorIterator & x)		{ return (x._ptr + n); }
+		friend listIterator		operator+	(int n, const listIterator & x)			{ listIterator<IsConst> x(*this); x += n; return (*(x._ptr)); }
 
-# if __APPLE__
+// # if __APPLE__
 	private:
-# endif
-		vectorIterator			(value_type * const ptr)							{ _ptr = ptr; }
+// # endif
+		listIterator			(value_type * const ptr)							{ _ptr = ptr; }
 
 	protected:
 		value_type *			_ptr;
@@ -88,12 +88,12 @@ public:
 	typedef		typename allocator_type::const_reference		const_reference;
 	typedef		typename allocator_type::pointer				pointer;
 	typedef		typename allocator_type::const_pointer			const_pointer;
-	typedef		vectorIterator<false>							iterator;
-	typedef		vectorIterator<true>							const_iterator;
+	typedef		listIterator<false>								iterator;
+	typedef		listIterator<true>								const_iterator;
 	typedef		ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef		ft::reverse_iterator<const_iterator>			const_reverse_iterator;
-	typedef		typename vectorIterator<false>::difference_type	difference_type;
-	typedef		typename vectorIterator<false>::size_type		size_type;
+	typedef		typename listIterator<false>::difference_type	difference_type;
+	typedef		typename listIterator<false>::size_type			size_type;
 
 	//////////////////////////////
 	// Constructors
