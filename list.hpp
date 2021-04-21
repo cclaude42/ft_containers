@@ -54,7 +54,7 @@ public:
 		listIterator			operator++	(int)									{ listIterator<IsConst> x(*this); _ptr++; return (x); }
 		listIterator			operator--	(int)									{ listIterator<IsConst> x(*this); _ptr--; return (x); }
 		// Dereference
-		value_type &			operator*	(void)									{ return (*_ptr); }
+		value_type &			operator*	(void)									{ return (_ptr->data); }
 		value_type *			operator->	(void)									{ return (_ptr); }
 
 # if __APPLE__
@@ -95,11 +95,62 @@ public:
 		_end->next = _end;
 	}
 
+	explicit list (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
+	{
+		_alloc = alloc;
+		_end = new node;
+		_end->prev = _end;
+		_end->next = _end;
+
+		for (node *prev_node = this->end() ; n > 0 ; n--)
+		{
+			node	*new_node = new node;
+			prev_node->next = new_node;
+			new_node->prev = prev_node;
+			new_node->data = val;
+			new_node->next = _end;
+			_end->prev = new_node;
+		}
+	}
+
+	template <class InputIterator>
+	list (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type())
+	{
+		size_type		n = 0;
+		for (InputIterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
+			n++;
+
+		_alloc = alloc;
+		_end = new node;
+		_end->prev = _end;
+		_end->next = _end;
+
+		for (node *prev_node = this->end() ; n > 0 ; n--)
+		{
+			node	*new_node = new node;
+			prev_node->next = new_node;
+			new_node->prev = prev_node;
+			new_node->data = val;
+			new_node->next = _end;
+			_end->prev = new_node;
+		}
+	}
+
+	list (const list & x)
+	{
+		*this = x;
+	}
+
 	//////////////////////////////
 	// Destructors
 	//////////////////////////////
 
-
+	~list (void)
+	{
+		for (node *prev = _end->next, next = _end->next->next ; prev != _end ; prev = next, next = next->next)
+			delete prev;
+		delete _end;
+	}
 
 	//////////////////////////////
 	// Assignment operator

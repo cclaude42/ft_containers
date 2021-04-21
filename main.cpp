@@ -1,20 +1,18 @@
 #include "vector.hpp"
 #include <vector>
+#include <list>
 
-#define TESTED ft
+#define TESTED std
 
 int	main(void)
 {
-	TESTED::vector<int>	vct(10, 100);
-	TESTED::vector<int>	vct2;
-	TESTED::vector<int>::iterator	it = vct.begin();
-	TESTED::vector<int>::iterator	it2 = vct.end();
+	TESTED::list<int>	lst;
 
+	lst.push_back(6);
 
-	vct2.assign(it2, it);
+	auto it = lst.begin();
 
-	for (TESTED::vector<int>::iterator it3 = vct2.begin() ; it3 != vct2.end() ; it3++)
-	std::cout << *it3 << std::endl;
+	std::cout << it->_prev << std::endl;
 
 	return (0);
 }

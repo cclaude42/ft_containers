@@ -5,7 +5,6 @@
 # include "includes/iterator.hpp"
 # include "includes/types.hpp"
 # include "includes/utils.hpp"
-# include "macros.h"
 
 # if __APPLE__
 #  define SIZE_OR_CAP _capacity
@@ -367,9 +366,8 @@ public:
 				typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		size_type		n = 0;
-		__glibcxx_check_valid_range(first, last);
-		for (InputIterator cpy = first ; cpy != last && n < 100000 ; cpy++)
-			std::cout << n++ << std::endl;
+		for (InputIterator cpy = first ; cpy != last && n < 1000000 ; cpy++)
+			n++;
 
 		if (n > _capacity)
 			this->reserve(n);
