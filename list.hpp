@@ -9,16 +9,20 @@
 namespace ft
 {
 
-typedef struct			s_node
-{
-	T					data;
-	struct s_node *		prev;
-	struct s_node *		next;
-}						node;
-
 template <class T, class Alloc = std::allocator<T> >
 class list {
 public:
+
+	//////////////////////////////
+	// Node
+	//////////////////////////////
+
+	typedef struct			s_node
+	{
+		T					data;
+		struct s_node *		prev;
+		struct s_node *		next;
+	}						node;
 
 	//////////////////////////////
 	// Iterator subclass
@@ -102,7 +106,7 @@ public:
 		_end->prev = _end;
 		_end->next = _end;
 
-		for (node *prev_node = this->end() ; n > 0 ; n--)
+		for (node *prev_node = _end ; n > 0 ; n--)
 		{
 			node	*new_node = new node;
 			prev_node->next = new_node;
@@ -110,29 +114,27 @@ public:
 			new_node->data = val;
 			new_node->next = _end;
 			_end->prev = new_node;
+			prev_node = new_node;
 		}
 	}
 
 	template <class InputIterator>
 	list (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type())
 	{
-		size_type		n = 0;
-		for (InputIterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
-			n++;
-
 		_alloc = alloc;
 		_end = new node;
 		_end->prev = _end;
 		_end->next = _end;
 
-		for (node *prev_node = this->end() ; n > 0 ; n--)
+		for (node *prev_node = _end ; first != last ; first++)
 		{
 			node	*new_node = new node;
 			prev_node->next = new_node;
 			new_node->prev = prev_node;
-			new_node->data = val;
+			new_node->data = *first;
 			new_node->next = _end;
 			_end->prev = new_node;
+			prev_node = new_node;
 		}
 	}
 
@@ -147,7 +149,7 @@ public:
 
 	~list (void)
 	{
-		for (node *prev = _end->next, next = _end->next->next ; prev != _end ; prev = next, next = next->next)
+		for (node *prev = _end->next, *next = _end->next->next ; prev != _end ; prev = next, next = next->next)
 			delete prev;
 		delete _end;
 	}
@@ -156,31 +158,130 @@ public:
 	// Assignment operator
 	//////////////////////////////
 
+	list & operator= (const list & x)
+	{
+		_alloc = x._alloc;
+		_end = new node;
+		_end->prev = _end;
+		_end->next = _end;
 
+		node *	prev_node = _end;
+		for (iterator it = x.begin() ; it != x.end() ; it++)
+		{
+			node	*new_node = new node;
+			prev_node->next = new_node;
+			new_node->prev = prev_node;
+			new_node->data = *it;
+			new_node->next = _end;
+			_end->prev = new_node;
+			prev_node = new_node;
+		}
+	}
 
 	//////////////////////////////
 	// Iterators
 	//////////////////////////////
 
+	iterator begin (void)
+	{
+		return (iterator(_end->next));
+	}
 
+	const_iterator begin (void) const
+	{
+		return (const_iterator(_end->next));
+	}
+
+	iterator end (void)
+	{
+		return (iterator(_end));
+	}
+
+	const_iterator end (void) const
+	{
+		return (const_iterator(_end));
+	}
 
 	//////////////////////////////
 	// Reverse iterators
 	//////////////////////////////
 
+	reverse_iterator rbegin (void)
+	{
+		return (reverse_iterator(_end->prev));
+	}
 
+	const_reverse_iterator rbegin (void) const
+	{
+		return (const_reverse_iterator(_end->prev));
+	}
+
+	reverse_iterator rend (void)
+	{
+		return (reverse_iterator(_end));
+	}
+
+	const_reverse_iterator rend (void) const
+	{
+		return (const_reverse_iterator(_end));
+	}
 
 	//////////////////////////////
 	// Capacity
 	//////////////////////////////
 
+	bool empty (void) const
+	{
+		return (_end == _end->next);
+	}
 
+	size_type size (void) const
+	{
+		size_type	n = 0;
+		for (node *curr = _end->next ; curr != _end ; curr = curr->next)
+			n++;
+		return (n);
+	}
+
+	void resize (size_type n, value_type val = value_type())
+	{
+		iterator	it = this->begin();
+		for ( ; it != this->end() && n > 0 ; it++)
+			n--;
+		for ( ; it != this->end() ; it++)
+			this->push_back(val);
+		for ( ; n > 0 ; n--)
+			this->erase(it++);
+	}
+
+	size_type max_size (void) const
+	{
+		return (_alloc.max_size());
+	}
 
 	//////////////////////////////
 	// Member access
 	//////////////////////////////
 
+	reference front (void)
+	{
+		return (_end->next);
+	}
 
+	const_reference front (void) const
+	{
+		return (_end->next);
+	}
+
+	reference back (void)
+	{
+		return (_end->prev);
+	}
+
+	const_reference back (void) const
+	{
+		return (_end->prev);
+	}
 
 	//////////////////////////////
 	// Assignment modifiers

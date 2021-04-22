@@ -1,18 +1,14 @@
 #include "vector.hpp"
+#include "list.hpp"
 #include <vector>
 #include <list>
 
-#define TESTED std
+#define TESTED ft
 
 int	main(void)
 {
 	TESTED::list<int>	lst;
-
-	lst.push_back(6);
-
-	auto it = lst.begin();
-
-	std::cout << it->_prev << std::endl;
+	TESTED::list<int>::iterator it;
 
 	return (0);
 }
