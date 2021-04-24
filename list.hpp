@@ -31,40 +31,38 @@ public:
 	template <bool IsConst>
 	class listIterator {
 		template <class it>
-		friend class		reverse_iterator;
-		friend class		list;
+		friend class			reverse_iterator;
+		friend class			list;
 	public:
 		// Member types
-		typedef typename		ft::conditional<IsConst, const node, node>::type	value_type;
-		typedef					std::ptrdiff_t										difference_type;
-		typedef					std::size_t											size_type;
+		typedef typename		ft::conditional<IsConst, const node, node>::type		value_type;
+		typedef					std::ptrdiff_t											difference_type;
+		typedef					std::size_t												size_type;
 		// -structors
-		listIterator			(void)												{ _ptr = NULL; }
-		~listIterator			(void)												{}
+		listIterator			(void)													{ _ptr = NULL; }
+		listIterator			(value_type * const ptr)								{ _ptr = ptr; }
+		~listIterator			(void)													{}
 		// Const stuff
-		template <bool B>		friend class										listIterator;
+		template <bool B>		friend class											listIterator;
 		friend class			list;
 		template <bool B>		listIterator
-			(const listIterator<B> & x, typename ft::enable_if<!B>::type* = 0)		{ _ptr = x._ptr; }
+			(const listIterator<B> & x, typename ft::enable_if<!B>::type* = 0)			{ _ptr = x._ptr; }
 
 		// Assignment
-		listIterator &			operator=	(const listIterator & x)				{ _ptr = x._ptr; return (*this); }
+		listIterator &			operator=	(const listIterator & x)					{ _ptr = x._ptr; return (*this); }
 		// Comparison
-		template <bool B> bool	operator==	(const listIterator<B> & x) const		{ return (_ptr == x._ptr); }
-		template <bool B> bool	operator!=	(const listIterator<B> & x) const		{ return (_ptr != x._ptr); }
+		template <bool B> bool	operator==	(const listIterator<B> & x) const			{ return (_ptr == x._ptr); }
+		template <bool B> bool	operator!=	(const listIterator<B> & x) const			{ return (_ptr != x._ptr); }
 		// -crementation
-		listIterator &			operator++	(void)									{ _ptr = _ptr->next; return (*this); }
-		listIterator &			operator--	(void)									{ _ptr = _ptr->prev; return (*this); }
-		listIterator			operator++	(int)									{ listIterator<IsConst> x(*this); _ptr++; return (x); }
-		listIterator			operator--	(int)									{ listIterator<IsConst> x(*this); _ptr--; return (x); }
+		listIterator &			operator++	(void)										{ _ptr = _ptr->next; return (*this); }
+		listIterator &			operator--	(void)										{ _ptr = _ptr->prev; return (*this); }
+		listIterator			operator++	(int)										{ listIterator<IsConst> x(*this); _ptr++; return (x); }
+		listIterator			operator--	(int)										{ listIterator<IsConst> x(*this); _ptr--; return (x); }
 		// Dereference
-		value_type &			operator*	(void)									{ return (_ptr->data); }
-		value_type *			operator->	(void)									{ return (_ptr); }
+		T &						operator*	(void)										{ return (_ptr->data); }
+		value_type *			operator->	(void)										{ return (_ptr); }
 
-# if __APPLE__
-	private:
-# endif
-		listIterator			(value_type * const ptr)							{ _ptr = ptr; }
+		// friend value_type *		operator=	(value_type * v, const listIterator & x)	{ return (_ptr); }
 
 	protected:
 		value_type *			_ptr;
@@ -319,7 +317,7 @@ public:
 	{
 		for (iterator it = first++ ; it != last ; it = first++)
 			this->erase(it);
-		return (it);
+		return (last);
 	}
 
 	//////////////////////////////
@@ -348,13 +346,8 @@ public:
 
 	void swap (list & x)
 	{
-		allocator_type	tmp_alloc = x._alloc;
-		node *			tmp_end = x._end;
-
-		x._alloc = _alloc;
-		x._end = _end;
-		_alloc = tmp_alloc;
-		_end = tmp_end;
+		ft::swap(_alloc, x._alloc);
+		ft::swap(_end, x._end);
 	}
 
 	void clear (void)
@@ -371,10 +364,10 @@ public:
 	{
 		if (!x.empty())
 		{
+			x._end->next->prev = position;
+			x._end->prev->next = position->next;
 			position->next->prev = x._end->prev;
 			position->next = x._end->next;
-			position->next->prev = position;
-			position->next->next = position_next;
 			x._end->next = x._end;
 			x._end->prev = x._end;
 		}
@@ -437,14 +430,7 @@ public:
 
 	void unique (void)
 	{
-		for (iterator it = this->begin()->next ; it != this->end() ; it++)
-		{
-			if (it->data == it->prev->data)
-			{
-				this->erase(it);
-				it = this->begin();
-			}
-		}
+		this->unique(&ft::equal);
 	}
 
 	template <class BinaryPredicate>
@@ -466,12 +452,7 @@ public:
 
 	void merge (list & x)
 	{
-		for (iterator it = this->begin() ; it != this->end() ; it++)
-		{
-			iterator	it2 = x->begin();
-			if (it2 != x->end() && it2->data < it->data)
-				this->splice(it, x, it2);
-		}
+		this->merge(x, &ft::lexicographical_compare);
 	}
 
 	template <class Compare>
@@ -491,18 +472,19 @@ public:
 
 	void sort (void)
 	{
-
+		this->_quicksort(&ft::lexicographical_compare, this->begin(), this->end());
 	}
 
 	template <class Compare>
 	void sort (Compare comp)
 	{
-
+		this->_quicksort(comp, this->begin(), this->end());
 	}
 
 	void reverse (void)
 	{
-
+		for (iterator it = this->begin() ; it != this->end() ; it--)
+			swap(it->prev, it->next);
 	}
 
 	//////////////////////////////
@@ -515,10 +497,38 @@ public:
 	}
 
 	//////////////////////////////
-	// Member variables
+	// Private functions
 	//////////////////////////////
 
 private:
+	template <class Compare>
+	void _quicksort (Compare comp, iterator first, iterator last)
+	{
+		if (first != last && first->next != last)
+		{
+			iterator	it = this->_partition(comp, first, last);
+			this->_quicksort(first, it);
+			it++;
+			this->_quicksort(it, last);
+		}
+	}
+
+	template <class Compare>
+	void _partition (Compare comp, iterator first, iterator last)
+	{
+		iterator	prev = first;
+		for (iterator it = first ; it != last->prev ; it++)
+		{
+			if (!comp(last->prev->data, it->data))
+				ft::swap((prev++)->data, it->data);
+		}
+		ft::swap(prev->data, last->prev->data);
+	}
+
+	//////////////////////////////
+	// Member variables
+	//////////////////////////////
+
 	allocator_type		_alloc;
 	node *				_end;
 };
@@ -527,7 +537,47 @@ private:
 	// Relational operators
 	//////////////////////////////
 
+	template <class T, class Alloc>
+	bool operator== (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	{
+		return (ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+	}
 
+	template <class T, class Alloc>
+	bool operator<  (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	{
+		return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+	}
+
+	template <class T, class Alloc>
+	bool operator!= (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	{
+		return (!(lhs == rhs));
+	}
+
+	template <class T, class Alloc>
+	bool operator<= (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	{
+		return (!(rhs < lhs));
+	}
+
+	template <class T, class Alloc>
+	bool operator>  (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	{
+		return (rhs < lhs);
+	}
+
+	template <class T, class Alloc>
+	bool operator>= (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	{
+		return (!(lhs < rhs));
+	}
+
+	template <class T, class Alloc>
+	void swap (list<T,Alloc> & x, list<T,Alloc> & y)
+	{
+		x.swap(y);
+	}
 
 } // Namespace ft
 

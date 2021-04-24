@@ -45,6 +45,12 @@ namespace ft
 		return (rit != rend);
 	}
 
+	template <class T>
+	bool lexicographical_compare (T & a, T & b)
+	{
+		return (a < b);
+	}
+
 	//////////////////////////////
 	// Equal
 	//////////////////////////////
@@ -60,6 +66,24 @@ namespace ft
 		}
 
 		return (rit == rend);
+	}
+
+	template <class T>
+	bool equal (T & a, T & b)
+	{
+		return (a == b);
+	}
+
+	//////////////////////////////
+	// Swap
+	//////////////////////////////
+
+	template <class T>
+	void swap (T & a, T & b)
+	{
+		T	tmp = a;
+		a = b;
+		b = tmp;
 	}
 }
 
