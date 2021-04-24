@@ -553,19 +553,19 @@ public:
 
 	void swap (vector & x)
 	{
-		allocator_type	tmpalloc = x._alloc;
-		size_type		tmpsize = x._size;
-		size_type		tmpcap = x._capacity;
-		T *				tmptr = x._vct;
+		allocator_type	tmp_alloc = x._alloc;
+		size_type		tmp_size = x._size;
+		size_type		tmp_cap = x._capacity;
+		T *				tmp_vct = x._vct;
 
 		x._alloc = this->_alloc;
 		x._size = this->_size;
 		x._capacity = this->_capacity;
 		x._vct = this->_vct;
-		this->_alloc = tmpalloc;
-		this->_size = tmpsize;
-		this->_capacity = tmpcap;
-		this->_vct = tmptr;
+		this->_alloc = tmp_alloc;
+		this->_size = tmp_size;
+		this->_capacity = tmp_cap;
+		this->_vct = tmp_vct;
 	}
 
 	void clear (void)
@@ -577,7 +577,7 @@ public:
 	// Allocator
 	//////////////////////////////
 
-	allocator_type get_allocator() const
+	allocator_type get_allocator (void) const
 	{
 		return (allocator_type());
 	}

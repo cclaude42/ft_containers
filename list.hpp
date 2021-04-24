@@ -106,16 +106,8 @@ public:
 		_end->prev = _end;
 		_end->next = _end;
 
-		for (node *prev_node = _end ; n > 0 ; n--)
-		{
-			node	*new_node = new node;
-			prev_node->next = new_node;
-			new_node->prev = prev_node;
-			new_node->data = val;
-			new_node->next = _end;
-			_end->prev = new_node;
-			prev_node = new_node;
-		}
+		while (n-- > 0)
+			this->push_back(val);
 	}
 
 	template <class InputIterator>
@@ -126,16 +118,8 @@ public:
 		_end->prev = _end;
 		_end->next = _end;
 
-		for (node *prev_node = _end ; first != last ; first++)
-		{
-			node	*new_node = new node;
-			prev_node->next = new_node;
-			new_node->prev = prev_node;
-			new_node->data = *first;
-			new_node->next = _end;
-			_end->prev = new_node;
-			prev_node = new_node;
-		}
+		while (first != last)
+			this->push_back(*first++);
 	}
 
 	list (const list & x)
@@ -149,8 +133,7 @@ public:
 
 	~list (void)
 	{
-		for (node *prev = _end->next, *next = _end->next->next ; prev != _end ; prev = next, next = next->next)
-			delete prev;
+		this->clear();
 		delete _end;
 	}
 
@@ -160,22 +143,15 @@ public:
 
 	list & operator= (const list & x)
 	{
+		this->clear();
 		_alloc = x._alloc;
 		_end = new node;
 		_end->prev = _end;
 		_end->next = _end;
 
-		node *	prev_node = _end;
 		for (iterator it = x.begin() ; it != x.end() ; it++)
-		{
-			node	*new_node = new node;
-			prev_node->next = new_node;
-			new_node->prev = prev_node;
-			new_node->data = *it;
-			new_node->next = _end;
-			_end->prev = new_node;
-			prev_node = new_node;
-		}
+			this->push_back(*it);
+		return (*this);
 	}
 
 	//////////////////////////////
@@ -250,7 +226,7 @@ public:
 			n--;
 		for ( ; it != this->end() ; it++)
 			this->push_back(val);
-		for ( ; n > 0 ; n--)
+		for ( ; n > 0 && it != this->end() ; n--)
 			this->erase(it++);
 	}
 
@@ -287,31 +263,256 @@ public:
 	// Assignment modifiers
 	//////////////////////////////
 
+	template <class InputIterator>
+	void assign (InputIterator first, InputIterator last)
+	{
+		*this = list(first, last);
+	}
 
+	void assign (size_type n, const value_type & val)
+	{
+		*this = list(n, val);
+	}
 
 	//////////////////////////////
 	// Insertion modifiers
 	//////////////////////////////
 
+	iterator insert (iterator position, const value_type & val)
+	{
+		node *	new_node = new node;
+		new_node->prev = position;
+		new_node->data = val;
+		new_node->next = position->next;
+		position->next = new_node;
+		new_node->next->prev = new_node;
+		return (new_node);
+	}
 
+	void insert (iterator position, size_type n, const value_type & val)
+	{
+		while (n-- > 0)
+			position = this->insert(position, val);
+	}
+
+	template <class InputIterator>
+	void insert (iterator position, InputIterator first, InputIterator last)
+	{
+		while (first != last)
+			position = this->insert(position, *first++);
+	}
 
 	//////////////////////////////
 	// Erasure modifiers
 	//////////////////////////////
 
+	iterator erase (iterator position)
+	{
+		node *	position_next = position->next;
+		position->next->prev = position->prev;
+		position->prev->next = position_next;
+		delete position;
+		return (position_next);
+	}
 
+	iterator erase (iterator first, iterator last)
+	{
+		for (iterator it = first++ ; it != last ; it = first++)
+			this->erase(it);
+		return (it);
+	}
 
 	//////////////////////////////
 	// Common modifiers
 	//////////////////////////////
 
+	void push_front (const value_type & val)
+	{
+		this->insert(_end->next, val);
+	}
 
+	void pop_front (void)
+	{
+		this->erase(_end->next);
+	}
+
+	void push_back (const value_type & val)
+	{
+		this->insert(_end->prev, val);
+	}
+
+	void pop_back (void)
+	{
+		this->erase(_end->prev);
+	}
+
+	void swap (list & x)
+	{
+		allocator_type	tmp_alloc = x._alloc;
+		node *			tmp_end = x._end;
+
+		x._alloc = _alloc;
+		x._end = _end;
+		_alloc = tmp_alloc;
+		_end = tmp_end;
+	}
+
+	void clear (void)
+	{
+		for (node *prev = _end->next, *next = _end->next->next ; prev != _end ; prev = next, next = next->next)
+			delete prev;
+	}
+
+	//////////////////////////////
+	// Splicing operations
+	//////////////////////////////
+
+	void splice (iterator position, list & x)
+	{
+		if (!x.empty())
+		{
+			position->next->prev = x._end->prev;
+			position->next = x._end->next;
+			position->next->prev = position;
+			position->next->next = position_next;
+			x._end->next = x._end;
+			x._end->prev = x._end;
+		}
+	}
+
+	void splice (iterator position, list & x, iterator i)
+	{
+		if (!x.empty())
+		{
+			i->next->prev = i->prev;
+			i->prev->next = i->next;
+			i->prev = position;
+			i->next = position->next;
+			position->next->prev = i;
+			position->next = i;
+		}
+	}
+
+	void splice (iterator position, list & x, iterator first, iterator last)
+	{
+		if (!x.empty())
+		{
+			position->next->prev = last->prev;
+			last->prev = first->prev;
+			first->prev->next = last;
+			first->prev = position;
+			last->next = position->next;
+			position->next = first;
+		}
+	}
+
+	//////////////////////////////
+	// Removal operations
+	//////////////////////////////
+
+	void remove (const value_type & val)
+	{
+		for (iterator it = this->begin() ; it != this->end() ; )
+		{
+			iterator	cpy = it++;
+			if (cpy->data == val)
+				this->erase(cpy);
+		}
+	}
+
+	template <class Predicate>
+	void remove_if (Predicate pred)
+	{
+		for (iterator it = this->begin() ; it != this->end() ; it++)
+		{
+			iterator	cpy = it;
+			if (pred(cpy->data))
+				this->erase(cpy);
+		}
+	}
+
+	//////////////////////////////
+	// Uniquify operations
+	//////////////////////////////
+
+	void unique (void)
+	{
+		for (iterator it = this->begin()->next ; it != this->end() ; it++)
+		{
+			if (it->data == it->prev->data)
+			{
+				this->erase(it);
+				it = this->begin();
+			}
+		}
+	}
+
+	template <class BinaryPredicate>
+	void unique (BinaryPredicate binary_pred)
+	{
+		for (iterator it = this->begin()->next ; it != this->end() ; it++)
+		{
+			if (binary_pred(it->data, it->prev->data))
+			{
+				this->erase(it);
+				it = this->begin();
+			}
+		}
+	}
+
+	//////////////////////////////
+	// Merging operations
+	//////////////////////////////
+
+	void merge (list & x)
+	{
+		for (iterator it = this->begin() ; it != this->end() ; it++)
+		{
+			iterator	it2 = x->begin();
+			if (it2 != x->end() && it2->data < it->data)
+				this->splice(it, x, it2);
+		}
+	}
+
+	template <class Compare>
+	void merge (list & x, Compare comp)
+	{
+		for (iterator it = this->begin() ; it != this->end() ; it++)
+		{
+			iterator	it2 = x->begin();
+			if (it2 != x->end() && comp(it2->data, it->data))
+				this->splice(it, x, it2);
+		}
+	}
+
+	//////////////////////////////
+	// Sorting operations
+	//////////////////////////////
+
+	void sort (void)
+	{
+
+	}
+
+	template <class Compare>
+	void sort (Compare comp)
+	{
+
+	}
+
+	void reverse (void)
+	{
+
+	}
 
 	//////////////////////////////
 	// Allocator
 	//////////////////////////////
 
-
+	allocator_type get_allocator (void) const
+	{
+		return (allocator_type());
+	}
 
 	//////////////////////////////
 	// Member variables
