@@ -120,7 +120,7 @@ public:
 
 	template <class InputIterator>
 	vector (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(),
-			typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
+	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		size_type		n = 0;
 		for (InputIterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
@@ -363,7 +363,7 @@ public:
 
 	template <class InputIterator>
 	void assign (InputIterator first, InputIterator last,
-				typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
+	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		size_type		n = 0;
 		for (InputIterator cpy = first ; cpy != last && n < 1000000 ; cpy++)
@@ -455,7 +455,7 @@ public:
 
 	template <class InputIterator>
 	void insert (iterator position, InputIterator first, InputIterator last,
-				typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
+	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		size_type		off = position - this->begin();
 		size_type		n = 0;

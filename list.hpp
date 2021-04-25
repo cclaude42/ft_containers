@@ -36,6 +36,7 @@ public:
 	public:
 		// Member types
 		typedef typename		ft::conditional<IsConst, const node, node>::type		value_type;
+		typedef typename		ft::conditional<IsConst, const T, T>::type				t_type;
 		typedef					std::ptrdiff_t											difference_type;
 		typedef					std::size_t												size_type;
 		// -structors
@@ -59,7 +60,7 @@ public:
 		listIterator			operator++	(int)										{ listIterator<IsConst> x(*this); _ptr++; return (x); }
 		listIterator			operator--	(int)										{ listIterator<IsConst> x(*this); _ptr--; return (x); }
 		// Dereference
-		T &						operator*	(void)										{ return (_ptr->data); }
+		t_type &				operator*	(void)										{ return (_ptr->data); }
 		value_type *			operator->	(void)										{ return (_ptr); }
 
 		// friend value_type *		operator=	(value_type * v, const listIterator & x)	{ return (_ptr); }
@@ -109,7 +110,8 @@ public:
 	}
 
 	template <class InputIterator>
-	list (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type())
+	list (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(),
+	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		_alloc = alloc;
 		_end = new node;
@@ -147,7 +149,7 @@ public:
 		_end->prev = _end;
 		_end->next = _end;
 
-		for (iterator it = x.begin() ; it != x.end() ; it++)
+		for (const_iterator it = x.begin() ; it != x.end() ; it++)
 			this->push_back(*it);
 		return (*this);
 	}
@@ -262,7 +264,8 @@ public:
 	//////////////////////////////
 
 	template <class InputIterator>
-	void assign (InputIterator first, InputIterator last)
+	void assign (InputIterator first, InputIterator last,
+	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		*this = list(first, last);
 	}
@@ -279,7 +282,7 @@ public:
 	iterator insert (iterator position, const value_type & val)
 	{
 		node *	new_node = new node;
-		new_node->prev = position;
+		new_node->prev = position->next->prev;
 		new_node->data = val;
 		new_node->next = position->next;
 		position->next = new_node;
@@ -294,7 +297,8 @@ public:
 	}
 
 	template <class InputIterator>
-	void insert (iterator position, InputIterator first, InputIterator last)
+	void insert (iterator position, InputIterator first, InputIterator last,
+	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		while (first != last)
 			position = this->insert(position, *first++);
@@ -309,7 +313,7 @@ public:
 		node *	position_next = position->next;
 		position->next->prev = position->prev;
 		position->prev->next = position_next;
-		delete position;
+		delete (node *)(&*position);
 		return (position_next);
 	}
 
