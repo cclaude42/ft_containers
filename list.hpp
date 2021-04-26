@@ -19,10 +19,14 @@ public:
 
 	typedef struct			s_node
 	{
-		T					data;
 		struct s_node *		prev;
 		struct s_node *		next;
 	}						node;
+
+	typedef struct			s_datanode : public node
+	{
+		T					data;
+	}						datanode;
 
 	//////////////////////////////
 	// Iterator subclass
@@ -35,38 +39,37 @@ public:
 		friend class			list;
 	public:
 		// Member types
-		typedef typename		ft::conditional<IsConst, const node, node>::type		value_type;
-		typedef typename		ft::conditional<IsConst, const T, T>::type				t_type;
-		typedef					std::ptrdiff_t											difference_type;
-		typedef					std::size_t												size_type;
+		typedef typename		ft::conditional<IsConst, const T, T>::type					value_type;
+		typedef typename		ft::conditional<IsConst, const node, node>::type			node_type;
+		typedef typename		ft::conditional<IsConst, const datanode, datanode>::type	datanode_type;
+		typedef					std::ptrdiff_t												difference_type;
+		typedef					std::size_t													size_type;
 		// -structors
-		listIterator			(void)													{ _ptr = NULL; }
-		listIterator			(value_type * const ptr)								{ _ptr = ptr; }
-		~listIterator			(void)													{}
+		listIterator			(void)														{ _ptr = NULL; }
+		listIterator			(node_type * const ptr)										{ _ptr = ptr; }
+		~listIterator			(void)														{}
 		// Const stuff
-		template <bool B>		friend class											listIterator;
+		template <bool B>		friend class												listIterator;
 		friend class			list;
 		template <bool B>		listIterator
-			(const listIterator<B> & x, typename ft::enable_if<!B>::type* = 0)			{ _ptr = x._ptr; }
+			(const listIterator<B> & x, typename ft::enable_if<!B>::type* = 0)				{ _ptr = x._ptr; }
 
 		// Assignment
-		listIterator &			operator=	(const listIterator & x)					{ _ptr = x._ptr; return (*this); }
+		listIterator &			operator=	(const listIterator & x)						{ _ptr = x._ptr; return (*this); }
 		// Comparison
-		template <bool B> bool	operator==	(const listIterator<B> & x) const			{ return (_ptr == x._ptr); }
-		template <bool B> bool	operator!=	(const listIterator<B> & x) const			{ return (_ptr != x._ptr); }
+		template <bool B> bool	operator==	(const listIterator<B> & x) const				{ return (_ptr == x._ptr); }
+		template <bool B> bool	operator!=	(const listIterator<B> & x) const				{ return (_ptr != x._ptr); }
 		// -crementation
-		listIterator &			operator++	(void)										{ _ptr = _ptr->next; return (*this); }
-		listIterator &			operator--	(void)										{ _ptr = _ptr->prev; return (*this); }
-		listIterator			operator++	(int)										{ listIterator<IsConst> x(*this); _ptr++; return (x); }
-		listIterator			operator--	(int)										{ listIterator<IsConst> x(*this); _ptr--; return (x); }
+		listIterator &			operator++	(void)											{ _ptr = _ptr->next; return (*this); }
+		listIterator &			operator--	(void)											{ _ptr = _ptr->prev; return (*this); }
+		listIterator			operator++	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->next; return (x); }
+		listIterator			operator--	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
 		// Dereference
-		t_type &				operator*	(void)										{ return (_ptr->data); }
-		value_type *			operator->	(void)										{ return (_ptr); }
-
-		// friend value_type *		operator=	(value_type * v, const listIterator & x)	{ return (_ptr); }
+		value_type &			operator*	(void)											{ return (static_cast<datanode_type *>(_ptr)->data); }
+		node_type *				operator->	(void)											{ return (static_cast<datanode_type *>(_ptr)); }
 
 	protected:
-		value_type *			_ptr;
+		node_type *			_ptr;
 	};
 
 	//////////////////////////////
@@ -93,17 +96,13 @@ public:
 	explicit list (const allocator_type & alloc = allocator_type())
 	{
 		_alloc = alloc;
-		_end = new node;
-		_end->prev = _end;
-		_end->next = _end;
+		this->_new_end_node();
 	}
 
 	explicit list (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
 	{
 		_alloc = alloc;
-		_end = new node;
-		_end->prev = _end;
-		_end->next = _end;
+		this->_new_end_node();
 
 		while (n-- > 0)
 			this->push_back(val);
@@ -114,9 +113,7 @@ public:
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		_alloc = alloc;
-		_end = new node;
-		_end->prev = _end;
-		_end->next = _end;
+		this->_new_end_node();
 
 		while (first != last)
 			this->push_back(*first++);
@@ -145,9 +142,6 @@ public:
 	{
 		this->clear();
 		_alloc = x._alloc;
-		_end = new node;
-		_end->prev = _end;
-		_end->next = _end;
 
 		for (const_iterator it = x.begin() ; it != x.end() ; it++)
 			this->push_back(*it);
@@ -232,7 +226,8 @@ public:
 
 	size_type max_size (void) const
 	{
-		return (_alloc.max_size());
+		std::allocator<datanode>	al;
+		return (al.max_size());
 	}
 
 	//////////////////////////////
@@ -281,7 +276,7 @@ public:
 
 	iterator insert (iterator position, const value_type & val)
 	{
-		node *	new_node = new node;
+		datanode *	new_node = new datanode;
 		new_node->prev = position->next->prev;
 		new_node->data = val;
 		new_node->next = position->next;
@@ -358,6 +353,8 @@ public:
 	{
 		for (node *prev = _end->next, *next = _end->next->next ; prev != _end ; prev = next, next = next->next)
 			delete prev;
+		_end->prev = _end;
+		_end->next = _end;
 	}
 
 	//////////////////////////////
@@ -505,6 +502,13 @@ public:
 	//////////////////////////////
 
 private:
+	void _new_end_node (void)
+	{
+		_end = new node;
+		_end->prev = _end;
+		_end->next = _end;
+	}
+
 	template <class Compare>
 	void _quicksort (Compare comp, iterator first, iterator last)
 	{

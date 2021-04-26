@@ -3,36 +3,17 @@
 #include <vector>
 #include <list>
 
-#define TESTED ft
+#define TESTED std
 
 int	main(void)
 {
-	TESTED::list<int> mylist;
-	  TESTED::list<int>::iterator it1,it2;
+	std::allocator<int>	al;
+	TESTED::list<std::string, std::allocator<int> > mylist(4, "sisi la mif", al);
 
-	  // set some values:
-	  for (int i=1; i<10; ++i) mylist.push_back(i*10);
+	for (TESTED::list<std::string, std::allocator<int> >::iterator it = mylist.begin() ; it != mylist.end() ; it++)
+		std::cout << *it << std::endl;
 
-	                              // 10 20 30 40 50 60 70 80 90
-	  it1 = it2 = mylist.begin(); // ^^           ^
-	  ++it1;                      //    ^              ^
+	std::cout << mylist.max_size() << std::endl;
 
-	  it1 = mylist.erase (it1);   // 10 30 40 50 60 70 80 90
-	                              //    ^           ^
-
-	  it2 = mylist.erase (it2);   // 10 30 40 50 60 80 90
-	                              //    ^           ^
-
-	  ++it1;                      //       ^        ^
-	  --it2;                      //       ^     ^
-
-	  mylist.erase (it1,it2);     // 10 30 60 80 90
-	                              //        ^
-
-	  std::cout << "mylist contains:";
-	  for (it1=mylist.begin(); it1!=mylist.end(); ++it1)
-	    std::cout << ' ' << *it1;
-	  std::cout << '\n';
-
-	  return 0;
+	return 0;
 }
