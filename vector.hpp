@@ -553,19 +553,10 @@ public:
 
 	void swap (vector & x)
 	{
-		allocator_type	tmp_alloc = x._alloc;
-		size_type		tmp_size = x._size;
-		size_type		tmp_cap = x._capacity;
-		T *				tmp_vct = x._vct;
-
-		x._alloc = this->_alloc;
-		x._size = this->_size;
-		x._capacity = this->_capacity;
-		x._vct = this->_vct;
-		this->_alloc = tmp_alloc;
-		this->_size = tmp_size;
-		this->_capacity = tmp_cap;
-		this->_vct = tmp_vct;
+		ft::swap(_alloc, x._alloc);
+		ft::swap(_size, x._size);
+		ft::swap(_capacity, x._cap);
+		ft::swap(_vct, x._vct);
 	}
 
 	void clear (void)

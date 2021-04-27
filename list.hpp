@@ -66,7 +66,7 @@ public:
 		listIterator			operator--	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
 		// Dereference
 		value_type &			operator*	(void)											{ return (static_cast<datanode_type *>(_ptr)->data); }
-		node_type *				operator->	(void)											{ std::cout << "Ptr value  : " << _ptr << "\nData value : " << &(static_cast<datanode_type *>(_ptr)->data) - (2 * sizeof(node *) / 8) << "\n"; return (static_cast<datanode_type *>(_ptr)); }
+		value_type *			operator->	(void)											{ return (&static_cast<datanode_type *>(_ptr)->data); }
 
 	protected:
 		node_type *			_ptr;
