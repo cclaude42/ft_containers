@@ -66,7 +66,7 @@ public:
 		value_type &			operator[]	(size_type n)							{ return (*(_ptr + n)); }
 		value_type &			operator*	(void)									{ return (*_ptr); }
 		value_type *			operator->	(void)									{ return (_ptr); }
-		// Non-member functions
+		// Friend functions
 		friend vectorIterator	operator+	(int n, const vectorIterator & x)		{ return (x._ptr + n); }
 
 # if __APPLE__

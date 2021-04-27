@@ -66,7 +66,7 @@ public:
 		listIterator			operator--	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
 		// Dereference
 		value_type &			operator*	(void)											{ return (static_cast<datanode_type *>(_ptr)->data); }
-		node_type *				operator->	(void)											{ return (static_cast<datanode_type *>(_ptr)); }
+		node_type *				operator->	(void)											{ std::cout << "Ptr value  : " << _ptr << "\nData value : " << &(static_cast<datanode_type *>(_ptr)->data) - (2 * sizeof(node *) / 8) << "\n"; return (static_cast<datanode_type *>(_ptr)); }
 
 	protected:
 		node_type *			_ptr;
@@ -121,6 +121,7 @@ public:
 
 	list (const list & x)
 	{
+		this->_new_end_node();
 		*this = x;
 	}
 
@@ -236,22 +237,22 @@ public:
 
 	reference front (void)
 	{
-		return (_end->next);
+		return (static_cast<datanode *>(_end->next)->data);
 	}
 
 	const_reference front (void) const
 	{
-		return (_end->next);
+		return (static_cast<datanode *>(_end->next)->data);
 	}
 
 	reference back (void)
 	{
-		return (_end->prev);
+		return (static_cast<datanode *>(_end->prev)->data);
 	}
 
 	const_reference back (void) const
 	{
-		return (_end->prev);
+		return (static_cast<datanode *>(_end->prev)->data);
 	}
 
 	//////////////////////////////
@@ -305,11 +306,12 @@ public:
 
 	iterator erase (iterator position)
 	{
-		node *	position_next = position->next;
+		node *	position_node = position->next->prev;
 		position->next->prev = position->prev;
-		position->prev->next = position_next;
-		delete (node *)(&*position);
-		return (position_next);
+		position->prev->next = position->next;
+		position = position->next;
+		delete position_node;
+		return (position);
 	}
 
 	iterator erase (iterator first, iterator last)
