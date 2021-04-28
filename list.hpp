@@ -19,14 +19,10 @@ public:
 
 	typedef struct			s_node
 	{
+		T					data;
 		struct s_node *		prev;
 		struct s_node *		next;
 	}						node;
-
-	typedef struct			s_datanode : public node
-	{
-		T					data;
-	}						datanode;
 
 	//////////////////////////////
 	// Iterator subclass
@@ -41,7 +37,6 @@ public:
 		// Member types
 		typedef typename		ft::conditional<IsConst, const T, T>::type					value_type;
 		typedef typename		ft::conditional<IsConst, const node, node>::type			node_type;
-		typedef typename		ft::conditional<IsConst, const datanode, datanode>::type	datanode_type;
 		typedef					std::ptrdiff_t												difference_type;
 		typedef					std::size_t													size_type;
 		// -structors
@@ -65,11 +60,12 @@ public:
 		listIterator			operator++	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->next; return (x); }
 		listIterator			operator--	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
 		// Dereference
-		value_type &			operator*	(void)											{ return (static_cast<datanode_type *>(_ptr)->data); }
-		value_type *			operator->	(void)											{ return (&static_cast<datanode_type *>(_ptr)->data); }
+		value_type &			operator*	(void)											{ return (_ptr->data); }
+		value_type *			operator->	(void)											{ return (&_ptr->data); }
 
-	protected:
-		node_type *			_ptr;
+	private:
+		node_type *				getPtr		(void)											{ return (_ptr); }
+		node_type *				_ptr;
 	};
 
 	//////////////////////////////
@@ -77,6 +73,7 @@ public:
 	//////////////////////////////
 
 	typedef		T												value_type;
+	// typedef		typename Alloc::template rebind<node> >::other	allocator_type;
 	typedef		Alloc											allocator_type;
 	typedef		typename allocator_type::reference				reference;
 	typedef		typename allocator_type::const_reference		const_reference;
@@ -227,7 +224,7 @@ public:
 
 	size_type max_size (void) const
 	{
-		std::allocator<datanode>	al;
+		std::allocator<node>	al;
 		return (al.max_size());
 	}
 
@@ -237,22 +234,22 @@ public:
 
 	reference front (void)
 	{
-		return (static_cast<datanode *>(_end->next)->data);
+		return (_end->next->data);
 	}
 
 	const_reference front (void) const
 	{
-		return (static_cast<datanode *>(_end->next)->data);
+		return (_end->next->data);
 	}
 
 	reference back (void)
 	{
-		return (static_cast<datanode *>(_end->prev)->data);
+		return (_end->prev->data);
 	}
 
 	const_reference back (void) const
 	{
-		return (static_cast<datanode *>(_end->prev)->data);
+		return (_end->prev->data);
 	}
 
 	//////////////////////////////
@@ -277,11 +274,13 @@ public:
 
 	iterator insert (iterator position, const value_type & val)
 	{
-		datanode *	new_node = new datanode;
-		new_node->prev = position->next->prev;
+		node *	new_node = new node;
+		// node *	new_node = _alloc.allocate(1);
+		// _alloc.construct(new_node, val, position.getPtr(), position.getPtr()->next);
+		new_node->prev = position.getPtr();
 		new_node->data = val;
-		new_node->next = position->next;
-		position->next = new_node;
+		new_node->next = position.getPtr()->next;
+		position.getPtr()->next = new_node;
 		new_node->next->prev = new_node;
 		return (new_node);
 	}
@@ -306,10 +305,10 @@ public:
 
 	iterator erase (iterator position)
 	{
-		node *	position_node = position->next->prev;
-		position->next->prev = position->prev;
-		position->prev->next = position->next;
-		position = position->next;
+		node *	position_node = position.getPtr();
+		position = position.getPtr()->next;
+		position_node->next->prev = position_node->prev;
+		position_node->prev->next = position_node->next;
 		delete position_node;
 		return (position);
 	}
@@ -367,10 +366,10 @@ public:
 	{
 		if (!x.empty())
 		{
-			x._end->next->prev = position;
-			x._end->prev->next = position->next;
-			position->next->prev = x._end->prev;
-			position->next = x._end->next;
+			x._end->next->prev = position.getPtr();
+			x._end->prev->next = position.getPtr()->next;
+			position.getPtr()->next->prev = x._end->prev;
+			position.getPtr()->next = x._end->next;
 			x._end->next = x._end;
 			x._end->prev = x._end;
 		}
@@ -382,10 +381,10 @@ public:
 		{
 			i->next->prev = i->prev;
 			i->prev->next = i->next;
-			i->prev = position;
-			i->next = position->next;
-			position->next->prev = i;
-			position->next = i;
+			i->prev = position.getPtr();
+			i->next = position.getPtr()->next;
+			position.getPtr()->next->prev = i;
+			position.getPtr()->next = i;
 		}
 	}
 
@@ -393,12 +392,12 @@ public:
 	{
 		if (!x.empty())
 		{
-			position->next->prev = last->prev;
-			last->prev = first->prev;
-			first->prev->next = last;
-			first->prev = position;
-			last->next = position->next;
-			position->next = first;
+			position.getPtr()->next->prev = last.getPtr()->prev;
+			last.getPtr()->prev = first.getPtr()->prev;
+			first.getPtr()->prev->next = last.getPtr();
+			first.getPtr()->prev = position.getPtr();
+			last.getPtr()->next = position.getPtr()->next;
+			position.getPtr()->next = first.getPtr();
 		}
 	}
 
@@ -411,7 +410,7 @@ public:
 		for (iterator it = this->begin() ; it != this->end() ; )
 		{
 			iterator	cpy = it++;
-			if (cpy->data == val)
+			if (*cpy == val)
 				this->erase(cpy);
 		}
 	}
@@ -422,7 +421,7 @@ public:
 		for (iterator it = this->begin() ; it != this->end() ; it++)
 		{
 			iterator	cpy = it;
-			if (pred(cpy->data))
+			if (pred(*cpy))
 				this->erase(cpy);
 		}
 	}
@@ -433,7 +432,14 @@ public:
 
 	void unique (void)
 	{
-		this->unique(&ft::equal);
+		for (iterator it = this->begin()->next ; it != this->end() ; it++)
+		{
+			if (*it == *iterator(it.getPtr()->prev))
+			{
+				this->erase(it);
+				it = this->begin();
+			}
+		}
 	}
 
 	template <class BinaryPredicate>
@@ -441,7 +447,7 @@ public:
 	{
 		for (iterator it = this->begin()->next ; it != this->end() ; it++)
 		{
-			if (binary_pred(it->data, it->prev->data))
+			if (binary_pred(*it, *iterator(it.getPtr()->prev)))
 			{
 				this->erase(it);
 				it = this->begin();
@@ -455,7 +461,12 @@ public:
 
 	void merge (list & x)
 	{
-		this->merge(x, &ft::lexicographical_compare);
+		for (iterator it = this->begin() ; it != this->end() ; it++)
+		{
+			iterator	it2 = x->begin();
+			if (it2 != x->end() && *it2 < *it)
+				this->splice(it, x, it2);
+		}
 	}
 
 	template <class Compare>
@@ -464,7 +475,7 @@ public:
 		for (iterator it = this->begin() ; it != this->end() ; it++)
 		{
 			iterator	it2 = x->begin();
-			if (it2 != x->end() && comp(it2->data, it->data))
+			if (it2 != x->end() && comp(*it2, *it))
 				this->splice(it, x, it2);
 		}
 	}
@@ -475,7 +486,7 @@ public:
 
 	void sort (void)
 	{
-		this->_quicksort(&ft::lexicographical_compare, this->begin(), this->end());
+		this->_quicksort(this->begin(), this->end());
 	}
 
 	template <class Compare>
@@ -487,7 +498,7 @@ public:
 	void reverse (void)
 	{
 		for (iterator it = this->begin() ; it != this->end() ; it--)
-			swap(it->prev, it->next);
+			ft::swap(it.getPtr()->prev, it.getPtr()->next);
 	}
 
 	//////////////////////////////
@@ -511,28 +522,52 @@ private:
 		_end->next = _end;
 	}
 
-	template <class Compare>
-	void _quicksort (Compare comp, iterator first, iterator last)
+	void _quicksort (iterator first, iterator last)
 	{
-		if (first != last && first->next != last)
+		if (first != last && iterator(first.getPtr()->next) != last)
 		{
-			iterator	it = this->_partition(comp, first, last);
+			iterator	it = this->_partition(first, last);
 			this->_quicksort(first, it);
 			it++;
 			this->_quicksort(it, last);
 		}
 	}
 
-	template <class Compare>
-	void _partition (Compare comp, iterator first, iterator last)
+	iterator _partition (iterator first, iterator last)
 	{
 		iterator	prev = first;
-		for (iterator it = first ; it != last->prev ; it++)
+		for (iterator it = first ; it != iterator(last.getPtr()->prev) ; it++)
 		{
-			if (!comp(last->prev->data, it->data))
-				ft::swap((prev++)->data, it->data);
+			if (*it <= *iterator(last.getPtr()->prev))
+				ft::swap(*prev++, *it);
 		}
-		ft::swap(prev->data, last->prev->data);
+		ft::swap(*prev, *iterator(last.getPtr()->prev));
+		return (prev);
+	}
+
+	template <class Compare>
+	void _quicksort (Compare comp, iterator first, iterator last)
+	{
+		if (first != last && iterator(first.getPtr()->next) != last)
+		{
+			iterator	it = this->_partition(comp, first, last);
+			this->_quicksort(comp, first, it);
+			it++;
+			this->_quicksort(comp, it, last);
+		}
+	}
+
+	template <class Compare>
+	iterator _partition (Compare comp, iterator first, iterator last)
+	{
+		iterator	prev = first;
+		for (iterator it = first ; it != iterator(last.getPtr()->prev) ; it++)
+		{
+			if (!comp(*iterator(last.getPtr()->prev), *it))
+				ft::swap(*prev++, *it);
+		}
+		ft::swap(*prev, *iterator(last.getPtr()->prev));
+		return (prev);
 	}
 
 	//////////////////////////////

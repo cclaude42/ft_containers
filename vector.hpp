@@ -27,7 +27,6 @@ public:
 	class vectorIterator {
 		template <class it>
 		friend class		reverse_iterator;
-		friend class		vector;
 	public:
 		// Member types
 		typedef typename		ft::conditional<IsConst, const T, T>::type			value_type;
@@ -74,7 +73,7 @@ public:
 # endif
 		vectorIterator			(value_type * const ptr)							{ _ptr = ptr; }
 
-	protected:
+	private:
 		value_type *			_ptr;
 	};
 
@@ -555,7 +554,7 @@ public:
 	{
 		ft::swap(_alloc, x._alloc);
 		ft::swap(_size, x._size);
-		ft::swap(_capacity, x._cap);
+		ft::swap(_capacity, x._capacity);
 		ft::swap(_vct, x._vct);
 	}
 

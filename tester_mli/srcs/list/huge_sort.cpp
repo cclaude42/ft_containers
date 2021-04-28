@@ -83,11 +83,11 @@ int		main(void)
 	TESTED_NAMESPACE::list<TESTED_TYPE>::iterator it;
 	for (it = lst.begin(); it != lst.end(); ++it)
 		it->switchVerbose();
-	// std::cout << "\t-- LIST CREATED --" << std::endl;
-	// printSize(lst);
-	//
-	// std::cout << "\t-- SORT --" << std::endl;
-	// lst.sort();
-	// printSize(lst);
+	std::cout << "\t-- LIST CREATED --" << std::endl;
+	printSize(lst);
+
+	std::cout << "\t-- SORT --" << std::endl;
+	lst.sort();
+	printSize(lst);
 	return (0);
 }
