@@ -538,7 +538,18 @@ private:
 		for (iterator it = first ; it != last ; it++)
 		{
 			if (*it <= *last)
-				ft::swap(*prev++, *it);
+			{
+				std::cout << "Prev before :\n";
+				this->print_ite(prev);
+				std::cout << "It before :\n";
+				this->print_ite(it);
+				ft::swap(*prev, *it);
+				std::cout << "Prev after :\n";
+				this->print_ite(prev);
+				std::cout << "It after :\n";
+				this->print_ite(it);
+				prev++;
+			}
 		}
 		ft::swap(*prev, *last);
 		return (prev);
@@ -582,6 +593,11 @@ private:
 		first->next->prev = d;
 		second->next->prev = c;
 		ft::swap(first, second);
+	}
+
+	void print_ite(iterator & it)
+	{
+		std::cout << "it : " << &it << ", with value " << *it << "\n   prev   <- ptr ->   next   \n" << it.getPtr()->prev << " " << it.getPtr() << " " << it.getPtr()->next << "\n\n";
 	}
 
 	//////////////////////////////
