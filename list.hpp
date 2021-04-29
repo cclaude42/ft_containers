@@ -213,13 +213,10 @@ public:
 
 	void resize (size_type n, value_type val = value_type())
 	{
-		iterator	it = this->begin();
-		for ( ; it != this->end() && n > 0 ; it++)
-			n--;
-		for ( ; it != this->end() ; it++)
+		while (this->size() < n)
 			this->push_back(val);
-		for ( ; n > 0 && it != this->end() ; n--)
-			this->erase(it++);
+		while (this->size() > n)
+			this->erase(this->end().getPtr()->prev);
 	}
 
 	size_type max_size (void) const
@@ -276,11 +273,11 @@ public:
 		node *	new_node = new node;
 		// node *	new_node = _alloc.allocate(1);
 		// _alloc.construct(new_node, val, position.getPtr(), position.getPtr()->next);
-		new_node->prev = position.getPtr();
+		new_node->prev = position.getPtr()->prev;
 		new_node->data = val;
-		new_node->next = position.getPtr()->next;
-		position.getPtr()->next = new_node;
-		new_node->next->prev = new_node;
+		new_node->next = position.getPtr();
+		position.getPtr()->prev = new_node;
+		new_node->prev->next = new_node;
 		return (new_node);
 	}
 
@@ -295,7 +292,7 @@ public:
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		while (first != last)
-			position = this->insert(position, *first++);
+			position = this->insert(position, *(--last));
 	}
 
 	//////////////////////////////
@@ -335,7 +332,7 @@ public:
 
 	void push_back (const value_type & val)
 	{
-		this->insert(_end->prev, val);
+		this->insert(_end, val);
 	}
 
 	void pop_back (void)
@@ -365,10 +362,10 @@ public:
 	{
 		if (!x.empty())
 		{
-			x._end->next->prev = position.getPtr();
-			x._end->prev->next = position.getPtr()->next;
-			position.getPtr()->next->prev = x._end->prev;
-			position.getPtr()->next = x._end->next;
+			x._end->next->prev = position.getPtr()->prev;
+			x._end->prev->next = position.getPtr();
+			position.getPtr()->prev->next = x._end->next;
+			position.getPtr()->prev = x._end->prev;
 			x._end->next = x._end;
 			x._end->prev = x._end;
 		}
@@ -378,12 +375,12 @@ public:
 	{
 		if (!x.empty())
 		{
-			i->next->prev = i->prev;
-			i->prev->next = i->next;
-			i->prev = position.getPtr();
-			i->next = position.getPtr()->next;
-			position.getPtr()->next->prev = i;
-			position.getPtr()->next = i;
+			i.getPtr()->next->prev = i.getPtr()->prev;
+			i.getPtr()->prev->next = i.getPtr()->next;
+			i.getPtr()->prev = position.getPtr()->prev;
+			i.getPtr()->next = position.getPtr();
+			position.getPtr()->prev->next = i.getPtr();
+			position.getPtr()->prev = i.getPtr();
 		}
 	}
 
@@ -391,12 +388,12 @@ public:
 	{
 		if (!x.empty())
 		{
-			position.getPtr()->next->prev = last.getPtr()->prev;
-			last.getPtr()->prev = first.getPtr()->prev;
-			first.getPtr()->prev->next = last.getPtr();
-			first.getPtr()->prev = position.getPtr();
-			last.getPtr()->next = position.getPtr()->next;
-			position.getPtr()->next = first.getPtr();
+			last.getPtr()->next->prev = first.getPtr()->prev;
+			first.getPtr()->prev->next = last.getPtr()->next;
+			first.getPtr()->prev = position.getPtr()->prev;
+			last.getPtr()->next = position.getPtr();
+			position.getPtr()->prev->next = first.getPtr();
+			position.getPtr()->prev = last.getPtr();
 		}
 	}
 
@@ -462,8 +459,8 @@ public:
 	{
 		for (iterator it = this->begin() ; it != this->end() ; it++)
 		{
-			iterator	it2 = x->begin();
-			if (it2 != x->end() && *it2 < *it)
+			iterator	it2 = x.begin();
+			if (it2 != x.end() && *it2 < *it)
 				this->splice(it, x, it2);
 		}
 	}
@@ -473,8 +470,8 @@ public:
 	{
 		for (iterator it = this->begin() ; it != this->end() ; it++)
 		{
-			iterator	it2 = x->begin();
-			if (it2 != x->end() && comp(*it2, *it))
+			iterator	it2 = x.begin();
+			if (it2 != x.end() && comp(*it2, *it))
 				this->splice(it, x, it2);
 		}
 	}
@@ -498,6 +495,7 @@ public:
 	{
 		for (iterator it = this->begin() ; it != this->end() ; it--)
 			ft::swap(it.getPtr()->prev, it.getPtr()->next);
+		ft::swap(_end->prev, _end->next);
 	}
 
 	//////////////////////////////

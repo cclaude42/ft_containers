@@ -47,6 +47,8 @@ int		main(void)
 	ft_push_back(second, 3.7);
 	ft_push_back(second, 7.1);
 
+	printSize(first);
+	printSize(second);
 	std::cout << "\t-- MERGE --" << std::endl;
 
 	ft_merge(first, first);
