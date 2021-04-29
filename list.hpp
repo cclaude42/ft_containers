@@ -73,12 +73,12 @@ public:
 	//////////////////////////////
 
 	typedef		T												value_type;
-	// typedef		typename Alloc::template rebind<node> >::other	allocator_type;
-	typedef		Alloc											allocator_type;
-	typedef		typename allocator_type::reference				reference;
-	typedef		typename allocator_type::const_reference		const_reference;
-	typedef		typename allocator_type::pointer				pointer;
-	typedef		typename allocator_type::const_pointer			const_pointer;
+	typedef		typename Alloc::template rebind<node>::other	allocator_type;
+	// typedef		Alloc											allocator_type;
+	typedef		typename Alloc::reference						reference;
+	typedef		typename Alloc::const_reference					const_reference;
+	typedef		typename Alloc::pointer							pointer;
+	typedef		typename Alloc::const_pointer					const_pointer;
 	typedef		listIterator<false>								iterator;
 	typedef		listIterator<true>								const_iterator;
 	typedef		ft::reverse_iterator<iterator>					reverse_iterator;
@@ -224,8 +224,7 @@ public:
 
 	size_type max_size (void) const
 	{
-		std::allocator<node>	al;
-		return (al.max_size());
+		return (_alloc.max_size());
 	}
 
 	//////////////////////////////
@@ -527,8 +526,7 @@ private:
 		if (first != last && iterator(first.getPtr()->next) != last)
 		{
 			iterator	it = this->_partition(first, last);
-			this->_quicksort(first, it);
-			it++;
+			this->_quicksort(first, it++);
 			this->_quicksort(it, last);
 		}
 	}
@@ -536,12 +534,13 @@ private:
 	iterator _partition (iterator first, iterator last)
 	{
 		iterator	prev = first;
-		for (iterator it = first ; it != iterator(last.getPtr()->prev) ; it++)
+		last--;
+		for (iterator it = first ; it != last ; it++)
 		{
-			if (*it <= *iterator(last.getPtr()->prev))
+			if (*it <= *last)
 				ft::swap(*prev++, *it);
 		}
-		ft::swap(*prev, *iterator(last.getPtr()->prev));
+		ft::swap(*prev, *last);
 		return (prev);
 	}
 
@@ -551,8 +550,7 @@ private:
 		if (first != last && iterator(first.getPtr()->next) != last)
 		{
 			iterator	it = this->_partition(comp, first, last);
-			this->_quicksort(comp, first, it);
-			it++;
+			this->_quicksort(comp, first, it++);
 			this->_quicksort(comp, it, last);
 		}
 	}
@@ -561,13 +559,29 @@ private:
 	iterator _partition (Compare comp, iterator first, iterator last)
 	{
 		iterator	prev = first;
-		for (iterator it = first ; it != iterator(last.getPtr()->prev) ; it++)
+		last--;
+		for (iterator it = first ; it != last ; it++)
 		{
 			if (!comp(*iterator(last.getPtr()->prev), *it))
 				ft::swap(*prev++, *it);
 		}
 		ft::swap(*prev, *iterator(last.getPtr()->prev));
 		return (prev);
+	}
+
+	void _swap_nodes (node* & first, node* & second)
+	{
+		node *	a = first->prev->next;
+		node *	b = second->prev->next;
+		node *	c = first->next->prev;
+		node *	d = second->next->prev;
+		ft::swap(first->prev, second->prev);
+		ft::swap(first->next, second->next);
+		first->prev->next = b;
+		second->prev->next = a;
+		first->next->prev = d;
+		second->next->prev = c;
+		ft::swap(first, second);
 	}
 
 	//////////////////////////////
