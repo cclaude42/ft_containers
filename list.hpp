@@ -521,6 +521,10 @@ private:
 		_end->next = _end;
 	}
 
+	//////////////////////////////
+	// Quicksort
+	//////////////////////////////
+
 	void _quicksort (iterator first, iterator last)
 	{
 		if (first != last && iterator(first.getPtr()->next) != last)
@@ -531,7 +535,7 @@ private:
 		}
 	}
 
-	iterator _partition (iterator first, iterator last)
+	iterator _partition (iterator & first, iterator & last)
 	{
 		iterator	prev = first;
 		last--;
@@ -539,30 +543,44 @@ private:
 		{
 			if (*it <= *last)
 			{
-				std::cout << "Prev before :\n";
-				this->print_ite(prev);
-				std::cout << "It before :\n";
-				this->print_ite(it);
-				ft::swap(*prev, *it);
-				std::cout << "Prev after :\n";
-				this->print_ite(prev);
-				std::cout << "It after :\n";
-				this->print_ite(it);
+				this->_swap_nodes(prev, it);
+				if (first == it)
+					first = prev;
 				prev++;
 			}
 		}
-		ft::swap(*prev, *last);
+		this->_swap_nodes(prev, last);
+		if (first == last)
+			first = prev;
+		last++;
 		return (prev);
 	}
+
+	void _swap_nodes (iterator & first, iterator & second)
+	{
+		node *	first_prev = first.getPtr()->prev;
+		node *	first_next = first.getPtr()->next;
+		node *	second_prev = second.getPtr()->prev;
+		node *	second_next = second.getPtr()->next;
+		ft::swap(first_prev->next, second_prev->next);
+		ft::swap(first_next->prev, second_next->prev);
+		ft::swap(first.getPtr()->prev, second.getPtr()->prev);
+		ft::swap(first.getPtr()->next, second.getPtr()->next);
+		ft::swap(first, second);
+	}
+
+	//////////////////////////////
+	// Quicksort (with compare function)
+	//////////////////////////////
 
 	template <class Compare>
 	void _quicksort (Compare comp, iterator first, iterator last)
 	{
 		if (first != last && iterator(first.getPtr()->next) != last)
 		{
-			iterator	it = this->_partition(comp, first, last);
-			this->_quicksort(comp, first, it++);
-			this->_quicksort(comp, it, last);
+			iterator	it = this->_partition(first, last);
+			this->_quicksort(first, it++);
+			this->_quicksort(it, last);
 		}
 	}
 
@@ -573,31 +591,19 @@ private:
 		last--;
 		for (iterator it = first ; it != last ; it++)
 		{
-			if (!comp(*iterator(last.getPtr()->prev), *it))
-				ft::swap(*prev++, *it);
+			if (!comp(*it, *last))
+			{
+				this->_swap_nodes(prev, it);
+				if (first == it)
+					first = prev;
+				prev++;
+			}
 		}
-		ft::swap(*prev, *iterator(last.getPtr()->prev));
+		this->_swap_nodes(prev, last);
+		if (first == last)
+			first = prev;
+		last++;
 		return (prev);
-	}
-
-	void _swap_nodes (node* & first, node* & second)
-	{
-		node *	a = first->prev->next;
-		node *	b = second->prev->next;
-		node *	c = first->next->prev;
-		node *	d = second->next->prev;
-		ft::swap(first->prev, second->prev);
-		ft::swap(first->next, second->next);
-		first->prev->next = b;
-		second->prev->next = a;
-		first->next->prev = d;
-		second->next->prev = c;
-		ft::swap(first, second);
-	}
-
-	void print_ite(iterator & it)
-	{
-		std::cout << "it : " << &it << ", with value " << *it << "\n   prev   <- ptr ->   next   \n" << it.getPtr()->prev << " " << it.getPtr() << " " << it.getPtr()->next << "\n\n";
 	}
 
 	//////////////////////////////
