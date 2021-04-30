@@ -13,7 +13,7 @@ namespace ft
 		// -structors
 		reverse_iterator			(void)												{ _it = it(); }
 		reverse_iterator			(typename it::value_type * ptr)						{ _it = it(ptr); }
-		reverse_iterator			(const it & x)										{ _it = x - 1; }
+		reverse_iterator			(const it & x)										{ _it = x; _it--; }
 		~reverse_iterator			(void)												{}
 		// Conversion
 		template <class U>			friend class										reverse_iterator;
@@ -45,7 +45,7 @@ namespace ft
 		typename it::value_type &	operator*	(void)									{ return (*_it); }
 		typename it::value_type *	operator->	(void)									{ return (&(*_it)); }
 		// Member functions
-		it							base		(void)									{ return (_it + 1); }
+		it							base		(void)									{ return (++it(_it)); }
 		// Non-member functions
 		friend reverse_iterator		operator+	(int n, const reverse_iterator & x)		{ return (x._it - n + 1); }
 

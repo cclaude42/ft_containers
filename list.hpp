@@ -176,22 +176,22 @@ public:
 
 	reverse_iterator rbegin (void)
 	{
-		return (reverse_iterator(_end->prev));
+		return (reverse_iterator(_end));
 	}
 
 	const_reverse_iterator rbegin (void) const
 	{
-		return (const_reverse_iterator(_end->prev));
+		return (const_reverse_iterator(_end));
 	}
 
 	reverse_iterator rend (void)
 	{
-		return (reverse_iterator(_end));
+		return (reverse_iterator(_end->next));
 	}
 
 	const_reverse_iterator rend (void) const
 	{
-		return (const_reverse_iterator(_end));
+		return (const_reverse_iterator(_end->next));
 	}
 
 	//////////////////////////////
@@ -388,12 +388,15 @@ public:
 	{
 		if (!x.empty())
 		{
-			last.getPtr()->next->prev = first.getPtr()->prev;
-			first.getPtr()->prev->next = last.getPtr()->next;
-			first.getPtr()->prev = position.getPtr()->prev;
-			last.getPtr()->next = position.getPtr();
+			last.getPtr()->prev->next = position.getPtr();
+			first.getPtr()->prev->next = last.getPtr();
 			position.getPtr()->prev->next = first.getPtr();
-			position.getPtr()->prev = last.getPtr();
+			node *	a = first.getPtr()->prev;
+			node *	b = position.getPtr()->prev;
+			node *	c = last.getPtr()->prev;
+			last.getPtr()->prev = a;
+			first.getPtr()->prev = b;
+			position.getPtr()->prev = c;
 		}
 	}
 
@@ -428,7 +431,7 @@ public:
 
 	void unique (void)
 	{
-		for (iterator it = this->begin()->next ; it != this->end() ; it++)
+		for (iterator it = ++this->begin() ; it != this->end() ; it++)
 		{
 			if (*it == *iterator(it.getPtr()->prev))
 			{
@@ -441,7 +444,7 @@ public:
 	template <class BinaryPredicate>
 	void unique (BinaryPredicate binary_pred)
 	{
-		for (iterator it = this->begin()->next ; it != this->end() ; it++)
+		for (iterator it = ++this->begin() ; it != this->end() ; it++)
 		{
 			if (binary_pred(*it, *iterator(it.getPtr()->prev)))
 			{
@@ -457,23 +460,31 @@ public:
 
 	void merge (list & x)
 	{
+		if (*this == x)
+			return ;
 		for (iterator it = this->begin() ; it != this->end() ; it++)
 		{
 			iterator	it2 = x.begin();
 			if (it2 != x.end() && *it2 < *it)
 				this->splice(it, x, it2);
 		}
+		this->splice(this->end(), x, x.begin(), x.end());
 	}
 
 	template <class Compare>
 	void merge (list & x, Compare comp)
 	{
-		for (iterator it = this->begin() ; it != this->end() ; it++)
+		if (*this == x)
+			return ;
+		for (iterator it = this->begin() ; it != this->end() ; )
 		{
 			iterator	it2 = x.begin();
 			if (it2 != x.end() && comp(*it2, *it))
 				this->splice(it, x, it2);
+			else
+				it++;
 		}
+		this->splice(this->end(), x, x.begin(), x.end());
 	}
 
 	//////////////////////////////
@@ -539,7 +550,7 @@ private:
 		last--;
 		for (iterator it = first ; it != last ; it++)
 		{
-			if (*it <= *last)
+			if (*it < *last)
 			{
 				this->_swap_nodes(prev, it);
 				if (first == it)
@@ -571,25 +582,34 @@ private:
 	// Quicksort (with compare function)
 	//////////////////////////////
 
+	void print_ite (iterator it)
+	{
+		int n = 0;
+		for (iterator x = this->begin() ; x != it ; x++)
+			n++;
+		std::cout << "it : " << n << std::endl;
+	}
+
 	template <class Compare>
 	void _quicksort (Compare comp, iterator first, iterator last)
 	{
 		if (first != last && iterator(first.getPtr()->next) != last)
 		{
-			iterator	it = this->_partition(first, last);
-			this->_quicksort(first, it++);
-			this->_quicksort(it, last);
+			iterator	it = this->_partition(comp, first, last);
+			this->_quicksort(comp, first, it++);
+			this->_quicksort(comp, it, last);
 		}
 	}
 
 	template <class Compare>
-	iterator _partition (Compare comp, iterator first, iterator last)
+	iterator _partition (Compare comp, iterator & first, iterator & last)
 	{
+
 		iterator	prev = first;
 		last--;
 		for (iterator it = first ; it != last ; it++)
 		{
-			if (!comp(*it, *last))
+			if (comp(*it, *last))
 			{
 				this->_swap_nodes(prev, it);
 				if (first == it)
