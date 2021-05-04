@@ -33,3 +33,9 @@
 
 .vscode
 tester_mli/deepthought
+
+tester_mazoise/*/diff
+tester_mazoise/*/leak
+tester_mazoise/*/logs
+tester_mazoise/*/out
+tester_mazoise/*/stderror

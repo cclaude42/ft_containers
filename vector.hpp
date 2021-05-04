@@ -162,6 +162,9 @@ public:
 
 	vector & operator= (const vector & x)
 	{
+		if (this == &x)
+			return (*this);
+
 		for (size_type i = 0 ; i < _size ; i++)
 			_alloc.destroy(_vct + i);
 
@@ -257,6 +260,11 @@ public:
 
 			for (size_type i = _size ; i < n ; i++)
 				_alloc.construct(_vct + i, val);
+		}
+		else
+		{
+			for (size_type i = n ; i < _size ; i++)
+				_alloc.destroy(_vct + i);
 		}
 
 		_size = n;
@@ -436,17 +444,16 @@ public:
 				this->reserve(1);
 		}
 
-		for (size_type i = _size + n - 1 ; i > _size - 1 ; i--)
-			_alloc.construct(_vct + i, _vct[i - n]);
 		for (size_type i = _size + n - 1 ; i > off + n - 1 ; i--)
 		{
-			_alloc.destroy(_vct + i);
+			if (i < _size)
+				_alloc.destroy(_vct + i);
 			_alloc.construct(_vct + i, _vct[i - n]);
 		}
-
 		for (size_type i = off ; i < off + n ; i++)
 		{
-			_alloc.destroy(_vct + i);
+			if (i < _size)
+				_alloc.destroy(_vct + i);
 			_alloc.construct(_vct + i, val);
 		}
 		_size = _size + n;
@@ -471,17 +478,16 @@ public:
 				this->reserve(1);
 		}
 
-		for (size_type i = _size + n - 1 ; i > _size - 1 ; i--)
-			_alloc.construct(_vct + i, _vct[i - n]);
 		for (size_type i = _size + n - 1 ; i > off + n - 1 ; i--)
 		{
-			_alloc.destroy(_vct + i);
+			if (i < _size)
+				_alloc.destroy(_vct + i);
 			_alloc.construct(_vct + i, _vct[i - n]);
 		}
-
 		for (size_type i = off ; i < off + n ; i++)
 		{
-			_alloc.destroy(_vct + i);
+			if (i < _size)
+				_alloc.destroy(_vct + i);
 			_alloc.construct(_vct + i, *first++);
 		}
 		_size = _size + n;
@@ -547,7 +553,11 @@ public:
 
 	void pop_back (void)
 	{
-		_size--;
+		if (_size)
+		{
+			_alloc.destroy(_vct + _size - 1);
+			_size--;
+		}
 	}
 
 	void swap (vector & x)
@@ -560,6 +570,8 @@ public:
 
 	void clear (void)
 	{
+		for (size_type i = 0 ; i < _size ; i++)
+			_alloc.destroy(_vct + i);
 		_size = 0;
 	}
 
@@ -587,10 +599,11 @@ private:
 	// Relational operators
 	//////////////////////////////
 
-
 	template <class T, class Alloc>
 	bool operator== (const vector<T,Alloc> & lhs, const vector<T,Alloc> & rhs)
 	{
+		// std::cout << "size is " << lhs.size() << " and " << rhs.size() << std::endl;
+		// std::cout << &*lhs.begin() << " " << &*lhs.end() << " " << &*rhs.begin() << " " << &*rhs.end() << " " << std::endl;
 		return (ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 	}
 

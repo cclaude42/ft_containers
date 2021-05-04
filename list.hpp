@@ -74,7 +74,6 @@ public:
 
 	typedef		T												value_type;
 	typedef		typename Alloc::template rebind<node>::other	allocator_type;
-	// typedef		Alloc											allocator_type;
 	typedef		typename Alloc::reference						reference;
 	typedef		typename Alloc::const_reference					const_reference;
 	typedef		typename Alloc::pointer							pointer;
@@ -129,7 +128,8 @@ public:
 	~list (void)
 	{
 		this->clear();
-		delete _end;
+		_alloc.destroy(_end);
+		_alloc.deallocate(_end, 1);
 	}
 
 	//////////////////////////////
@@ -270,12 +270,8 @@ public:
 
 	iterator insert (iterator position, const value_type & val)
 	{
-		node *	new_node = new node;
-		// node *	new_node = _alloc.allocate(1);
-		// _alloc.construct(new_node, val, position.getPtr(), position.getPtr()->next);
-		new_node->prev = position.getPtr()->prev;
-		new_node->data = val;
-		new_node->next = position.getPtr();
+		node *	new_node = _alloc.allocate(1);
+		this->_construct(new_node, position.getPtr()->prev, position.getPtr(), val);
 		position.getPtr()->prev = new_node;
 		new_node->prev->next = new_node;
 		return (new_node);
@@ -305,7 +301,8 @@ public:
 		position = position.getPtr()->next;
 		position_node->next->prev = position_node->prev;
 		position_node->prev->next = position_node->next;
-		delete position_node;
+		_alloc.destroy(position_node);
+		_alloc.deallocate(position_node, 1);
 		return (position);
 	}
 
@@ -349,7 +346,10 @@ public:
 	void clear (void)
 	{
 		for (node *prev = _end->next, *next = _end->next->next ; prev != _end ; prev = next, next = next->next)
-			delete prev;
+		{
+			_alloc.destroy(prev);
+			_alloc.deallocate(prev, 1);
+		}
 		_end->prev = _end;
 		_end->next = _end;
 	}
@@ -406,22 +406,20 @@ public:
 
 	void remove (const value_type & val)
 	{
-		for (iterator it = this->begin() ; it != this->end() ; )
+		for (iterator it = this->begin(), next = ++this->begin() ; it != this->end() ; it = next++)
 		{
-			iterator	cpy = it++;
-			if (*cpy == val)
-				this->erase(cpy);
+			if (*it == val)
+				this->erase(it);
 		}
 	}
 
 	template <class Predicate>
 	void remove_if (Predicate pred)
 	{
-		for (iterator it = this->begin() ; it != this->end() ; it++)
+		for (iterator it = this->begin(), next = ++this->begin() ; it != this->end() ; it = next++)
 		{
-			iterator	cpy = it;
-			if (pred(*cpy))
-				this->erase(cpy);
+			if (pred(*it))
+				this->erase(it);
 		}
 	}
 
@@ -462,11 +460,13 @@ public:
 	{
 		if (*this == x)
 			return ;
-		for (iterator it = this->begin() ; it != this->end() ; it++)
+		for (iterator it = this->begin() ; it != this->end() ; )
 		{
 			iterator	it2 = x.begin();
 			if (it2 != x.end() && *it2 < *it)
 				this->splice(it, x, it2);
+			else
+				it++;
 		}
 		this->splice(this->end(), x, x.begin(), x.end());
 	}
@@ -525,9 +525,17 @@ public:
 private:
 	void _new_end_node (void)
 	{
-		_end = new node;
-		_end->prev = _end;
-		_end->next = _end;
+		_end = _alloc.allocate(1);
+		this->_construct(_end, _end, _end);
+	}
+
+	void _construct (node * ptr, node * prev, node * next, value_type data = value_type())
+	{
+		node	tmp;
+		tmp.data = data;
+		tmp.prev = prev;
+		tmp.next = next;
+		_alloc.construct(ptr, tmp);
 	}
 
 	//////////////////////////////
@@ -581,14 +589,6 @@ private:
 	//////////////////////////////
 	// Quicksort (with compare function)
 	//////////////////////////////
-
-	void print_ite (iterator it)
-	{
-		int n = 0;
-		for (iterator x = this->begin() ; x != it ; x++)
-			n++;
-		std::cout << "it : " << n << std::endl;
-	}
 
 	template <class Compare>
 	void _quicksort (Compare comp, iterator first, iterator last)
