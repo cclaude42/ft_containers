@@ -30,9 +30,6 @@ public:
 
 	template <bool IsConst>
 	class listIterator {
-		template <class it>
-		friend class			reverse_iterator;
-		friend class			list;
 	public:
 		// Member types
 		typedef typename		ft::conditional<IsConst, const T, T>::type					value_type;
@@ -44,16 +41,14 @@ public:
 		listIterator			(node_type * const ptr)										{ _ptr = ptr; }
 		~listIterator			(void)														{}
 		// Const stuff
-		template <bool B>		friend class												listIterator;
-		friend class			list;
 		template <bool B>		listIterator
-			(const listIterator<B> & x, typename ft::enable_if<!B>::type* = 0)				{ _ptr = x._ptr; }
+			(const listIterator<B> & x, typename ft::enable_if<!B>::type* = 0)				{ _ptr = x.getPtr(); }
 
 		// Assignment
-		listIterator &			operator=	(const listIterator & x)						{ _ptr = x._ptr; return (*this); }
+		listIterator &			operator=	(const listIterator & x)						{ _ptr = x.getPtr(); return (*this); }
 		// Comparison
-		template <bool B> bool	operator==	(const listIterator<B> & x) const				{ return (_ptr == x._ptr); }
-		template <bool B> bool	operator!=	(const listIterator<B> & x) const				{ return (_ptr != x._ptr); }
+		template <bool B> bool	operator==	(const listIterator<B> & x) const				{ return (_ptr == x.getPtr()); }
+		template <bool B> bool	operator!=	(const listIterator<B> & x) const				{ return (_ptr != x.getPtr()); }
 		// -crementation
 		listIterator &			operator++	(void)											{ _ptr = _ptr->next; return (*this); }
 		listIterator &			operator--	(void)											{ _ptr = _ptr->prev; return (*this); }
@@ -62,9 +57,10 @@ public:
 		// Dereference
 		value_type &			operator*	(void)											{ return (_ptr->data); }
 		value_type *			operator->	(void)											{ return (&_ptr->data); }
+		// Member functions
+		node_type *				getPtr		(void) const									{ return (_ptr); }
 
 	private:
-		node_type *				getPtr		(void)											{ return (_ptr); }
 		node_type *				_ptr;
 	};
 

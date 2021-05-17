@@ -25,8 +25,6 @@ public:
 
 	template <bool IsConst>
 	class vectorIterator {
-		template <class it>
-		friend class		reverse_iterator;
 	public:
 		// Member types
 		typedef typename		ft::conditional<IsConst, const T, T>::type			value_type;
@@ -36,22 +34,20 @@ public:
 		vectorIterator			(void)												{ _ptr = NULL; }
 		~vectorIterator			(void)												{}
 		// Const stuff
-		template <bool B>		friend class										vectorIterator;
-		friend class			vector;
 		template <bool B>		vectorIterator
-			(const vectorIterator<B> & x, typename ft::enable_if<!B>::type* = 0)	{ _ptr = x._ptr; }
+			(const vectorIterator<B> & x, typename ft::enable_if<!B>::type* = 0)	{ _ptr = x.getPtr(); }
 
 		// Assignment
-		vectorIterator &		operator=	(const vectorIterator & x)				{ _ptr = x._ptr; return (*this); }
+		vectorIterator &		operator=	(const vectorIterator & x)				{ _ptr = x.getPtr(); return (*this); }
 		vectorIterator &		operator+=	(int n)									{ _ptr += n; return (*this); }
 		vectorIterator &		operator-=	(int n)									{ _ptr -= n; return (*this); }
 		// Comparison
-		template <bool B> bool	operator==	(const vectorIterator<B> & x) const		{ return (_ptr == x._ptr); }
-		template <bool B> bool	operator!=	(const vectorIterator<B> & x) const		{ return (_ptr != x._ptr); }
-		template <bool B> bool	operator<	(const vectorIterator<B> & x) const		{ return (_ptr < x._ptr); }
-		template <bool B> bool	operator>	(const vectorIterator<B> & x) const		{ return (_ptr > x._ptr); }
-		template <bool B> bool	operator<=	(const vectorIterator<B> & x) const		{ return (_ptr <= x._ptr); }
-		template <bool B> bool	operator>=	(const vectorIterator<B> & x) const		{ return (_ptr >= x._ptr); }
+		template <bool B> bool	operator==	(const vectorIterator<B> & x) const		{ return (_ptr == x.getPtr()); }
+		template <bool B> bool	operator!=	(const vectorIterator<B> & x) const		{ return (_ptr != x.getPtr()); }
+		template <bool B> bool	operator<	(const vectorIterator<B> & x) const		{ return (_ptr < x.getPtr()); }
+		template <bool B> bool	operator>	(const vectorIterator<B> & x) const		{ return (_ptr > x.getPtr()); }
+		template <bool B> bool	operator<=	(const vectorIterator<B> & x) const		{ return (_ptr <= x.getPtr()); }
+		template <bool B> bool	operator>=	(const vectorIterator<B> & x) const		{ return (_ptr >= x.getPtr()); }
 		// -crementation
 		vectorIterator &		operator++	(void)									{ _ptr++; return (*this); }
 		vectorIterator &		operator--	(void)									{ _ptr--; return (*this); }
@@ -60,15 +56,19 @@ public:
 		// Operation
 		vectorIterator			operator+	(int n) const							{ return (_ptr + n); }
 		vectorIterator			operator-	(int n) const							{ return (_ptr - n); }
-		difference_type			operator-	(const vectorIterator & x) const		{ return (_ptr - x._ptr); }
+		difference_type			operator-	(const vectorIterator & x) const		{ return (_ptr - x.getPtr()); }
 		// Dereference
 		value_type &			operator[]	(size_type n)							{ return (*(_ptr + n)); }
 		value_type &			operator*	(void)									{ return (*_ptr); }
 		value_type *			operator->	(void)									{ return (_ptr); }
+		// Member functions
+		value_type *			getPtr		(void) const							{ return (_ptr); }
 		// Friend functions
-		friend vectorIterator	operator+	(int n, const vectorIterator & x)		{ return (x._ptr + n); }
+		friend vectorIterator	operator+	(int n, const vectorIterator & x)		{ return (x.getPtr() + n); }
 
 # if __APPLE__
+		friend class			vector;
+		friend class			reverse_iterator<vectorIterator>;
 	private:
 # endif
 		vectorIterator			(value_type * const ptr)							{ _ptr = ptr; }
