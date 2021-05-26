@@ -1,31 +1,8 @@
-#ifndef UTILS_HPP
-# define UTILS_HPP
-
-# include <sstream>
-
-# if __APPLE__
-#  define OS 1
-# else
-#  define OS 0
-# endif
-
-# define MAC 1
-# define LINUX 0
+#ifndef ALGORITHM_HPP
+# define ALGORITHM_HPP
 
 namespace ft
 {
-	//////////////////////////////
-	// To string
-	//////////////////////////////
-
-	template <typename T>
-	std::string to_string (T & n)
-	{
-		std::ostringstream	ss;
-		ss << n;
-		return (ss.str());
-	}
-
 	//////////////////////////////
 	// Lexicographical compare
 	//////////////////////////////
@@ -72,18 +49,6 @@ namespace ft
 	bool equal (T & a, T & b)
 	{
 		return (a == b);
-	}
-
-	//////////////////////////////
-	// Swap
-	//////////////////////////////
-
-	template <class T>
-	void swap (T & a, T & b)
-	{
-		T	tmp(a);
-		a = b;
-		b = tmp;
 	}
 }
 

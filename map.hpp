@@ -1,56 +1,45 @@
-#ifndef LIST_HPP
-# define LIST_HPP
+#ifndef MAP_HPP
+# define MAP_HPP
 
 # include "includes/containers.hpp"
 
 namespace ft
 {
 
-template <class T, class Alloc = std::allocator<T> >
-class list {
+template <class Key, class T, class Compare = std::less<Key>, class Alloc = std::allocator< ft::pair<const Key, T> > >
+class map {
 public:
-
-	//////////////////////////////
-	// Node
-	//////////////////////////////
-
-	typedef struct			s_node
-	{
-		T					data;
-		struct s_node *		prev;
-		struct s_node *		next;
-	}						node;
 
 	//////////////////////////////
 	// Iterator subclass
 	//////////////////////////////
 
 	template <bool IsConst>
-	class listIterator {
+	class mapIterator {
 	public:
 		// Member types
-		typedef typename		ft::conditional<IsConst, const T, T>::type					value_type;
-		typedef typename		ft::conditional<IsConst, const node, node>::type			node_type;
+		typedef					ft::pair<const Key, T>										pair_type;
+		typedef typename		ft::conditional<IsConst, const pair_type, pair_type>::type	value_type;
 		typedef					std::ptrdiff_t												difference_type;
 		typedef					std::size_t													size_type;
 		// -structors
-		listIterator			(void)														{ _ptr = NULL; }
-		listIterator			(node_type * const ptr)										{ _ptr = ptr; }
-		~listIterator			(void)														{}
+		mapIterator			(void)														{ _ptr = NULL; }
+		mapIterator			(node_type * const ptr)										{ _ptr = ptr; }
+		~mapIterator			(void)														{}
 		// Const stuff
-		template <bool B>		listIterator
-			(const listIterator<B> & x, typename ft::enable_if<!B>::type* = 0)				{ _ptr = x.getPtr(); }
+		template <bool B>		mapIterator
+			(const mapIterator<B> & x, typename ft::enable_if<!B>::type* = 0)				{ _ptr = x.getPtr(); }
 
 		// Assignment
-		listIterator &			operator=	(const listIterator & x)						{ _ptr = x.getPtr(); return (*this); }
+		mapIterator &			operator=	(const mapIterator & x)						{ _ptr = x.getPtr(); return (*this); }
 		// Comparison
-		template <bool B> bool	operator==	(const listIterator<B> & x) const				{ return (_ptr == x.getPtr()); }
-		template <bool B> bool	operator!=	(const listIterator<B> & x) const				{ return (_ptr != x.getPtr()); }
+		template <bool B> bool	operator==	(const mapIterator<B> & x) const				{ return (_ptr == x.getPtr()); }
+		template <bool B> bool	operator!=	(const mapIterator<B> & x) const				{ return (_ptr != x.getPtr()); }
 		// -crementation
-		listIterator &			operator++	(void)											{ _ptr = _ptr->next; return (*this); }
-		listIterator &			operator--	(void)											{ _ptr = _ptr->prev; return (*this); }
-		listIterator			operator++	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->next; return (x); }
-		listIterator			operator--	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
+		mapIterator &			operator++	(void)											{ _ptr = _ptr->next; return (*this); }
+		mapIterator &			operator--	(void)											{ _ptr = _ptr->prev; return (*this); }
+		mapIterator			operator++	(int)											{ mapIterator<IsConst> x(*this); _ptr = _ptr->next; return (x); }
+		mapIterator			operator--	(int)											{ mapIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
 		// Dereference
 		value_type &			operator*	(void)											{ return (_ptr->data); }
 		value_type *			operator->	(void)											{ return (&_ptr->data); }
@@ -58,7 +47,7 @@ public:
 		node_type *				getPtr		(void) const									{ return (_ptr); }
 
 	private:
-		node_type *				_ptr;
+		value_type *				_ptr;
 	};
 
 	//////////////////////////////
@@ -71,24 +60,24 @@ public:
 	typedef		typename Alloc::const_reference					const_reference;
 	typedef		typename Alloc::pointer							pointer;
 	typedef		typename Alloc::const_pointer					const_pointer;
-	typedef		listIterator<false>								iterator;
-	typedef		listIterator<true>								const_iterator;
+	typedef		mapIterator<false>								iterator;
+	typedef		mapIterator<true>								const_iterator;
 	typedef		ft::reverse_iterator<iterator>					reverse_iterator;
 	typedef		ft::reverse_iterator<const_iterator>			const_reverse_iterator;
-	typedef		typename listIterator<false>::difference_type	difference_type;
-	typedef		typename listIterator<false>::size_type			size_type;
+	typedef		typename mapIterator<false>::difference_type	difference_type;
+	typedef		typename mapIterator<false>::size_type			size_type;
 
 	//////////////////////////////
 	// Constructors
 	//////////////////////////////
 
-	explicit list (const allocator_type & alloc = allocator_type())
+	explicit map (const allocator_type & alloc = allocator_type())
 	{
 		_alloc = alloc;
 		this->_new_end_node();
 	}
 
-	explicit list (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
+	explicit map (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
 	{
 		_alloc = alloc;
 		this->_new_end_node();
@@ -98,7 +87,7 @@ public:
 	}
 
 	template <class InputIterator>
-	list (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(),
+	map (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(),
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		_alloc = alloc;
@@ -108,7 +97,7 @@ public:
 			this->push_back(*first++);
 	}
 
-	list (const list & x)
+	map (const map & x)
 	{
 		this->_new_end_node();
 		*this = x;
@@ -118,7 +107,7 @@ public:
 	// Destructors
 	//////////////////////////////
 
-	~list (void)
+	~map (void)
 	{
 		this->clear();
 		_alloc.destroy(_end);
@@ -129,7 +118,7 @@ public:
 	// Assignment operator
 	//////////////////////////////
 
-	list & operator= (const list & x)
+	map & operator= (const map & x)
 	{
 		this->clear();
 		_alloc = x._alloc;
@@ -249,12 +238,12 @@ public:
 	void assign (InputIterator first, InputIterator last,
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		*this = list(first, last);
+		*this = map(first, last);
 	}
 
 	void assign (size_type n, const value_type & val)
 	{
-		*this = list(n, val);
+		*this = map(n, val);
 	}
 
 	//////////////////////////////
@@ -330,7 +319,7 @@ public:
 		this->erase(_end->prev);
 	}
 
-	void swap (list & x)
+	void swap (map & x)
 	{
 		ft::swap(_alloc, x._alloc);
 		ft::swap(_end, x._end);
@@ -351,7 +340,7 @@ public:
 	// Splicing operations
 	//////////////////////////////
 
-	void splice (iterator position, list & x)
+	void splice (iterator position, map & x)
 	{
 		if (!x.empty())
 		{
@@ -364,7 +353,7 @@ public:
 		}
 	}
 
-	void splice (iterator position, list & x, iterator i)
+	void splice (iterator position, map & x, iterator i)
 	{
 		if (!x.empty())
 		{
@@ -377,7 +366,7 @@ public:
 		}
 	}
 
-	void splice (iterator position, list & x, iterator first, iterator last)
+	void splice (iterator position, map & x, iterator first, iterator last)
 	{
 		if (!x.empty())
 		{
@@ -449,7 +438,7 @@ public:
 	// Merging operations
 	//////////////////////////////
 
-	void merge (list & x)
+	void merge (map & x)
 	{
 		if (*this == x)
 			return ;
@@ -465,7 +454,7 @@ public:
 	}
 
 	template <class Compare>
-	void merge (list & x, Compare comp)
+	void merge (map & x, Compare comp)
 	{
 		if (*this == x)
 			return ;
@@ -630,43 +619,43 @@ private:
 	//////////////////////////////
 
 	template <class T, class Alloc>
-	bool operator== (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	bool operator== (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
 	{
 		return (ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 	}
 
 	template <class T, class Alloc>
-	bool operator<  (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	bool operator<  (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
 	{
 		return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 	}
 
 	template <class T, class Alloc>
-	bool operator!= (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	bool operator!= (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
 	{
 		return (!(lhs == rhs));
 	}
 
 	template <class T, class Alloc>
-	bool operator<= (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	bool operator<= (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
 	{
 		return (!(rhs < lhs));
 	}
 
 	template <class T, class Alloc>
-	bool operator>  (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	bool operator>  (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
 	{
 		return (rhs < lhs);
 	}
 
 	template <class T, class Alloc>
-	bool operator>= (const list<T,Alloc> & lhs, const list<T,Alloc> & rhs)
+	bool operator>= (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
 	{
 		return (!(lhs < rhs));
 	}
 
 	template <class T, class Alloc>
-	void swap (list<T,Alloc> & x, list<T,Alloc> & y)
+	void swap (map<T,Alloc> & x, map<T,Alloc> & y)
 	{
 		x.swap(y);
 	}

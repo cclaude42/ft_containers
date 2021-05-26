@@ -1,14 +1,13 @@
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 
-# include <iostream>
-# include "includes/iterator.hpp"
-# include "includes/types.hpp"
-# include "includes/utils.hpp"
+# include "includes/containers.hpp"
 
 # if __APPLE__
+#  define MACOS 1
 #  define SIZE_OR_CAP _capacity
 # else
+#  define MACOS 0
 #  define SIZE_OR_CAP _size
 # endif
 
@@ -284,7 +283,7 @@ public:
 	{
 		if (n > _alloc.max_size())
 		{
-			if (OS == MAC)
+			if (MACOS)
 				throw std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size");
 			else
 				throw std::length_error("vector::reserve");
@@ -324,7 +323,7 @@ public:
 	{
 		if (n >= _size)
 		{
-			if (OS == MAC)
+			if (MACOS)
 				throw std::out_of_range("vector");
 			else
 				throw std::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
@@ -336,7 +335,7 @@ public:
 	{
 		if (n >= _size)
 		{
-			if (OS == MAC)
+			if (MACOS)
 				throw std::out_of_range("vector");
 			else
 				throw std::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
@@ -602,8 +601,6 @@ private:
 	template <class T, class Alloc>
 	bool operator== (const vector<T,Alloc> & lhs, const vector<T,Alloc> & rhs)
 	{
-		// std::cout << "size is " << lhs.size() << " and " << rhs.size() << std::endl;
-		// std::cout << &*lhs.begin() << " " << &*lhs.end() << " " << &*rhs.begin() << " " << &*rhs.end() << " " << std::endl;
 		return (ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 	}
 

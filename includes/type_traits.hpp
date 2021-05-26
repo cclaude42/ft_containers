@@ -1,7 +1,5 @@
-#ifndef TYPES_HPP
-# define TYPES_HPP
-
-# include <iostream>
+#ifndef TYPE_TRAITS_HPP
+# define TYPE_TRAITS_HPP
 
 namespace ft
 {
