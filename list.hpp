@@ -597,7 +597,6 @@ private:
 	template <class Compare>
 	iterator _partition (Compare comp, iterator & first, iterator & last)
 	{
-
 		iterator	prev = first;
 		last--;
 		for (iterator it = first ; it != last ; it++)

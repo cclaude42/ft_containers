@@ -11,6 +11,21 @@ class map {
 public:
 
 	//////////////////////////////
+	// Node
+	//////////////////////////////
+
+	typedef struct				s_node
+	{
+		ft::pair<const Key, T>	data;
+		struct s_node *			left;
+		struct s_node *			right;
+		// bool					color;
+
+		const Key &	key (void)	{ return (data.first); }
+		T &			val (void)	{ return (data.second); }
+	}							node;
+
+	//////////////////////////////
 	// Iterator subclass
 	//////////////////////////////
 
@@ -24,42 +39,46 @@ public:
 		typedef					std::size_t													size_type;
 		// -structors
 		mapIterator			(void)														{ _ptr = NULL; }
-		mapIterator			(node_type * const ptr)										{ _ptr = ptr; }
-		~mapIterator			(void)														{}
+		mapIterator			(value_type * const ptr)									{ _ptr = ptr; }
+		~mapIterator		(void)														{}
 		// Const stuff
 		template <bool B>		mapIterator
-			(const mapIterator<B> & x, typename ft::enable_if<!B>::type* = 0)				{ _ptr = x.getPtr(); }
+			(const mapIterator<B> & x, typename ft::enable_if<!B>::type* = 0)			{ _ptr = x.getPtr(); }
 
 		// Assignment
 		mapIterator &			operator=	(const mapIterator & x)						{ _ptr = x.getPtr(); return (*this); }
 		// Comparison
-		template <bool B> bool	operator==	(const mapIterator<B> & x) const				{ return (_ptr == x.getPtr()); }
-		template <bool B> bool	operator!=	(const mapIterator<B> & x) const				{ return (_ptr != x.getPtr()); }
-		// -crementation
-		mapIterator &			operator++	(void)											{ _ptr = _ptr->next; return (*this); }
-		mapIterator &			operator--	(void)											{ _ptr = _ptr->prev; return (*this); }
-		mapIterator			operator++	(int)											{ mapIterator<IsConst> x(*this); _ptr = _ptr->next; return (x); }
-		mapIterator			operator--	(int)											{ mapIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
-		// Dereference
-		value_type &			operator*	(void)											{ return (_ptr->data); }
-		value_type *			operator->	(void)											{ return (&_ptr->data); }
+		template <bool B> bool	operator==	(const mapIterator<B> & x) const			{ return (_ptr == x.getPtr()); }
+		template <bool B> bool	operator!=	(const mapIterator<B> & x) const			{ return (_ptr != x.getPtr()); }
+		// // -crementation
+		// mapIterator &			operator++	(void)										{ _ptr = _ptr->next; return (*this); }
+		// mapIterator &			operator--	(void)										{ _ptr = _ptr->prev; return (*this); }
+		// mapIterator				operator++	(int)										{ mapIterator<IsConst> x(*this); _ptr = _ptr->next; return (x); }
+		// mapIterator				operator--	(int)										{ mapIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
+		// // Dereference
+		// value_type &			operator*	(void)										{ return (_ptr->data); }
+		// value_type *			operator->	(void)										{ return (&_ptr->data); }
 		// Member functions
-		node_type *				getPtr		(void) const									{ return (_ptr); }
+		node_type *				getPtr		(void) const								{ return (_ptr); }
 
 	private:
-		value_type *				_ptr;
+		value_type *			_ptr;
 	};
 
 	//////////////////////////////
 	// Member types
 	//////////////////////////////
 
-	typedef		T												value_type;
+	typedef		Key												key_type;
+	typedef		T												mapped_type;
+	typedef		ft::pair<const key_type, mapped_type>			value_type;
 	typedef		typename Alloc::template rebind<node>::other	allocator_type;
-	typedef		typename Alloc::reference						reference;
-	typedef		typename Alloc::const_reference					const_reference;
-	typedef		typename Alloc::pointer							pointer;
-	typedef		typename Alloc::const_pointer					const_pointer;
+	typedef		Compare											key_compare;
+	// typedef		???												value_compare;
+	typedef		typename allocator_type::reference				reference;
+	typedef		typename allocator_type::const_reference		const_reference;
+	typedef		typename allocator_type::pointer				pointer;
+	typedef		typename allocator_type::const_pointer			const_pointer;
 	typedef		mapIterator<false>								iterator;
 	typedef		mapIterator<true>								const_iterator;
 	typedef		ft::reverse_iterator<iterator>					reverse_iterator;
@@ -71,36 +90,21 @@ public:
 	// Constructors
 	//////////////////////////////
 
-	explicit map (const allocator_type & alloc = allocator_type())
+	explicit map (const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type())
 	{
 		_alloc = alloc;
-		this->_new_end_node();
-	}
-
-	explicit map (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
-	{
-		_alloc = alloc;
-		this->_new_end_node();
-
-		while (n-- > 0)
-			this->push_back(val);
+		this->_new_nil_node();
 	}
 
 	template <class InputIterator>
-	map (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(),
-	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
+	map (InputIterator first, InputIterator last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type())
 	{
-		_alloc = alloc;
-		this->_new_end_node();
 
-		while (first != last)
-			this->push_back(*first++);
 	}
 
 	map (const map & x)
 	{
-		this->_new_end_node();
-		*this = x;
+
 	}
 
 	//////////////////////////////
@@ -109,9 +113,7 @@ public:
 
 	~map (void)
 	{
-		this->clear();
-		_alloc.destroy(_end);
-		_alloc.deallocate(_end, 1);
+
 	}
 
 	//////////////////////////////
@@ -120,12 +122,7 @@ public:
 
 	map & operator= (const map & x)
 	{
-		this->clear();
-		_alloc = x._alloc;
 
-		for (const_iterator it = x.begin() ; it != x.end() ; it++)
-			this->push_back(*it);
-		return (*this);
 	}
 
 	//////////////////////////////
@@ -134,22 +131,22 @@ public:
 
 	iterator begin (void)
 	{
-		return (iterator(_end->next));
+
 	}
 
 	const_iterator begin (void) const
 	{
-		return (const_iterator(_end->next));
+
 	}
 
 	iterator end (void)
 	{
-		return (iterator(_end));
+		return (iterator(_nil));
 	}
 
 	const_iterator end (void) const
 	{
-		return (const_iterator(_end));
+		return (const_iterator(_nil));
 	}
 
 	//////////////////////////////
@@ -158,22 +155,22 @@ public:
 
 	reverse_iterator rbegin (void)
 	{
-		return (reverse_iterator(_end));
+
 	}
 
 	const_reverse_iterator rbegin (void) const
 	{
-		return (const_reverse_iterator(_end));
+
 	}
 
 	reverse_iterator rend (void)
 	{
-		return (reverse_iterator(_end->next));
+
 	}
 
 	const_reverse_iterator rend (void) const
 	{
-		return (const_reverse_iterator(_end->next));
+
 	}
 
 	//////////////////////////////
@@ -182,313 +179,153 @@ public:
 
 	bool empty (void) const
 	{
-		return (_end == _end->next);
+
 	}
 
 	size_type size (void) const
 	{
-		size_type	n = 0;
-		for (node *curr = _end->next ; curr != _end ; curr = curr->next)
-			n++;
-		return (n);
-	}
 
-	void resize (size_type n, value_type val = value_type())
-	{
-		while (this->size() < n)
-			this->push_back(val);
-		while (this->size() > n)
-			this->erase(this->end().getPtr()->prev);
 	}
 
 	size_type max_size (void) const
 	{
-		return (_alloc.max_size());
+
 	}
 
 	//////////////////////////////
 	// Member access
 	//////////////////////////////
 
-	reference front (void)
+	mapped_type & operator[] (const key_type & k)
 	{
-		return (_end->next->data);
-	}
 
-	const_reference front (void) const
-	{
-		return (_end->next->data);
-	}
-
-	reference back (void)
-	{
-		return (_end->prev->data);
-	}
-
-	const_reference back (void) const
-	{
-		return (_end->prev->data);
-	}
-
-	//////////////////////////////
-	// Assignment modifiers
-	//////////////////////////////
-
-	template <class InputIterator>
-	void assign (InputIterator first, InputIterator last,
-	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
-	{
-		*this = map(first, last);
-	}
-
-	void assign (size_type n, const value_type & val)
-	{
-		*this = map(n, val);
 	}
 
 	//////////////////////////////
 	// Insertion modifiers
 	//////////////////////////////
 
-	iterator insert (iterator position, const value_type & val)
+	ft::pair<iterator,bool> insert (const value_type & val)
 	{
-		node *	new_node = _alloc.allocate(1);
-		this->_construct(new_node, position.getPtr()->prev, position.getPtr(), val);
-		position.getPtr()->prev = new_node;
-		new_node->prev->next = new_node;
-		return (new_node);
+
 	}
 
-	void insert (iterator position, size_type n, const value_type & val)
+	iterator insert (iterator position, const value_type & val)
 	{
-		while (n-- > 0)
-			position = this->insert(position, val);
+
 	}
 
 	template <class InputIterator>
-	void insert (iterator position, InputIterator first, InputIterator last,
-	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
+	void insert (InputIterator first, InputIterator last)
 	{
-		while (first != last)
-			position = this->insert(position, *(--last));
+
 	}
 
 	//////////////////////////////
 	// Erasure modifiers
 	//////////////////////////////
 
-	iterator erase (iterator position)
+	void erase (iterator position)
 	{
-		node *	position_node = position.getPtr();
-		position = position.getPtr()->next;
-		position_node->next->prev = position_node->prev;
-		position_node->prev->next = position_node->next;
-		_alloc.destroy(position_node);
-		_alloc.deallocate(position_node, 1);
-		return (position);
+
 	}
 
-	iterator erase (iterator first, iterator last)
+	size_type erase (const key_type & k)
 	{
-		for (iterator it = first++ ; it != last ; it = first++)
-			this->erase(it);
-		return (last);
+
+	}
+
+	void erase (iterator first, iterator last)
+	{
+
 	}
 
 	//////////////////////////////
 	// Common modifiers
 	//////////////////////////////
 
-	void push_front (const value_type & val)
-	{
-		this->insert(_end->next, val);
-	}
-
-	void pop_front (void)
-	{
-		this->erase(_end->next);
-	}
-
-	void push_back (const value_type & val)
-	{
-		this->insert(_end, val);
-	}
-
-	void pop_back (void)
-	{
-		this->erase(_end->prev);
-	}
-
 	void swap (map & x)
 	{
-		ft::swap(_alloc, x._alloc);
-		ft::swap(_end, x._end);
+
 	}
 
 	void clear (void)
 	{
-		for (node *prev = _end->next, *next = _end->next->next ; prev != _end ; prev = next, next = next->next)
-		{
-			_alloc.destroy(prev);
-			_alloc.deallocate(prev, 1);
-		}
-		_end->prev = _end;
-		_end->next = _end;
+
 	}
 
 	//////////////////////////////
-	// Splicing operations
+	// Observers
 	//////////////////////////////
 
-	void splice (iterator position, map & x)
+	key_compare key_comp (void) const
 	{
-		if (!x.empty())
-		{
-			x._end->next->prev = position.getPtr()->prev;
-			x._end->prev->next = position.getPtr();
-			position.getPtr()->prev->next = x._end->next;
-			position.getPtr()->prev = x._end->prev;
-			x._end->next = x._end;
-			x._end->prev = x._end;
-		}
+
 	}
 
-	void splice (iterator position, map & x, iterator i)
+	value_compare value_comp (void) const
 	{
-		if (!x.empty())
-		{
-			i.getPtr()->next->prev = i.getPtr()->prev;
-			i.getPtr()->prev->next = i.getPtr()->next;
-			i.getPtr()->prev = position.getPtr()->prev;
-			i.getPtr()->next = position.getPtr();
-			position.getPtr()->prev->next = i.getPtr();
-			position.getPtr()->prev = i.getPtr();
-		}
-	}
 
-	void splice (iterator position, map & x, iterator first, iterator last)
-	{
-		if (!x.empty())
-		{
-			last.getPtr()->prev->next = position.getPtr();
-			first.getPtr()->prev->next = last.getPtr();
-			position.getPtr()->prev->next = first.getPtr();
-			node *	a = first.getPtr()->prev;
-			node *	b = position.getPtr()->prev;
-			node *	c = last.getPtr()->prev;
-			last.getPtr()->prev = a;
-			first.getPtr()->prev = b;
-			position.getPtr()->prev = c;
-		}
 	}
 
 	//////////////////////////////
-	// Removal operations
+	// Search operations
 	//////////////////////////////
 
-	void remove (const value_type & val)
+	iterator find (const key_type & k)
 	{
-		for (iterator it = this->begin(), next = ++this->begin() ; it != this->end() ; it = next++)
-		{
-			if (*it == val)
-				this->erase(it);
-		}
+		return (iterator(this->_find_node(_nil->right, k)));
 	}
 
-	template <class Predicate>
-	void remove_if (Predicate pred)
+	const_iterator find (const key_type & k) const
 	{
-		for (iterator it = this->begin(), next = ++this->begin() ; it != this->end() ; it = next++)
-		{
-			if (pred(*it))
-				this->erase(it);
-		}
+		return (const_iterator(this->_find_node(_nil->right, k)));
 	}
 
-	//////////////////////////////
-	// Uniquify operations
-	//////////////////////////////
-
-	void unique (void)
+	size_type count (const key_type & k) const
 	{
-		for (iterator it = ++this->begin() ; it != this->end() ; it++)
-		{
-			if (*it == *iterator(it.getPtr()->prev))
-			{
-				this->erase(it);
-				it = this->begin();
-			}
-		}
-	}
-
-	template <class BinaryPredicate>
-	void unique (BinaryPredicate binary_pred)
-	{
-		for (iterator it = ++this->begin() ; it != this->end() ; it++)
-		{
-			if (binary_pred(*it, *iterator(it.getPtr()->prev)))
-			{
-				this->erase(it);
-				it = this->begin();
-			}
-		}
+		if (this->_search_node(_nil->right, k) != _nil)
+			return (1);
+		else
+			return (0);
 	}
 
 	//////////////////////////////
-	// Merging operations
+	// Bound operations
 	//////////////////////////////
 
-	void merge (map & x)
+	iterator lower_bound (const key_type & k)
 	{
-		if (*this == x)
-			return ;
-		for (iterator it = this->begin() ; it != this->end() ; )
-		{
-			iterator	it2 = x.begin();
-			if (it2 != x.end() && *it2 < *it)
-				this->splice(it, x, it2);
-			else
-				it++;
-		}
-		this->splice(this->end(), x, x.begin(), x.end());
+
 	}
 
-	template <class Compare>
-	void merge (map & x, Compare comp)
+	const_iterator lower_bound (const key_type & k) const
 	{
-		if (*this == x)
-			return ;
-		for (iterator it = this->begin() ; it != this->end() ; )
-		{
-			iterator	it2 = x.begin();
-			if (it2 != x.end() && comp(*it2, *it))
-				this->splice(it, x, it2);
-			else
-				it++;
-		}
-		this->splice(this->end(), x, x.begin(), x.end());
+
+	}
+
+	iterator upper_bound (const key_type & k)
+	{
+
+	}
+
+	const_iterator upper_bound (const key_type & k) const
+	{
+
 	}
 
 	//////////////////////////////
-	// Sorting operations
+	// Range operations
 	//////////////////////////////
 
-	void sort (void)
+	ft::pair<iterator,iterator> equal_range (const key_type & k)
 	{
-		this->_quicksort(this->begin(), this->end());
+
 	}
 
-	template <class Compare>
-	void sort (Compare comp)
+	ft::pair<const_iterator,const_iterator> equal_range (const key_type & k) const
 	{
-		this->_quicksort(comp, this->begin(), this->end());
-	}
 
-	void reverse (void)
-	{
-		for (iterator it = this->begin() ; it != this->end() ; it--)
-			ft::swap(it.getPtr()->prev, it.getPtr()->next);
-		ft::swap(_end->prev, _end->next);
 	}
 
 	//////////////////////////////
@@ -505,105 +342,29 @@ public:
 	//////////////////////////////
 
 private:
-	void _new_end_node (void)
+	void _new_nil_node (void)
 	{
-		_end = _alloc.allocate(1);
-		this->_construct(_end, _end, _end);
+		_nil = _alloc.allocate(1);
+		this->_construct(_nil, _nil, _nil);
 	}
 
-	void _construct (node * ptr, node * prev, node * next, value_type data = value_type())
+	void _construct (node * ptr, node * left, node * right, value_type data = value_type())
 	{
 		node	tmp;
 		tmp.data = data;
-		tmp.prev = prev;
-		tmp.next = next;
+		tmp.left = left;
+		tmp.right = right;
 		_alloc.construct(ptr, tmp);
 	}
 
-	//////////////////////////////
-	// Quicksort
-	//////////////////////////////
-
-	void _quicksort (iterator first, iterator last)
+	node * _find_node (node * current, const key_type & k)
 	{
-		if (first != last && iterator(first.getPtr()->next) != last)
-		{
-			iterator	it = this->_partition(first, last);
-			this->_quicksort(first, it++);
-			this->_quicksort(it, last);
-		}
-	}
-
-	iterator _partition (iterator & first, iterator & last)
-	{
-		iterator	prev = first;
-		last--;
-		for (iterator it = first ; it != last ; it++)
-		{
-			if (*it < *last)
-			{
-				this->_swap_nodes(prev, it);
-				if (first == it)
-					first = prev;
-				prev++;
-			}
-		}
-		this->_swap_nodes(prev, last);
-		if (first == last)
-			first = prev;
-		last++;
-		return (prev);
-	}
-
-	void _swap_nodes (iterator & first, iterator & second)
-	{
-		node *	first_prev = first.getPtr()->prev;
-		node *	first_next = first.getPtr()->next;
-		node *	second_prev = second.getPtr()->prev;
-		node *	second_next = second.getPtr()->next;
-		ft::swap(first_prev->next, second_prev->next);
-		ft::swap(first_next->prev, second_next->prev);
-		ft::swap(first.getPtr()->prev, second.getPtr()->prev);
-		ft::swap(first.getPtr()->next, second.getPtr()->next);
-		ft::swap(first, second);
-	}
-
-	//////////////////////////////
-	// Quicksort (with compare function)
-	//////////////////////////////
-
-	template <class Compare>
-	void _quicksort (Compare comp, iterator first, iterator last)
-	{
-		if (first != last && iterator(first.getPtr()->next) != last)
-		{
-			iterator	it = this->_partition(comp, first, last);
-			this->_quicksort(comp, first, it++);
-			this->_quicksort(comp, it, last);
-		}
-	}
-
-	template <class Compare>
-	iterator _partition (Compare comp, iterator & first, iterator & last)
-	{
-
-		iterator	prev = first;
-		last--;
-		for (iterator it = first ; it != last ; it++)
-		{
-			if (comp(*it, *last))
-			{
-				this->_swap_nodes(prev, it);
-				if (first == it)
-					first = prev;
-				prev++;
-			}
-		}
-		this->_swap_nodes(prev, last);
-		if (first == last)
-			first = prev;
-		last++;
-		return (prev);
+		if (current == _nil || current->val() == k)
+			return (current);
+		else if (current->val() < k)
+			return (this->_find_node(current->left, k));
+		else
+			return (this->_find_node(current->right, k));
 	}
 
 	//////////////////////////////
@@ -611,51 +372,51 @@ private:
 	//////////////////////////////
 
 	allocator_type		_alloc;
-	node *				_end;
+	node *				_nil;
 };
 
 	//////////////////////////////
 	// Relational operators
 	//////////////////////////////
 
-	template <class T, class Alloc>
-	bool operator== (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
+	template <class Key, class T, class Compare, class Alloc>
+	bool operator== (const map<Key,T,Compare,Alloc> & lhs, const map<Key,T,Compare,Alloc> & rhs)
 	{
 		return (ft::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 	}
 
-	template <class T, class Alloc>
-	bool operator<  (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
+	template <class Key, class T, class Compare, class Alloc>
+	bool operator<  (const map<Key,T,Compare,Alloc> & lhs, const map<Key,T,Compare,Alloc> & rhs)
 	{
 		return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 	}
 
-	template <class T, class Alloc>
-	bool operator!= (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
+	template <class Key, class T, class Compare, class Alloc>
+	bool operator!= (const map<Key,T,Compare,Alloc> & lhs, const map<Key,T,Compare,Alloc> & rhs)
 	{
 		return (!(lhs == rhs));
 	}
 
-	template <class T, class Alloc>
-	bool operator<= (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
+	template <class Key, class T, class Compare, class Alloc>
+	bool operator<= (const map<Key,T,Compare,Alloc> & lhs, const map<Key,T,Compare,Alloc> & rhs)
 	{
 		return (!(rhs < lhs));
 	}
 
-	template <class T, class Alloc>
-	bool operator>  (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
+	template <class Key, class T, class Compare, class Alloc>
+	bool operator>  (const map<Key,T,Compare,Alloc> & lhs, const map<Key,T,Compare,Alloc> & rhs)
 	{
 		return (rhs < lhs);
 	}
 
-	template <class T, class Alloc>
-	bool operator>= (const map<T,Alloc> & lhs, const map<T,Alloc> & rhs)
+	template <class Key, class T, class Compare, class Alloc>
+	bool operator>= (const map<Key,T,Compare,Alloc> & lhs, const map<Key,T,Compare,Alloc> & rhs)
 	{
 		return (!(lhs < rhs));
 	}
 
-	template <class T, class Alloc>
-	void swap (map<T,Alloc> & x, map<T,Alloc> & y)
+	template <class Key, class T, class Compare, class Alloc>
+	void swap (map<Key,T,Compare,Alloc> & x, map<Key,T,Compare,Alloc> & y)
 	{
 		x.swap(y);
 	}
