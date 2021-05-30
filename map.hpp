@@ -22,6 +22,7 @@ public:
 		struct s_node *			parent;
 		// bool					color;
 
+		s_node (ft::pair<const Key, T> & data) : data(data) {}
 		const Key &	key (void)	{ return (data.first); }
 		T &			val (void)	{ return (data.second); }
 	}							node;
@@ -41,7 +42,7 @@ public:
 		typedef					std::size_t													size_type;
 		// -structors
 		mapIterator				(void)														{ _ptr = NULL; }
-		mapIterator				(value_type * const ptr)									{ _ptr = ptr; }
+		mapIterator				(node_type * const ptr)										{ _ptr = ptr; }
 		~mapIterator			(void)														{}
 		// Const stuff
 		template <bool B>		mapIterator
@@ -53,10 +54,10 @@ public:
 		template <bool B> bool	operator==	(const mapIterator<B> & x) const				{ return (_ptr == x.getPtr()); }
 		template <bool B> bool	operator!=	(const mapIterator<B> & x) const				{ return (_ptr != x.getPtr()); }
 		// -crementation
-		mapIterator &			operator++	(void)											{ _ptr = _ptr->next; return (*this); }
-		mapIterator &			operator--	(void)											{ _ptr = _ptr->prev; return (*this); }
-		mapIterator				operator++	(int)											{ mapIterator<IsConst> x(*this); _ptr = _ptr->next; return (x); }
-		mapIterator				operator--	(int)											{ mapIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
+		mapIterator &			operator++	(void)											{ this->nextNode(); return (*this); }
+		mapIterator &			operator--	(void)											{ this->prevNode(); return (*this); }
+		mapIterator				operator++	(int)											{ mapIterator<IsConst> x(*this); this->nextNode(); return (x); }
+		mapIterator				operator--	(int)											{ mapIterator<IsConst> x(*this); this->prevNode(); return (x); }
 		// Dereference
 		value_type &			operator*	(void)											{ return (_ptr->data); }
 		value_type *			operator->	(void)											{ return (&_ptr->data); }
@@ -64,12 +65,39 @@ public:
 		node_type *				getPtr		(void) const									{ return (_ptr); }
 
 	private:
-		void					successor	(void)											{ if (this->rrule() == false) { this->urule(); } }
-		bool					rrule		(void)											{ if (_ptr->right != this->nil()) { _ptr = _ptr->right; this->leftmost(); } return (false); }
-		void					urule		(void)											{ }
-		void					leftmost	(void)											{  }
-		node_type *				nil			(void)											{  }
 		node_type *				_ptr;
+
+		void nextNode (void)
+		{
+			if (_ptr->right != _ptr->right->left)
+			{
+				_ptr = _ptr->right;
+				while (_ptr->left != _ptr->left->left)
+					_ptr = _ptr->left;
+			}
+			else
+			{
+				while (_ptr == _ptr->parent->right)
+					_ptr = _ptr->parent;
+				_ptr = _ptr->parent;
+			}
+		}
+
+		void prevNode (void)
+		{
+			if (_ptr->left != _ptr->left->left)
+			{
+				_ptr = _ptr->left;
+				while (_ptr->right == _ptr->right->left)
+					_ptr = _ptr->right;
+			}
+			else
+			{
+				while (_ptr != _ptr->parent->left)
+					_ptr = _ptr->parent;
+				_ptr = _ptr->parent;
+			}
+		}
 	};
 
 	//////////////////////////////
@@ -103,36 +131,36 @@ public:
 		this->_new_nil_node();
 	}
 
-	template <class InputIterator>
-	map (InputIterator first, InputIterator last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type())
-	{
-		_alloc = alloc;
-		this->_new_nil_node();
-	}
-
-	map (const map & x)
-	{
-		_alloc = alloc;
-		this->_new_nil_node();
-	}
-
-	//////////////////////////////
-	// Destructors
-	//////////////////////////////
-
-	~map (void)
-	{
-
-	}
-
-	//////////////////////////////
-	// Assignment operator
-	//////////////////////////////
-
-	map & operator= (const map & x)
-	{
-
-	}
+	// template <class InputIterator>
+	// map (InputIterator first, InputIterator last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type())
+	// {
+	// 	_alloc = alloc;
+	// 	this->_new_nil_node();
+	// }
+	//
+	// map (const map & x)
+	// {
+	// 	_alloc = alloc;
+	// 	this->_new_nil_node();
+	// }
+	//
+	// //////////////////////////////
+	// // Destructors
+	// //////////////////////////////
+	//
+	// ~map (void)
+	// {
+	//
+	// }
+	//
+	// //////////////////////////////
+	// // Assignment operator
+	// //////////////////////////////
+	//
+	// map & operator= (const map & x)
+	// {
+	//
+	// }
 
 	//////////////////////////////
 	// Iterators
@@ -140,12 +168,12 @@ public:
 
 	iterator begin (void)
 	{
-		return (iterator(this->_leftmost(_nil->right));
+		return (iterator(this->_leftmost(_nil->right)));
 	}
 
 	const_iterator begin (void) const
 	{
-		return (const_iterator(this->_leftmost(_nil->right));
+		return (const_iterator(this->_leftmost(_nil->right)));
 	}
 
 	iterator end (void)
@@ -363,10 +391,10 @@ private:
 	node * _new_node (const key_type & key, const mapped_type & mapped = mapped_type())
 	{
 		node * new_node = _alloc.allocate(1);
-		this->construct(new_node, key, mapped);
+		this->_construct(new_node, key, mapped);
 
-		node * parent = this->_find_parent(_nil, key);
-		if (parent == _nil || parent->key() > key)
+		node * parent = this->_find_parent(_nil->right, key);
+		if (parent == _nil || parent->key() < key)
 			parent->right = new_node;
 		else
 			parent->left = new_node;
@@ -377,15 +405,15 @@ private:
 
 	void _construct (node * ptr, const key_type & key = key_type(), const mapped_type & mapped = mapped_type())
 	{
-		node	tmp;
-		tmp.data = ft::make_pair(key, mapped);
+		pair<const key_type, mapped_type> pr(key, mapped);
+		node tmp(pr);
 		tmp.left = _nil;
 		tmp.right = _nil;
 		tmp.parent = _nil;
 		_alloc.construct(ptr, tmp);
 	}
 
-	node * _find_node (node * current, const key_type & k)
+	node * _find_node (node * current, const key_type & k) const
 	{
 		if (current == _nil || current->key() == k)
 			return (current);
@@ -395,7 +423,7 @@ private:
 			return (this->_find_node(current->right, k));
 	}
 
-	node * _find_parent (node * current, const key_type & k)
+	node * _find_parent (node * current, const key_type & k) const
 	{
 		if (current->key() < k)
 		{
@@ -411,6 +439,14 @@ private:
 			else
 				return (this->_find_parent(current->left, k));
 		}
+	}
+
+	node * _leftmost (node * root)
+	{
+		node * leftmost = root;
+		while (leftmost->left != leftmost->left->left)
+			leftmost = leftmost->left;
+		return (leftmost);
 	}
 
 	//////////////////////////////

@@ -1,23 +1,25 @@
-#include <utility>
-#include <map>
 #include <iostream>
+#include "map.hpp"
+#include <map>
 #include "includes/utility.hpp"
+
+#ifndef TESTED
+# define TESTED ft
+#endif
 
 int main(void)
 {
-	std::map<char,int> foo,bar;
-    foo['a']=100;
-    foo['b']=200;
-    bar['a']=10;
-    bar['z']=1000;
+	TESTED::map<int, std::string>	mp;
 
-    // foo ({{a,100},{b,200}}) vs bar ({a,10},{z,1000}}):
-    if (foo==bar) std::cout << "foo and bar are equal\n";
-    if (foo!=bar) std::cout << "foo and bar are not equal\n";
-    if (foo< bar) std::cout << "foo is less than bar\n";
-    if (foo> bar) std::cout << "foo is greater than bar\n";
-    if (foo<=bar) std::cout << "foo is less than or equal to bar\n";
-    if (foo>=bar) std::cout << "foo is greater than or equal to bar\n";
+	mp[13] = "thirteen ";
+	mp[5] = "five ";
+	mp[7] = "seven ";
+	mp[15] = "fifteen ";
+	mp[2] = "two ";
+	mp[10] = "ten ";
 
-    return 0;
+	for (TESTED::map<int, std::string>::iterator it = mp.begin() ; it != mp.end() ; it++)
+		std::cout << it->second << std::endl;
+
+	return (0);
 }
