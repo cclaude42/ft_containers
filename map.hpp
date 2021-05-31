@@ -22,7 +22,7 @@ public:
 		struct s_node *			parent;
 		// bool					color;
 
-		s_node (ft::pair<const Key, T> & data) : data(data) {}
+		s_node (ft::pair<const Key, T> data) : data(data) {}
 		const Key &	key (void)	{ return (data.first); }
 		T &			val (void)	{ return (data.second); }
 	}							node;
@@ -104,12 +104,14 @@ public:
 	// Member types
 	//////////////////////////////
 
+	class		ValueCompare;
+
 	typedef		Key												key_type;
 	typedef		T												mapped_type;
 	typedef		ft::pair<const key_type, mapped_type>			value_type;
 	typedef		typename Alloc::template rebind<node>::other	allocator_type;
 	typedef		Compare											key_compare;
-	// typedef		???												value_compare;
+	typedef		ValueCompare									value_compare;
 	typedef		typename allocator_type::reference				reference;
 	typedef		typename allocator_type::const_reference		const_reference;
 	typedef		typename allocator_type::pointer				pointer;
@@ -122,12 +124,30 @@ public:
 	typedef		typename mapIterator<false>::size_type			size_type;
 
 	//////////////////////////////
+	// Value compare
+	//////////////////////////////
+
+	class ValueCompare {
+	public:
+		friend			class			map;
+		typedef			bool			result_type;
+		typedef			value_type		first_argument_type;
+		typedef			value_type		second_argument_type;
+		bool			operator()		(const value_type & x, const value_type & y) const
+			{ return (comp(x.first, y.first)); }
+	protected:
+		ValueCompare	(Compare c)		: comp(c) {}
+		Compare			comp;
+	};
+
+	//////////////////////////////
 	// Constructors
 	//////////////////////////////
 
 	explicit map (const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type())
 	{
 		_alloc = alloc;
+		_comp = comp;
 		this->_new_nil_node();
 	}
 
@@ -135,6 +155,7 @@ public:
 	map (InputIterator first, InputIterator last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type())
 	{
 		_alloc = alloc;
+		_comp = comp;
 		this->_new_nil_node();
 
 		while (first != last)
@@ -166,6 +187,7 @@ public:
 	{
 		this->clear();
 		_alloc = x._alloc;
+		_comp = x._comp;
 
 		for (const_iterator it = x.begin() ; it != x.end() ; it++)
 			this->insert(*it);
@@ -250,7 +272,7 @@ public:
 	mapped_type & operator[] (const key_type & k)
 	{
 		this->insert(ft::make_pair(k, mapped_type()));
-		return (this->find(k)->val());
+		return (this->find(k)->second);
 	}
 
 	//////////////////////////////
@@ -284,52 +306,89 @@ public:
 			this->insert(*first++);
 	}
 
-	// //////////////////////////////
-	// // Erasure modifiers
-	// //////////////////////////////
-	//
-	// void erase (iterator position)
-	// {
-	//
-	// }
-	//
-	// size_type erase (const key_type & k)
-	// {
-	//
-	// }
-	//
-	// void erase (iterator first, iterator last)
-	// {
-	//
-	// }
-	//
-	// //////////////////////////////
-	// // Common modifiers
-	// //////////////////////////////
-	//
-	// void swap (map & x)
-	// {
-	//
-	// }
-	//
-	// void clear (void)
-	// {
-	//
-	// }
-	//
-	// //////////////////////////////
-	// // Observers
-	// //////////////////////////////
-	//
-	// key_compare key_comp (void) const
-	// {
-	//
-	// }
-	//
-	// value_compare value_comp (void) const
-	// {
-	//
-	// }
+	//////////////////////////////
+	// Erasure modifiers
+	//////////////////////////////
+
+	void erase (iterator position)
+	{
+		node * ptr = position.getPtr();
+
+		if (ptr->left != _nil && ptr->right != _nil)
+		{
+			position--;
+			this->_swap_nodes(ptr, position.getPtr());
+		}
+		else if (ptr->left != _nil && ptr->right != _nil)
+		{
+			if (ptr->left != _nil)
+				ptr->left->parent = ptr->parent;
+			else
+				ptr->right->parent = ptr->parent;
+			if (ptr->parent->left == ptr)
+				ptr->parent->left = ptr->left;
+			else
+				ptr->parent->right = ptr->right;
+		}
+		else
+		{
+			if (ptr->parent->left == ptr)
+				ptr->parent->left = _nil;
+			else
+				ptr->parent->right = _nil;
+		}
+
+		_alloc.destroy(ptr);
+		_alloc.deallocate(ptr, 1);
+	}
+
+	size_type erase (const key_type & k)
+	{
+		if (this->count(k))
+		{
+			this->erase(this->find(k));
+			return (1);
+		}
+		return (0);
+	}
+
+	void erase (iterator first, iterator last)
+	{
+		for (iterator it = first++ ; it != last ; it = first++)
+			this->erase(it);
+	}
+
+	//////////////////////////////
+	// Common modifiers
+	//////////////////////////////
+
+	void swap (map & x)
+	{
+		ft::swap(_alloc, x._alloc);
+		ft::swap(_comp, x._comp);
+		ft::swap(_nil, x._nil);
+	}
+
+	void clear (void)
+	{
+		iterator first = this->begin();
+		for (iterator it = first++ ; it != this->end() ; it = first++)
+			this->erase(it);
+	}
+
+	//////////////////////////////
+	// Observers
+	//////////////////////////////
+
+	key_compare key_comp (void) const
+	{
+		return (key_compare());
+	}
+
+	value_compare value_comp (void) const
+	{
+		return (value_compare(_comp));
+	}
 
 	//////////////////////////////
 	// Search operations
@@ -435,6 +494,24 @@ private:
 		_alloc.construct(ptr, tmp);
 	}
 
+	void _swap_nodes (node * a, node * b)
+	{
+		node * a_parent = a->parent;
+		node * a_left = a->left;
+		node * a_right = a->right;
+		node * b_parent = b->parent;
+		node * b_left = b->left;
+		node * b_right = b->right;
+
+		a_parent->left == a ? a_parent->left = b : a_parent->right = b;
+		b_parent->left == b ? b_parent->left = a : b_parent->right = a;
+		ft::swap(a_left->parent, b_left->parent);
+		ft::swap(a_right->parent, b_right->parent);
+		ft::swap(a->parent, b->parent);
+		ft::swap(a->left, b->left);
+		ft::swap(a->right, b->right);
+	}
+
 	node * _find_node (node * current, const key_type & k) const
 	{
 		if (current == _nil || current->key() == k)
@@ -476,6 +553,7 @@ private:
 	//////////////////////////////
 
 	allocator_type		_alloc;
+	key_compare			_comp;
 	node *				_nil;
 };
 
