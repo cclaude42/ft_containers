@@ -17,6 +17,10 @@ int main(void)
 	mp[15] = "fifteen ";
 	mp[2] = "two ";
 	mp[10] = "ten ";
+	mp[-2] = "-two ";
+	mp[-6] = "-six ";
+	mp[-4] = "-four ";
+	mp[-3] = "-three ";
 
 	for (TESTED::map<int, std::string>::iterator it = mp.begin() ; it != mp.end() ; it++)
 		std::cout << it->second << std::endl;

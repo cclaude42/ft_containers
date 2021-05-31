@@ -131,36 +131,46 @@ public:
 		this->_new_nil_node();
 	}
 
-	// template <class InputIterator>
-	// map (InputIterator first, InputIterator last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type())
-	// {
-	// 	_alloc = alloc;
-	// 	this->_new_nil_node();
-	// }
-	//
-	// map (const map & x)
-	// {
-	// 	_alloc = alloc;
-	// 	this->_new_nil_node();
-	// }
-	//
-	// //////////////////////////////
-	// // Destructors
-	// //////////////////////////////
-	//
-	// ~map (void)
-	// {
-	//
-	// }
-	//
-	// //////////////////////////////
-	// // Assignment operator
-	// //////////////////////////////
-	//
-	// map & operator= (const map & x)
-	// {
-	//
-	// }
+	template <class InputIterator>
+	map (InputIterator first, InputIterator last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type())
+	{
+		_alloc = alloc;
+		this->_new_nil_node();
+
+		while (first != last)
+			this->insert(*first++);
+	}
+
+	map (const map & x)
+	{
+		this->_new_nil_node();
+		*this = x;
+	}
+
+	//////////////////////////////
+	// Destructors
+	//////////////////////////////
+
+	~map (void)
+	{
+		this->clear();
+		_alloc.destroy(_nil);
+		_alloc.deallocate(_nil, 1);
+	}
+
+	//////////////////////////////
+	// Assignment operator
+	//////////////////////////////
+
+	map & operator= (const map & x)
+	{
+		this->clear();
+		_alloc = x._alloc;
+
+		for (const_iterator it = x.begin() ; it != x.end() ; it++)
+			this->insert(*it);
+		return (*this);
+	}
 
 	//////////////////////////////
 	// Iterators
@@ -210,24 +220,28 @@ public:
 		return (const_reverse_iterator(this->_leftmost(_nil->right)));
 	}
 
-	// //////////////////////////////
-	// // Capacity
-	// //////////////////////////////
-	//
-	// bool empty (void) const
-	// {
-	//
-	// }
-	//
-	// size_type size (void) const
-	// {
-	//
-	// }
-	//
-	// size_type max_size (void) const
-	// {
-	//
-	// }
+	//////////////////////////////
+	// Capacity
+	//////////////////////////////
+
+	bool empty (void) const
+	{
+		return (_nil == _nil->right);
+	}
+
+	size_type size (void) const
+	{
+		size_type n = 0;
+
+		for (const_iterator it = this->begin() ; it != this->end() ; it++)
+			n++;
+		return (n);
+	}
+
+	size_type max_size (void) const
+	{
+		return (_alloc.max_size());
+	}
 
 	//////////////////////////////
 	// Member access
@@ -235,32 +249,41 @@ public:
 
 	mapped_type & operator[] (const key_type & k)
 	{
-		if (this->count(k))
-			return (this->_find_node(_nil->right, k)->val());
-		else
-			return (this->_new_node(k)->val());
+		this->insert(ft::make_pair(k, mapped_type()));
+		return (this->find(k)->val());
 	}
 
-	// //////////////////////////////
-	// // Insertion modifiers
-	// //////////////////////////////
-	//
-	// ft::pair<iterator,bool> insert (const value_type & val)
-	// {
-	//
-	// }
-	//
-	// iterator insert (iterator position, const value_type & val)
-	// {
-	//
-	// }
-	//
-	// template <class InputIterator>
-	// void insert (InputIterator first, InputIterator last)
-	// {
-	//
-	// }
-	//
+	//////////////////////////////
+	// Insertion modifiers
+	//////////////////////////////
+
+	ft::pair<iterator,bool> insert (const value_type & val)
+	{
+		iterator it;
+		if (this->count(val.first))
+		{
+			it = this->find(val.first);
+			return (ft::make_pair(it, false));
+		}
+		else
+		{
+			it = iterator(this->_new_node(val));
+			return (ft::make_pair(it, true));
+		}
+	}
+
+	iterator insert (iterator position, const value_type & val)
+	{
+		return (this->insert(val));
+	}
+
+	template <class InputIterator>
+	void insert (InputIterator first, InputIterator last)
+	{
+		while (first != last)
+			this->insert(*first++);
+	}
+
 	// //////////////////////////////
 	// // Erasure modifiers
 	// //////////////////////////////
@@ -388,13 +411,13 @@ private:
 		this->_construct(_nil);
 	}
 
-	node * _new_node (const key_type & key, const mapped_type & mapped = mapped_type())
+	node * _new_node (const value_type & val = value_type())
 	{
 		node * new_node = _alloc.allocate(1);
-		this->_construct(new_node, key, mapped);
+		this->_construct(new_node, val);
 
-		node * parent = this->_find_parent(_nil->right, key);
-		if (parent == _nil || parent->key() < key)
+		node * parent = this->_find_parent(_nil->right, val.first);
+		if (parent == _nil || parent->key() < val.first)
 			parent->right = new_node;
 		else
 			parent->left = new_node;
@@ -403,10 +426,9 @@ private:
 		return (new_node);
 	}
 
-	void _construct (node * ptr, const key_type & key = key_type(), const mapped_type & mapped = mapped_type())
+	void _construct (node * ptr, const value_type & val = value_type())
 	{
-		pair<const key_type, mapped_type> pr(key, mapped);
-		node tmp(pr);
+		node tmp(val);
 		tmp.left = _nil;
 		tmp.right = _nil;
 		tmp.parent = _nil;
