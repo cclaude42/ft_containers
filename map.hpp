@@ -77,7 +77,7 @@ public:
 			}
 			else
 			{
-				while (_ptr == _ptr->parent->right)
+				while (_ptr == _ptr->parent->right && _ptr != _ptr->parent)
 					_ptr = _ptr->parent;
 				_ptr = _ptr->parent;
 			}
@@ -93,7 +93,7 @@ public:
 			}
 			else
 			{
-				while (_ptr != _ptr->parent->left)
+				while (_ptr == _ptr->parent->left && _ptr != _ptr->parent)
 					_ptr = _ptr->parent;
 				_ptr = _ptr->parent;
 			}
@@ -319,16 +319,16 @@ public:
 			position--;
 			this->_swap_nodes(ptr, position.getPtr());
 		}
-		else if (ptr->left != _nil && ptr->right != _nil)
+		else if (ptr->left != _nil || ptr->right != _nil)
 		{
 			if (ptr->left != _nil)
 				ptr->left->parent = ptr->parent;
 			else
 				ptr->right->parent = ptr->parent;
 			if (ptr->parent->left == ptr)
-				ptr->parent->left = ptr->left;
+				ptr->parent->left = (ptr->left == _nil) ? ptr->right : ptr->left;
 			else
-				ptr->parent->right = ptr->right;
+				ptr->parent->right = (ptr->left == _nil) ? ptr->right : ptr->left;
 		}
 		else
 		{
@@ -516,7 +516,7 @@ private:
 	{
 		if (current == _nil || current->key() == k)
 			return (current);
-		else if (current->key() < k)
+		else if (k < current->key())
 			return (this->_find_node(current->left, k));
 		else
 			return (this->_find_node(current->right, k));
@@ -546,6 +546,16 @@ private:
 		while (leftmost->left != leftmost->left->left)
 			leftmost = leftmost->left;
 		return (leftmost);
+	}
+
+	void _treecheck (void)
+	{
+		std::cout << "The tree is as follows :" << std::endl;
+		for (iterator it = this->begin() ; it != this->end() ; it++)
+		{
+			std::cout << it->first << " is the child of " << it.getPtr()->parent->key() << ", points left to " << it.getPtr()->left->key() << " and right to " << it.getPtr()->right->key() << std::endl;
+		}
+		std::cout << "End of tree check" << std::endl;
 	}
 
 	//////////////////////////////
