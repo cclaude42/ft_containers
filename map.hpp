@@ -3,6 +3,9 @@
 
 # include "includes/containers.hpp"
 
+# define RED true
+# define BLACK false
+
 namespace ft
 {
 
@@ -20,7 +23,7 @@ public:
 		struct s_node *			left;
 		struct s_node *			right;
 		struct s_node *			parent;
-		// bool					color;
+		bool					color;
 
 		s_node (ft::pair<const Key, T> data) : data(data) {}
 		const Key &	key (void)	{ return (data.first); }
@@ -324,28 +327,23 @@ public:
 		{
 			position--;
 			this->_swap_nodes(ptr, position.getPtr());
-		}
-		else if (ptr->left != _nil || ptr->right != _nil)
-		{
-			if (ptr->left != _nil)
-				ptr->left->parent = ptr->parent;
-			else
-				ptr->right->parent = ptr->parent;
-			if (ptr->parent->left == ptr)
-				ptr->parent->left = (ptr->left == _nil) ? ptr->right : ptr->left;
-			else
-				ptr->parent->right = (ptr->left == _nil) ? ptr->right : ptr->left;
+			this->erase(ptr);
 		}
 		else
 		{
-			if (ptr->parent->left == ptr)
-				ptr->parent->left = _nil;
-			else
-				ptr->parent->right = _nil;
+			if (ptr->left != _nil || ptr->right != _nil)
+			{
+				if (ptr->left != _nil)
+					ptr->left->parent = ptr->parent;
+				else
+					ptr->right->parent = ptr->parent;
+				if (ptr->parent->left == ptr)
+					ptr->parent->left = (ptr->left == _nil) ? ptr->right : ptr->left;
+				else
+					ptr->parent->right = (ptr->left == _nil) ? ptr->right : ptr->left;
+			}
+			this->_removeNode(ptr);
 		}
-
-		_alloc.destroy(ptr);
-		_alloc.deallocate(ptr, 1);
 	}
 
 	size_type erase (const key_type & k)
@@ -425,7 +423,7 @@ public:
 	iterator lower_bound (const key_type & k)
 	{
 		iterator it = this->begin();
-		while (it->first < k && it != this->end())
+		while (_comp(it->first, k) && it != this->end())
 			it++;
 		return (it);
 	}
@@ -433,7 +431,7 @@ public:
 	const_iterator lower_bound (const key_type & k) const
 	{
 		const_iterator it = this->begin();
-		while (it->first < k && it != this->end())
+		while (_comp(it->first, k) && it != this->end())
 			it++;
 		return (it);
 	}
@@ -441,7 +439,7 @@ public:
 	iterator upper_bound (const key_type & k)
 	{
 		iterator it = this->begin();
-		while (k < it->first == false && it != this->end())
+		while (_comp(k, it->first) == false && it != this->end())
 			it++;
 		return (it);
 	}
@@ -449,7 +447,7 @@ public:
 	const_iterator upper_bound (const key_type & k) const
 	{
 		const_iterator it = this->begin();
-		while (k < it->first == false && it != this->end())
+		while (_comp(k, it->first) == false && it != this->end())
 			it++;
 		return (it);
 	}
@@ -494,7 +492,7 @@ private:
 		this->_construct(new_node, val);
 
 		node * parent = this->_find_parent(_nil->right, val.first);
-		if (parent == _nil || parent->key() < val.first)
+		if (parent == _nil || _comp(parent->key(), val.first))
 			parent->right = new_node;
 		else
 			parent->left = new_node;
@@ -509,32 +507,74 @@ private:
 		tmp.left = _nil;
 		tmp.right = _nil;
 		tmp.parent = _nil;
+		tmp.color = BLACK;
 		_alloc.construct(ptr, tmp);
 	}
 
 	void _swap_nodes (node * a, node * b)
 	{
-		node * a_parent = a->parent;
-		node * a_left = a->left;
-		node * a_right = a->right;
-		node * b_parent = b->parent;
-		node * b_left = b->left;
-		node * b_right = b->right;
+		if (a->left != b && a->left != _nil)
+			a->left->parent = b;
+		if (a->right != b && a->right != _nil)
+			a->right->parent = b;
+		if (a->parent != b && a->parent != _nil)
+		{
+			if (a->parent->left == a)
+				a->parent->left = b;
+			else
+				a->parent->right = b;
+		}
 
-		a_parent->left == a ? a_parent->left = b : a_parent->right = b;
-		b_parent->left == b ? b_parent->left = a : b_parent->right = a;
-		ft::swap(a_left->parent, b_left->parent);
-		ft::swap(a_right->parent, b_right->parent);
+		if (b->left != a && b->left != _nil)
+			b->left->parent = a;
+		if (b->right != a && b->right != _nil)
+			b->right->parent = a;
+		if (b->parent != a && b->parent != _nil)
+		{
+			if (b->parent->left == b)
+				b->parent->left = a;
+			else
+				b->parent->right = a;
+		}
+
+		if (a->parent == b)
+			a->parent = a;
+		if (a->left == b)
+			a->left = a;
+		if (a->right == b)
+			a->right = a;
+		if (b->parent == a)
+			b->parent = b;
+		if (b->left == a)
+			b->left = b;
+		if (b->right == a)
+			b->right = b;
+
 		ft::swap(a->parent, b->parent);
 		ft::swap(a->left, b->left);
 		ft::swap(a->right, b->right);
+
+		if (_nil->right == a)
+			_nil->right = b;
+		else if (_nil->right == b)
+			_nil->right = a;
+	}
+
+	void _removeNode (node * ptr)
+	{
+		if (ptr->parent->left == ptr)
+			ptr->parent->left = _nil;
+		else if (ptr->parent->right == ptr)
+			ptr->parent->right = _nil;
+		_alloc.destroy(ptr);
+		_alloc.deallocate(ptr, 1);
 	}
 
 	node * _find_node (node * current, const key_type & k) const
 	{
-		if (current == _nil || current->key() == k)
+		if (current == _nil || this->_equal(current->key(), k))
 			return (current);
-		else if (k < current->key())
+		else if (_comp(k, current->key()))
 			return (this->_find_node(current->left, k));
 		else
 			return (this->_find_node(current->right, k));
@@ -542,16 +582,16 @@ private:
 
 	node * _find_parent (node * current, const key_type & k) const
 	{
-		if (current->key() < k)
+		if (_comp(current->key(), k))
 		{
-			if (current->right == _nil || current->right->key() == k)
+			if (current->right == _nil || this->_equal(current->right->key(), k))
 				return (current);
 			else
 				return (this->_find_parent(current->right, k));
 		}
 		else
 		{
-			if (current->left == _nil || current->left->key() == k)
+			if (current->left == _nil || this->_equal(current->left->key(), k))
 				return (current);
 			else
 				return (this->_find_parent(current->left, k));
@@ -560,19 +600,24 @@ private:
 
 	node * _leftmost (node * root) const
 	{
-		node * leftmost = root;
-		while (leftmost->left != leftmost->left->left)
-			leftmost = leftmost->left;
-		return (leftmost);
+		while (root->left != root->left->left)
+			root = root->left;
+		return (root);
 	}
 
-	void _treecheck (void) const
+	bool _equal (const key_type & lhs, const key_type & rhs) const
 	{
-		std::cout << "The tree is as follows :" << std::endl;
-		for (iterator it = this->begin() ; it != this->end() ; it++)
-			std::cout << it->first << " is the child of " << it.getPtr()->parent->key() << ", points left to " << it.getPtr()->left->key() << " and right to " << it.getPtr()->right->key() << std::endl;
-		std::cout << "End of tree check" << std::endl;
+		return (_comp(lhs, rhs) == false && _comp(rhs, lhs) == false);
 	}
+
+	// void _treecheck (void) const
+	// {
+	// 	std::cout << "The tree is as follows :" << std::endl;
+	// 	std::cout << "Nil points left to " << _nil->left->key() << " and right to " << _nil->right->key() << std::endl;
+	// 	for (const_iterator it = this->begin() ; it != this->end() ; it++)
+	// 		std::cout << it->first << " is the child of " << it.getPtr()->parent->key() << ", points left to " << it.getPtr()->left->key() << " and right to " << it.getPtr()->right->key() << std::endl;
+	// 	std::cout << "End of tree check" << std::endl;
+	// }
 
 	//////////////////////////////
 	// Member variables
