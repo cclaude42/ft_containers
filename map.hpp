@@ -59,8 +59,8 @@ public:
 		mapIterator				operator++	(int)											{ mapIterator<IsConst> x(*this); this->nextNode(); return (x); }
 		mapIterator				operator--	(int)											{ mapIterator<IsConst> x(*this); this->prevNode(); return (x); }
 		// Dereference
-		value_type &			operator*	(void)											{ return (_ptr->data); }
-		value_type *			operator->	(void)											{ return (&_ptr->data); }
+		value_type &			operator*	(void) const									{ return (_ptr->data); }
+		value_type *			operator->	(void) const									{ return (&_ptr->data); }
 		// Member functions
 		node_type *				getPtr		(void) const									{ return (_ptr); }
 
@@ -85,10 +85,15 @@ public:
 
 		void prevNode (void)
 		{
-			if (_ptr->left != _ptr->left->left)
+			if (_ptr == _ptr->parent)
+			{
+				while (_ptr->right != _ptr->right->left)
+					_ptr = _ptr->right;
+			}
+			else if (_ptr->left != _ptr->left->left)
 			{
 				_ptr = _ptr->left;
-				while (_ptr->right == _ptr->right->left)
+				while (_ptr->right != _ptr->right->left)
 					_ptr = _ptr->right;
 			}
 			else
@@ -296,7 +301,8 @@ public:
 
 	iterator insert (iterator position, const value_type & val)
 	{
-		return (this->insert(val));
+		(void)position;
+		return (this->insert(val).first);
 	}
 
 	template <class InputIterator>
@@ -412,43 +418,55 @@ public:
 			return (0);
 	}
 
-	// //////////////////////////////
-	// // Bound operations
-	// //////////////////////////////
-	//
-	// iterator lower_bound (const key_type & k)
-	// {
-	//
-	// }
-	//
-	// const_iterator lower_bound (const key_type & k) const
-	// {
-	//
-	// }
-	//
-	// iterator upper_bound (const key_type & k)
-	// {
-	//
-	// }
-	//
-	// const_iterator upper_bound (const key_type & k) const
-	// {
-	//
-	// }
-	//
-	// //////////////////////////////
-	// // Range operations
-	// //////////////////////////////
-	//
-	// ft::pair<iterator,iterator> equal_range (const key_type & k)
-	// {
-	//
-	// }
-	//
-	// ft::pair<const_iterator,const_iterator> equal_range (const key_type & k) const
-	// {
-	//
-	// }
+	//////////////////////////////
+	// Bound operations
+	//////////////////////////////
+
+	iterator lower_bound (const key_type & k)
+	{
+		iterator it = this->begin();
+		while (it->first < k && it != this->end())
+			it++;
+		return (it);
+	}
+
+	const_iterator lower_bound (const key_type & k) const
+	{
+		const_iterator it = this->begin();
+		while (it->first < k && it != this->end())
+			it++;
+		return (it);
+	}
+
+	iterator upper_bound (const key_type & k)
+	{
+		iterator it = this->begin();
+		while (k < it->first == false && it != this->end())
+			it++;
+		return (it);
+	}
+
+	const_iterator upper_bound (const key_type & k) const
+	{
+		const_iterator it = this->begin();
+		while (k < it->first == false && it != this->end())
+			it++;
+		return (it);
+	}
+
+	//////////////////////////////
+	// Range operations
+	//////////////////////////////
+
+	ft::pair<iterator,iterator> equal_range (const key_type & k)
+	{
+		return (ft::make_pair(this->lower_bound(k), this->upper_bound(k)));
+	}
+
+	ft::pair<const_iterator,const_iterator> equal_range (const key_type & k) const
+	{
+		return (ft::make_pair(this->lower_bound(k), this->upper_bound(k)));
+	}
 
 	//////////////////////////////
 	// Allocator
@@ -540,7 +558,7 @@ private:
 		}
 	}
 
-	node * _leftmost (node * root)
+	node * _leftmost (node * root) const
 	{
 		node * leftmost = root;
 		while (leftmost->left != leftmost->left->left)
@@ -548,13 +566,11 @@ private:
 		return (leftmost);
 	}
 
-	void _treecheck (void)
+	void _treecheck (void) const
 	{
 		std::cout << "The tree is as follows :" << std::endl;
 		for (iterator it = this->begin() ; it != this->end() ; it++)
-		{
 			std::cout << it->first << " is the child of " << it.getPtr()->parent->key() << ", points left to " << it.getPtr()->left->key() << " and right to " << it.getPtr()->right->key() << std::endl;
-		}
 		std::cout << "End of tree check" << std::endl;
 	}
 

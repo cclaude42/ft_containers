@@ -22,9 +22,12 @@ int main(void)
 	mp[-4] = "-four ";
 	mp[-3] = "-three ";
 
-	for (TESTED::map<int, std::string>::iterator it = mp.begin() ; it != mp.end() ; it++)
-		std::cout << it->second << std::endl;
-
+	TESTED::map<int, std::string>::iterator it = mp.begin();
+	while (it != mp.end())
+		std::cout << (it++)->second << std::endl;
+	std::cout << "now in reverse!" << std::endl;
+	while (it != mp.begin())
+		std::cout << (--it)->second << std::endl;
 
 	return (0);
 }

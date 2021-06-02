@@ -52,8 +52,8 @@ public:
 		listIterator			operator++	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->next; return (x); }
 		listIterator			operator--	(int)											{ listIterator<IsConst> x(*this); _ptr = _ptr->prev; return (x); }
 		// Dereference
-		value_type &			operator*	(void)											{ return (_ptr->data); }
-		value_type *			operator->	(void)											{ return (&_ptr->data); }
+		value_type &			operator*	(void) const									{ return (_ptr->data); }
+		value_type *			operator->	(void) const									{ return (&_ptr->data); }
 		// Member functions
 		node_type *				getPtr		(void) const									{ return (_ptr); }
 

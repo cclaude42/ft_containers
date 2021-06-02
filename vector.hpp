@@ -57,9 +57,9 @@ public:
 		vectorIterator			operator-	(int n) const							{ return (_ptr - n); }
 		difference_type			operator-	(const vectorIterator & x) const		{ return (_ptr - x.getPtr()); }
 		// Dereference
-		value_type &			operator[]	(size_type n)							{ return (*(_ptr + n)); }
-		value_type &			operator*	(void)									{ return (*_ptr); }
-		value_type *			operator->	(void)									{ return (_ptr); }
+		value_type &			operator[]	(size_type n) const						{ return (*(_ptr + n)); }
+		value_type &			operator*	(void) const							{ return (*_ptr); }
+		value_type *			operator->	(void) const							{ return (_ptr); }
 		// Member functions
 		value_type *			getPtr		(void) const							{ return (_ptr); }
 		// Friend functions
