@@ -484,6 +484,7 @@ private:
 	{
 		_nil = _alloc.allocate(1);
 		this->_construct(_nil);
+		_nil->color = BLACK;
 	}
 
 	node * _new_node (const value_type & val = value_type())
@@ -507,7 +508,7 @@ private:
 		tmp.left = _nil;
 		tmp.right = _nil;
 		tmp.parent = _nil;
-		tmp.color = BLACK;
+		tmp.color = RED;
 		_alloc.construct(ptr, tmp);
 	}
 
@@ -610,6 +611,65 @@ private:
 		return (_comp(lhs, rhs) == false && _comp(rhs, lhs) == false);
 	}
 
+	void _colorcheck (node * x)
+	{
+		node * parent = x->parent;
+		node * grandparent = parent->parent;
+		node * uncle = (grandparent->right == parent) ? grandparent->left : grandparent->right;
+
+		if (parent == _nil)
+			x->color = BLACK;
+		else if (parent->color == BLACK)
+			return ;
+		else if (uncle->color == RED)
+		{
+			parent->color = BLACK;
+			uncle->color = BLACK;
+			grandparent->color = RED;
+			this->_colorcheck(grandparent);
+		}
+		else if (uncle->color == BLACK)
+		{
+			if (grandparent->left->left == x)
+				this->_LL(grandparent, parent, x);
+			else if (grandparent->left->right == x)
+				this->_LR(grandparent);
+			else if (grandparent->right->left == x)
+				this->_RL(grandparent, parent, x);
+			else if (grandparent->right->right == x)
+				this->_RR(grandparent, parent, x);
+		}
+	}
+
+	void _LL (node * grandparent, node * parent, node * x)
+	{
+		if (grandparent->parent->right == grandparent)
+			grandparent->parent->right = parent;
+		else
+			grandparent->parent->left = parent;
+		parent->right->parent = grandparent;
+		grandparent->left = parent->right;
+		parent->parent = grandparent->parent;
+		grandparent->parent = parent;
+		parent->right = grandparent;
+		ft::swap(grandparent->color, parent->color);
+	}
+
+	void _LR (node * grandparent, node * parent, node * x)
+	{
+
+	}
+
+	void _RL (node * grandparent, node * parent, node * x)
+	{
+
+	}
+
+	void _RR (node * grandparent, node * parent, node * x)
+	{
+
+	}
+
 	// void _treecheck (void) const
 	// {
 	// 	std::cout << "The tree is as follows :" << std::endl;
@@ -617,6 +677,27 @@ private:
 	// 	for (const_iterator it = this->begin() ; it != this->end() ; it++)
 	// 		std::cout << it->first << " is the child of " << it.getPtr()->parent->key() << ", points left to " << it.getPtr()->left->key() << " and right to " << it.getPtr()->right->key() << std::endl;
 	// 	std::cout << "End of tree check" << std::endl;
+	// }
+
+	// void _treevisualize (void) const
+	// {
+	// 	node * ptr = _nil;
+	//
+	// 	for (int i = 0 ; i < 1 ; i++)
+	// 		std::cout << "                [" << setw(3) << ptr->key() << "] ";
+	// 	std::cout << std::endl;
+	//
+	// 	for (int i = 0 ; i < 2 ; i++)
+	// 		std::cout << "        [" << setw(3) << ptr->key() << "] ";
+	// 	std::cout << std::endl;
+	//
+	// 	for (int i = 0 ; i < 4 ; i++)
+	// 		std::cout << "    [" << setw(3) << ptr->key() << "] ";
+	// 	std::cout << std::endl;
+	//
+	// 	for (int i = 0 ; i < 8 ; i++)
+	// 		std::cout << "[" << setw(3) << ptr->key() << "] ";
+	// 	std::cout << std::endl;
 	// }
 
 	//////////////////////////////
