@@ -11,7 +11,11 @@ int main(void)
 {
 	TESTED::map<int, std::string>	mp;
 
-	mp.get_allocator();
+	mp[5] = "";
+	mp[3] = "";
+	mp[7] = "";
+	mp[2] = "";
+	mp[1] = "";
 
 	return (0);
 }

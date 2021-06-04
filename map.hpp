@@ -499,6 +499,9 @@ private:
 			parent->left = new_node;
 		new_node->parent = parent;
 
+		this->_colorcheck(new_node);
+		this->_treecheck();
+
 		return (new_node);
 	}
 
@@ -633,7 +636,7 @@ private:
 			if (grandparent->left->left == x)
 				this->_LL(grandparent, parent, x);
 			else if (grandparent->left->right == x)
-				this->_LR(grandparent);
+				this->_LR(grandparent, parent, x);
 			else if (grandparent->right->left == x)
 				this->_RL(grandparent, parent, x);
 			else if (grandparent->right->right == x)
@@ -647,7 +650,8 @@ private:
 			grandparent->parent->right = parent;
 		else
 			grandparent->parent->left = parent;
-		parent->right->parent = grandparent;
+		if (parent->right != _nil)
+			parent->right->parent = grandparent;
 		grandparent->left = parent->right;
 		parent->parent = grandparent->parent;
 		grandparent->parent = parent;
@@ -670,14 +674,22 @@ private:
 
 	}
 
-	// void _treecheck (void) const
-	// {
-	// 	std::cout << "The tree is as follows :" << std::endl;
-	// 	std::cout << "Nil points left to " << _nil->left->key() << " and right to " << _nil->right->key() << std::endl;
-	// 	for (const_iterator it = this->begin() ; it != this->end() ; it++)
-	// 		std::cout << it->first << " is the child of " << it.getPtr()->parent->key() << ", points left to " << it.getPtr()->left->key() << " and right to " << it.getPtr()->right->key() << std::endl;
-	// 	std::cout << "End of tree check" << std::endl;
-	// }
+	void _treecheck (void) const
+	{
+		std::cout << "The tree is as follows :" << std::endl;
+		std::cout << "\e[90mNil points left to " << _nil->left->key() << " and right to " << _nil->right->key() << "\033[0m" << std::endl;
+		for (const_iterator it = this->begin() ; it != this->end() ; it++)
+		{
+			if (it.getPtr()->color == RED)
+				std::cout << "\e[91m";
+			else
+				std::cout << "\e[90m";
+			std::cout << it->first << " is the child of " << it.getPtr()->parent->key();
+			std::cout << ", points left to " << it.getPtr()->left->key();
+			std::cout << " and right to " << it.getPtr()->right->key() << "\033[0m" << std::endl;
+		}
+		std::cout << "End of tree check" << std::endl;
+	}
 
 	// void _treevisualize (void) const
 	// {
