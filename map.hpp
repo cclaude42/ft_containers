@@ -499,8 +499,8 @@ private:
 			parent->left = new_node;
 		new_node->parent = parent;
 
-		this->_colorcheck(new_node);
-		this->_treecheck();
+		this->_insertRB(new_node);
+		// this->_treecheck();
 
 		return (new_node);
 	}
@@ -614,7 +614,11 @@ private:
 		return (_comp(lhs, rhs) == false && _comp(rhs, lhs) == false);
 	}
 
-	void _colorcheck (node * x)
+	//////////////////////////////
+	// Red and Black Tree
+	//////////////////////////////
+
+	void _insertRB (node * x)
 	{
 		node * parent = x->parent;
 		node * grandparent = parent->parent;
@@ -634,17 +638,17 @@ private:
 		else if (uncle->color == BLACK)
 		{
 			if (grandparent->left->left == x)
-				this->_LL(grandparent, parent, x);
+				this->_LL(grandparent, parent);
+			else if (grandparent->right->right == x)
+				this->_RR(grandparent, parent);
 			else if (grandparent->left->right == x)
 				this->_LR(grandparent, parent, x);
 			else if (grandparent->right->left == x)
 				this->_RL(grandparent, parent, x);
-			else if (grandparent->right->right == x)
-				this->_RR(grandparent, parent, x);
 		}
 	}
 
-	void _LL (node * grandparent, node * parent, node * x)
+	void _LL (node * grandparent, node * parent)
 	{
 		if (grandparent->parent->right == grandparent)
 			grandparent->parent->right = parent;
@@ -659,20 +663,64 @@ private:
 		ft::swap(grandparent->color, parent->color);
 	}
 
+	void _RR (node * grandparent, node * parent)
+	{
+		if (grandparent->parent->right == grandparent)
+			grandparent->parent->right = parent;
+		else
+			grandparent->parent->left = parent;
+		if (parent->left != _nil)
+			parent->left->parent = grandparent;
+		grandparent->right = parent->left;
+		parent->parent = grandparent->parent;
+		grandparent->parent = parent;
+		parent->left = grandparent;
+		ft::swap(grandparent->color, parent->color);
+	}
+
 	void _LR (node * grandparent, node * parent, node * x)
 	{
-
+		if (grandparent->parent->right == grandparent)
+			grandparent->parent->right = x;
+		else
+			grandparent->parent->left = x;
+		if (x->left != _nil)
+			x->left->parent = parent;
+		if (x->right != _nil)
+			x->right->parent = grandparent;
+		grandparent->left = x->right;
+		parent->right = x->left;
+		x->parent = grandparent->parent;
+		grandparent->parent = x;
+		parent->parent = x;
+		x->left = parent;
+		x->right = grandparent;
+		ft::swap(grandparent->color, x->color);
 	}
 
 	void _RL (node * grandparent, node * parent, node * x)
 	{
-
+		if (grandparent->parent->right == grandparent)
+			grandparent->parent->right = x;
+		else
+			grandparent->parent->left = x;
+		if (x->left != _nil)
+			x->left->parent = grandparent;
+		if (x->right != _nil)
+			x->right->parent = parent;
+		grandparent->right = x->left;
+		parent->left = x->right;
+		x->parent = grandparent->parent;
+		grandparent->parent = x;
+		parent->parent = x;
+		x->left = grandparent;
+		x->right = parent;
+		ft::swap(grandparent->color, x->color);
 	}
 
-	void _RR (node * grandparent, node * parent, node * x)
-	{
-
-	}
+	//////////////////////////////
+	// DELETE LATER
+	//////////////////////////////
 
 	void _treecheck (void) const
 	{
@@ -690,27 +738,6 @@ private:
 		}
 		std::cout << "End of tree check" << std::endl;
 	}
-
-	// void _treevisualize (void) const
-	// {
-	// 	node * ptr = _nil;
-	//
-	// 	for (int i = 0 ; i < 1 ; i++)
-	// 		std::cout << "                [" << setw(3) << ptr->key() << "] ";
-	// 	std::cout << std::endl;
-	//
-	// 	for (int i = 0 ; i < 2 ; i++)
-	// 		std::cout << "        [" << setw(3) << ptr->key() << "] ";
-	// 	std::cout << std::endl;
-	//
-	// 	for (int i = 0 ; i < 4 ; i++)
-	// 		std::cout << "    [" << setw(3) << ptr->key() << "] ";
-	// 	std::cout << std::endl;
-	//
-	// 	for (int i = 0 ; i < 8 ; i++)
-	// 		std::cout << "[" << setw(3) << ptr->key() << "] ";
-	// 	std::cout << std::endl;
-	// }
 
 	//////////////////////////////
 	// Member variables

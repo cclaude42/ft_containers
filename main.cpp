@@ -11,11 +11,11 @@ int main(void)
 {
 	TESTED::map<int, std::string>	mp;
 
+	mp[10] = "";
 	mp[5] = "";
-	mp[3] = "";
-	mp[7] = "";
-	mp[2] = "";
-	mp[1] = "";
+	mp[15] = "";
+	mp[20] = "";
+	mp[18] = "";
 
 	return (0);
 }
