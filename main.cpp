@@ -1,6 +1,7 @@
 #include <iostream>
 #include "map.hpp"
 #include <map>
+#include <deque>
 #include "includes/utility.hpp"
 
 #ifndef TESTED
@@ -9,13 +10,9 @@
 
 int main(void)
 {
-	TESTED::map<int, std::string>	mp;
+	std::deque<int>	dq;
 
-	mp[10] = "";
-	mp[5] = "";
-	mp[15] = "";
-	mp[20] = "";
-	mp[18] = "";
+	std::cout << dq.capacity() << std::endl;
 
 	return (0);
 }

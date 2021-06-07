@@ -423,7 +423,7 @@ public:
 	iterator lower_bound (const key_type & k)
 	{
 		iterator it = this->begin();
-		while (_comp(it->first, k) && it != this->end())
+		while (this->_comp(it->first, k) && it != this->end())
 			it++;
 		return (it);
 	}
@@ -431,7 +431,7 @@ public:
 	const_iterator lower_bound (const key_type & k) const
 	{
 		const_iterator it = this->begin();
-		while (_comp(it->first, k) && it != this->end())
+		while (this->_comp(it->first, k) && it != this->end())
 			it++;
 		return (it);
 	}
@@ -439,7 +439,7 @@ public:
 	iterator upper_bound (const key_type & k)
 	{
 		iterator it = this->begin();
-		while (_comp(k, it->first) == false && it != this->end())
+		while (this->_comp(k, it->first) == false && it != this->end())
 			it++;
 		return (it);
 	}
@@ -447,7 +447,7 @@ public:
 	const_iterator upper_bound (const key_type & k) const
 	{
 		const_iterator it = this->begin();
-		while (_comp(k, it->first) == false && it != this->end())
+		while (this->_comp(k, it->first) == false && it != this->end())
 			it++;
 		return (it);
 	}
@@ -493,14 +493,14 @@ private:
 		this->_construct(new_node, val);
 
 		node * parent = this->_find_parent(_nil->right, val.first);
-		if (parent == _nil || _comp(parent->key(), val.first))
+		if (parent == _nil || this->_comp(parent->key(), val.first))
 			parent->right = new_node;
 		else
 			parent->left = new_node;
 		new_node->parent = parent;
 
 		this->_insertRB(new_node);
-		// this->_treecheck();
+		this->_treecheck();
 
 		return (new_node);
 	}
@@ -578,7 +578,7 @@ private:
 	{
 		if (current == _nil || this->_equal(current->key(), k))
 			return (current);
-		else if (_comp(k, current->key()))
+		else if (this->_comp(k, current->key()))
 			return (this->_find_node(current->left, k));
 		else
 			return (this->_find_node(current->right, k));
@@ -586,7 +586,7 @@ private:
 
 	node * _find_parent (node * current, const key_type & k) const
 	{
-		if (_comp(current->key(), k))
+		if (this->_comp(current->key(), k))
 		{
 			if (current->right == _nil || this->_equal(current->right->key(), k))
 				return (current);
@@ -611,7 +611,7 @@ private:
 
 	bool _equal (const key_type & lhs, const key_type & rhs) const
 	{
-		return (_comp(lhs, rhs) == false && _comp(rhs, lhs) == false);
+		return (this->_comp(lhs, rhs) == false && this->_comp(rhs, lhs) == false);
 	}
 
 	//////////////////////////////
@@ -633,7 +633,7 @@ private:
 			parent->color = BLACK;
 			uncle->color = BLACK;
 			grandparent->color = RED;
-			this->_colorcheck(grandparent);
+			this->_insertRB(grandparent);
 		}
 		else if (uncle->color == BLACK)
 		{
