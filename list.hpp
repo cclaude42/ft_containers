@@ -131,6 +131,9 @@ public:
 
 	list & operator= (const list & x)
 	{
+		if (this == &x)
+			return (*this);
+
 		this->clear();
 		_alloc = x._alloc;
 

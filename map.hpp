@@ -160,7 +160,8 @@ public:
 	}
 
 	template <class InputIterator>
-	map (InputIterator first, InputIterator last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type())
+	map (InputIterator first, InputIterator last, const key_compare & comp = key_compare(), const allocator_type & alloc = allocator_type(),
+	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		_alloc = alloc;
 		_comp = comp;
@@ -193,6 +194,9 @@ public:
 
 	map & operator= (const map & x)
 	{
+		if (this == &x)
+			return (*this);
+
 		this->clear();
 		_alloc = x._alloc;
 		_comp = x._comp;
@@ -309,7 +313,8 @@ public:
 	}
 
 	template <class InputIterator>
-	void insert (InputIterator first, InputIterator last)
+	void insert (InputIterator first, InputIterator last,
+	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		while (first != last)
 			this->insert(*first++);
