@@ -571,6 +571,9 @@ private:
 
 	void _removeNode (node * ptr)
 	{
+		this->_deleteRB(ptr);
+		// this->treecheck();
+
 		if (ptr->parent->left == ptr)
 			ptr->parent->left = _nil;
 		else if (ptr->parent->right == ptr)
@@ -650,6 +653,37 @@ private:
 				this->_LR(grandparent, parent, x);
 			else if (grandparent->right->left == x)
 				this->_RL(grandparent, parent, x);
+		}
+	}
+
+	void _deleteRB (node * x)
+	{
+		node * child = (x->left != _nil) ? x->left : x->right;
+		node * parent = x->parent;
+		node * sibling = (parent->left != child) ? parent->left : parent->right;
+
+		if (x->color == RED || child->color == RED)
+			child->color = BLACK;
+		else if (x == _nil->right)
+			return ;
+		else if (sibling->color == BLACK && (sibling->left->color == RED || sibling->right->color == RED))
+		{
+			if (sibling == parent->left && sibling->left->color == RED)
+				this->_LL(parent, sibling);
+			else if (sibling == parent->left && sibling->right->color == RED)
+				this->_LR(parent, sibling, sibling->right);
+			else if (sibling == parent->right && sibling->right->color == RED)
+				this->_RR(parent, sibling);
+			else if (sibling == parent->right && sibling->left->color == RED)
+				this->_RL(parent, sibling, sibling->left);
+		}
+		else if (sibling->color == BLACK)
+		{
+			// Needs _doubleBlack() for recur ?
+		}
+		else if (sibling->color == RED)
+		{
+
 		}
 	}
 
