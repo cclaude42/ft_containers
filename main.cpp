@@ -10,9 +10,18 @@
 
 int main(void)
 {
-	std::deque<int>	dq;
+	ft::map<int, std::string>	mp;
 
-	std::cout << dq.capacity() << std::endl;
+	mp[15] = "";
+	mp[20] = "";
+	mp[10] = "";
+	mp[25] = "";
+	mp[22] = "";
+	mp[17] = "";
+	mp[7] = "";
+
+	mp.erase(22);
+	mp.erase(20);
 
 	return (0);
 }

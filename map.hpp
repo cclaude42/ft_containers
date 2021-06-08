@@ -336,18 +336,16 @@ public:
 		}
 		else
 		{
-			if (ptr->left != _nil || ptr->right != _nil)
-			{
-				if (ptr->left != _nil)
-					ptr->left->parent = ptr->parent;
-				else
-					ptr->right->parent = ptr->parent;
-				if (ptr->parent->left == ptr)
-					ptr->parent->left = (ptr->left == _nil) ? ptr->right : ptr->left;
-				else
-					ptr->parent->right = (ptr->left == _nil) ? ptr->right : ptr->left;
-			}
-			this->_removeNode(ptr);
+			node * child = (ptr->left != _nil) ? ptr->left : ptr->right;
+
+			if (child != _nil)
+				child->parent = ptr->parent;
+			if (ptr->parent->left == ptr)
+				ptr->parent->left = child;
+			else
+				ptr->parent->right = child;
+
+			this->_removeNode(ptr, child);
 		}
 	}
 
@@ -505,7 +503,7 @@ private:
 		new_node->parent = parent;
 
 		this->_insertRB(new_node);
-		this->_treecheck();
+		// this->_treecheck();
 
 		return (new_node);
 	}
@@ -562,6 +560,7 @@ private:
 		ft::swap(a->parent, b->parent);
 		ft::swap(a->left, b->left);
 		ft::swap(a->right, b->right);
+		ft::swap(a->color, b->color);
 
 		if (_nil->right == a)
 			_nil->right = b;
@@ -569,15 +568,11 @@ private:
 			_nil->right = a;
 	}
 
-	void _removeNode (node * ptr)
+	void _removeNode (node * ptr, node * child)
 	{
-		this->_deleteRB(ptr);
-		// this->treecheck();
+		this->_deleteRB(ptr, child);
+		// this->_treecheck();
 
-		if (ptr->parent->left == ptr)
-			ptr->parent->left = _nil;
-		else if (ptr->parent->right == ptr)
-			ptr->parent->right = _nil;
 		_alloc.destroy(ptr);
 		_alloc.deallocate(ptr, 1);
 	}
@@ -645,26 +640,38 @@ private:
 		}
 		else if (uncle->color == BLACK)
 		{
-			if (grandparent->left->left == x)
-				this->_LL(grandparent, parent);
-			else if (grandparent->right->right == x)
-				this->_RR(grandparent, parent);
-			else if (grandparent->left->right == x)
-				this->_LR(grandparent, parent, x);
-			else if (grandparent->right->left == x)
-				this->_RL(grandparent, parent, x);
+			if (grandparent->left->left == x || grandparent->right->right == x)
+			{
+				if (grandparent->left->left == x)
+					this->_LL(grandparent, parent);
+				else if (grandparent->right->right == x)
+					this->_RR(grandparent, parent);
+				ft::swap(grandparent->color, parent->color);
+			}
+			else
+			{
+				if (grandparent->left->right == x)
+					this->_LR(grandparent, parent, x);
+				else if (grandparent->right->left == x)
+					this->_RL(grandparent, parent, x);
+				ft::swap(grandparent->color, x->color);
+			}
 		}
 	}
 
-	void _deleteRB (node * x)
+	void _deleteRB (node * v, node * u)
 	{
-		node * child = (x->left != _nil) ? x->left : x->right;
-		node * parent = x->parent;
-		node * sibling = (parent->left != child) ? parent->left : parent->right;
+		if (v->color == RED || u->color == RED)
+			u->color = BLACK;
+		else
+			this->_doubleBlack(u, v->parent);
+	}
 
-		if (x->color == RED || child->color == RED)
-			child->color = BLACK;
-		else if (x == _nil->right)
+	void _doubleBlack (node * u, node * parent)
+	{
+		node * sibling = (parent->left != u) ? parent->left : parent->right;
+
+		if (u == _nil->right)
 			return ;
 		else if (sibling->color == BLACK && (sibling->left->color == RED || sibling->right->color == RED))
 		{
@@ -676,14 +683,28 @@ private:
 				this->_RR(parent, sibling);
 			else if (sibling == parent->right && sibling->left->color == RED)
 				this->_RL(parent, sibling, sibling->left);
+
+			if (sibling->left->color == RED)
+				sibling->left->color = BLACK;
+			else
+				sibling->right->color = BLACK;
 		}
 		else if (sibling->color == BLACK)
 		{
-			// Needs _doubleBlack() for recur ?
+			sibling->color = RED;
+			if (parent->color == RED)
+				parent->color = BLACK;
+			else
+				this->_doubleBlack(parent, parent->parent);
 		}
 		else if (sibling->color == RED)
 		{
-
+			if (sibling == parent->left)
+				this->_LL(parent, sibling);
+			else
+				this->_RR(parent, sibling);
+			ft::swap(parent->color, sibling->color);
+			this->_doubleBlack(u, parent);
 		}
 	}
 
@@ -699,7 +720,6 @@ private:
 		parent->parent = grandparent->parent;
 		grandparent->parent = parent;
 		parent->right = grandparent;
-		ft::swap(grandparent->color, parent->color);
 	}
 
 	void _RR (node * grandparent, node * parent)
@@ -714,7 +734,6 @@ private:
 		parent->parent = grandparent->parent;
 		grandparent->parent = parent;
 		parent->left = grandparent;
-		ft::swap(grandparent->color, parent->color);
 	}
 
 	void _LR (node * grandparent, node * parent, node * x)
@@ -734,7 +753,6 @@ private:
 		parent->parent = x;
 		x->left = parent;
 		x->right = grandparent;
-		ft::swap(grandparent->color, x->color);
 	}
 
 	void _RL (node * grandparent, node * parent, node * x)
@@ -754,7 +772,6 @@ private:
 		parent->parent = x;
 		x->left = grandparent;
 		x->right = parent;
-		ft::swap(grandparent->color, x->color);
 	}
 
 	//////////////////////////////
