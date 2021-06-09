@@ -26,15 +26,15 @@ public:
 		typedef					std::ptrdiff_t										difference_type;
 		typedef					std::size_t											size_type;
 		// -structors
-		dequeIterator			(void)												{ _ptr = NULL; }
+		dequeIterator			(void)												{ _ptr = NULL; _map = NULL }
 		dequeIterator			(value_type * const ptr, value_type ** const map)	{ _ptr = ptr; _map = map; }
 		~dequeIterator			(void)												{}
 		// Const stuff
 		template <bool B>		dequeIterator
-			(const dequeIterator<B> & x, typename ft::enable_if<!B>::type* = 0)		{ _ptr = x.getPtr(); }
+			(const dequeIterator<B> & x, typename ft::enable_if<!B>::type* = 0)		{ _ptr = x.getPtr(); _map = x.getMap(); }
 
 		// Assignment
-		dequeIterator &			operator=	(const dequeIterator & x)				{ _ptr = x.getPtr(); return (*this); }
+		dequeIterator &			operator=	(const dequeIterator & x)				{ _ptr = x.getPtr(); _map = x.getMap(); return (*this); }
 		dequeIterator &			operator+=	(int n)									{ _ptr += n; return (*this); }
 		dequeIterator &			operator-=	(int n)									{ _ptr -= n; return (*this); }
 		// Comparison
@@ -66,6 +66,13 @@ public:
 	private:
 		value_type *			_ptr;
 		const value_type **		_map;
+		size_type				_i = 0;
+		size_type				_j = 0;
+
+		void nextNode (void)
+		{
+			
+		}
 	};
 
 	//////////////////////////////
