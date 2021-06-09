@@ -27,7 +27,7 @@ public:
 		typedef					std::size_t											size_type;
 		// -structors
 		dequeIterator			(void)												{ _ptr = NULL; }
-		dequeIterator			(value_type * const ptr)							{ _ptr = ptr; }
+		dequeIterator			(value_type * const ptr, value_type ** const map)	{ _ptr = ptr; _map = map; }
 		~dequeIterator			(void)												{}
 		// Const stuff
 		template <bool B>		dequeIterator
@@ -59,11 +59,13 @@ public:
 		value_type *			operator->	(void) const							{ return (_ptr); }
 		// Member functions
 		value_type *			getPtr		(void) const							{ return (_ptr); }
+		value_type *			getMap		(void) const							{ return (_map); }
 		// Friend functions
 		friend dequeIterator	operator+	(int n, const dequeIterator & x)		{ return (x.getPtr() + n); }
 
 	private:
 		value_type *			_ptr;
+		const value_type **		_map;
 	};
 
 	//////////////////////////////
@@ -293,24 +295,25 @@ public:
 
 	iterator insert (iterator position, const value_type & val)
 	{
-
-		return ();
+		this->push_back(val);
+		for (iterator it = position, next = ++iterator(it) ; next != this->end() ; it++, next++)
+			*next = *it;
+		*position = val;
+		return (position);
 	}
 
 	void insert (iterator position, size_type n, const value_type & val)
 	{
-
+		while (n--)
+			this->insert(position, val);
 	}
 
 	template <class InputIterator>
 	void insert (iterator position, InputIterator first, InputIterator last,
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		size_type		n = 0;
-		for (InputIterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
-			n++;
-
-
+		while (first != last)
+			this->insert(position, *first++);
 	}
 
 	//////////////////////////////
@@ -319,12 +322,18 @@ public:
 
 	iterator erase (iterator position)
 	{
-
+		if (!this->empty())
+		{
+			for (iterator it = position++ ; position != this->end() ; it++, position++)
+				*it = *position;
+			this->pop_back();
+		}
 	}
 
 	iterator erase (iterator first, iterator last)
 	{
-
+		for (size_type i = last - first ; i > 0 ; i--)
+			this->erase(first);
 	}
 
 	//////////////////////////////
