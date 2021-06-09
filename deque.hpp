@@ -3,6 +3,8 @@
 
 # include "includes/containers.hpp"
 
+# define NODE_SIZE 8
+
 namespace ft
 {
 
@@ -86,31 +88,44 @@ public:
 	explicit deque (const allocator_type & alloc = allocator_type())
 	{
 		_alloc = alloc;
-
+		_map = new value_type * [1];
+		_map[0] = NULL;
+		_start = NODE_SIZE;
+		_end = NODE_SIZE;
 	}
 
 	explicit deque (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
 	{
 		_alloc = alloc;
+		_map = new value_type * [1];
+		_map[0] = NULL;
+		_start = NODE_SIZE;
+		_end = NODE_SIZE;
 
+		for (size_type i = 0 ; i < n ; i++)
+			this->push_back(val);
 	}
 
 	template <class InputIterator>
 	deque (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(),
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		size_type		n = 0;
-		for (InputIterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
-			n++;
-
 		_alloc = alloc;
+		_map = new value_type * [1];
+		_map[0] = NULL;
+		_start = NODE_SIZE;
+		_end = NODE_SIZE;
 
+		while (first != last)
+			this->push_back(*first++);
 	}
 
 	deque (const deque & x)
 	{
 		_alloc = x._alloc;
-
+		_map = x._map;
+		_start = x._start;
+		_end = x._end;
 	}
 
 	//////////////////////////////
@@ -131,6 +146,7 @@ public:
 		if (this == &x)
 			return (*this);
 
+		this->clear();
 
 
 		return (*this);
@@ -142,22 +158,22 @@ public:
 
 	iterator begin (void)
 	{
-		return (iterator());
+		return (iterator(this->_firstNode()[_start]);
 	}
 
 	const_iterator begin (void) const
 	{
-		return (const_iterator());
+		return (const_iterator(this->_firstNode()[_start]));
 	}
 
 	iterator end (void)
 	{
-		return (iterator());
+		return (iterator(this->_lastNode()[_end + 1]));
 	}
 
 	const_iterator end (void) const
 	{
-		return (const_iterator());
+		return (const_iterator(this->_lastNode()[_end + 1]));
 	}
 
 	//////////////////////////////
@@ -166,22 +182,22 @@ public:
 
 	reverse_iterator rbegin (void)
 	{
-		return (reverse_iterator());
+		return (reverse_iterator(this->_lastNode()[_end]));
 	}
 
 	const_reverse_iterator rbegin (void) const
 	{
-		return (const_reverse_iterator());
+		return (const_reverse_iterator(this->_lastNode()[_end]));
 	}
 
 	reverse_iterator rend (void)
 	{
-		return (reverse_iterator());
+		return (reverse_iterator(this->_firstNode()[_start - 1]));
 	}
 
 	const_reverse_iterator rend (void) const
 	{
-		return (const_reverse_iterator());
+		return (const_reverse_iterator(this->_firstNode()[_start - 1]));
 	}
 
 	//////////////////////////////
@@ -363,7 +379,10 @@ public:
 	//////////////////////////////
 
 private:
-
+	allocator_type		_alloc;
+	value_type **		_map;
+	size_type			_start;
+	size_type			_end;
 };
 
 	//////////////////////////////
