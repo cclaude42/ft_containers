@@ -3,7 +3,9 @@
 
 # include "includes/containers.hpp"
 
-# define NODE_SIZE 8
+# ifndef NODE_SIZE
+#  define NODE_SIZE 8
+# endif
 
 namespace ft
 {
@@ -93,9 +95,7 @@ public:
 	explicit deque (size_type n, const value_type & val = value_type(), const allocator_type & alloc = allocator_type())
 	{
 		this->_init(alloc);
-
-		for (size_type i = 0 ; i < n ; i++)
-			this->push_back(val);
+		this->assign(n, val);
 	}
 
 	template <class InputIterator>
@@ -103,9 +103,7 @@ public:
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		this->_init(alloc);
-
-		while (first != last)
-			this->push_back(*first++);
+		this->assign(first, last);
 	}
 
 	deque (const deque & x)
@@ -132,10 +130,7 @@ public:
 		if (this == &x)
 			return (*this);
 
-		this->clear();
-		for (iterator it = x.begin() ; it != x.end() ; it++)
-			this->push_back(*it);
-
+		this->assign(x.begin(), x.end());
 		return (*this);
 	}
 
@@ -222,44 +217,54 @@ public:
 
 	reference operator[] (size_type n)
 	{
-		return ();
+		if (_start + n < NODE_SIZE)
+			return (_map[0][_start + n]);
+		else
+			n = n + _start - NODE_SIZE;
+		return (_map[n / NODE_SIZE + 1][n % NODE_SIZE]);
 	}
 
 	const_reference operator[] (size_type n) const
 	{
-		return ();
+		if (_start + n < NODE_SIZE)
+			return (_map[0][_start + n]);
+		else
+			n = n + _start - NODE_SIZE;
+		return (_map[n / NODE_SIZE + 1][n % NODE_SIZE]);
 	}
 
 	reference at (size_type n)
 	{
-
-		return ();
+		if (this->size() < n)
+			throw std::out_of_range("deque");
+		return (*this[n]);
 	}
 
 	const_reference at (size_type n) const
 	{
-
-		return ();
+		if (this->size() < n)
+			throw std::out_of_range("deque");
+		return (*this[n]);
 	}
 
 	reference front (void)
 	{
-		return ();
+		return (this->_firstNode()[_start]);
 	}
 
 	const_reference front (void) const
 	{
-		return ();
+		return (this->_firstNode()[_start]);
 	}
 
 	reference back (void)
 	{
-		return ();
+		return (this->_lastNode()[_end]);
 	}
 
 	const_reference back (void) const
 	{
-		return ();
+		return (this->_lastNode()[_end]);
 	}
 
 	//////////////////////////////
@@ -270,16 +275,16 @@ public:
 	void assign (InputIterator first, InputIterator last,
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		size_type		n = 0;
-		for (InputIterator cpy = first ; cpy != last && n < 1000000 ; cpy++)
-			n++;
-
-
+		this->clear();
+		while (first != last)
+			this->push_back(*first++);
 	}
 
 	void assign (size_type n, const value_type & val)
 	{
-
+		this->clear();
+		while (n--)
+			this->push_back(val);
 	}
 
 	//////////////////////////////
@@ -326,35 +331,60 @@ public:
 	// Common modifiers
 	//////////////////////////////
 
-	void push_front (const value_type & val)
-	{
-
-	}
-
 	void push_back (const value_type & val)
 	{
-
+		_alloc.construct(this->_lastNode()[_end], val);
+		if (_end == NODE_SIZE - 1)
+			this->_expandBack();
+		else
+			_end++;
 	}
 
-	void pop_front (void)
+	void push_front (const value_type & val)
 	{
-
+		if (_start == 0)
+			this->_expandFront();
+		else
+			_start--;
+		_alloc.construct(this->_firstNode()[_start], val);
 	}
 
 	void pop_back (void)
 	{
+		if (!this->empty())
+		{
+			if (_end == 0)
+				this->_contractBack();
+			else
+				_end--;
+			_alloc.destroy(this->_lastNode()[_end]);
+		}
+	}
 
+	void pop_front (void)
+	{
+		if (!this->empty())
+		{
+			_alloc.destroy(this->_firstNode()[_start]);
+			if (_start == NODE_SIZE - 1)
+			this->_contractFront();
+			else
+			_start++;
+		}
 	}
 
 	void swap (deque & x)
 	{
 		ft::swap(_alloc, x._alloc);
-
+		ft::swap(_map, x._map);
+		ft::swap(_start, x._start);
+		ft::swap(_end, x._end);
 	}
 
 	void clear (void)
 	{
-
+		while (!this->empty())
+			this->pop_back();
 	}
 
 	//////////////////////////////
@@ -383,6 +413,53 @@ private:
 	size_type _nbNodes (void) const
 	{
 		return (sizeof(_map) / sizeof(_map[0]));
+	}
+
+	value_type * _firstNode (void) const
+	{
+		return (_map[0]);
+	}
+
+	value_type * _lastNode (void) const
+	{
+		return (_map[this->_nbNodes() - 1]);
+	}
+
+	void _expandBack (void)
+	{
+		this->_resizeMap(this->_nbNodes() + 1, 0, 0);
+		_map[this->_nbNodes()] = _alloc.allocate(NODE_SIZE);
+		_end = 0;
+	}
+
+	void _expandFront (void)
+	{
+		this->_resizeMap(this->_nbNodes() + 1, 0, 1);
+		_map[0] = _alloc.allocate(NODE_SIZE);
+		_start = NODE_SIZE - 1;
+	}
+
+	void _contractBack (void)
+	{
+		this->_resizeMap(this->_nbNodes() - 1, 0, 0);
+		_end = NODE_SIZE - 1;
+	}
+
+	void _contractFront (void)
+	{
+		this->_resizeMap(this->_nbNodes() - 1, 1, 0);
+		_start = 0;
+	}
+
+	void _resizeMap (size_type new_size, size_type offmap, size_type offnew)
+	{
+		value_type ** _new = new value_type * [new_size];
+
+		while (offmap < this->_nbNodes() && offnew < new_size)
+			_new[offnew++] = _map[offmap++];
+
+		delete [] map;
+		_map = _new;
 	}
 
 	//////////////////////////////

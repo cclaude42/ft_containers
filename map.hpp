@@ -3,8 +3,12 @@
 
 # include "includes/containers.hpp"
 
-# define RED true
-# define BLACK false
+# ifndef RED
+#  define RED true
+# endif
+# ifndef BLACK
+#  define BLACK false
+# endif
 
 namespace ft
 {
@@ -851,5 +855,8 @@ private:
 	}
 
 } // Namespace ft
+
+# undef RED
+# undef BLACK
 
 #endif

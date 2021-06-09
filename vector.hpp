@@ -3,12 +3,20 @@
 
 # include "includes/containers.hpp"
 
-# if __APPLE__
-#  define MACOS 1
-#  define SIZE_OR_CAP _capacity
-# else
-#  define MACOS 0
-#  define SIZE_OR_CAP _size
+# ifndef MACOS
+#  if __APPLE
+#   define MACOS 1
+#  else
+#   define MACOS 0
+#  endif
+# endif
+
+# ifndef SIZE_OR_CAP
+#  if __APPLE
+#   define SIZE_OR_CAP _capacity
+#  else
+#   define SIZE_OR_CAP _size
+#  endif
 # endif
 
 namespace ft
@@ -641,5 +649,8 @@ private:
 	}
 
 } // Namespace ft
+
+# undef MACOS
+# undef SIZE_OR_CAP
 
 #endif
