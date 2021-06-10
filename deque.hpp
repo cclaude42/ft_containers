@@ -26,7 +26,7 @@ public:
 		typedef					std::ptrdiff_t										difference_type;
 		typedef					std::size_t											size_type;
 		// -structors
-		dequeIterator			(void)												{ _ptr = NULL; _dq = NULL }
+		dequeIterator			(void)												{ _ptr = NULL; _dq = NULL; }
 		dequeIterator			(value_type * const ptr, deque * const dq)			{ this->init(ptr, dq); }
 		~dequeIterator			(void)												{}
 		// Const stuff
@@ -54,31 +54,33 @@ public:
 		dequeIterator			operator-	(int n) const							{ dequeIterator<IsConst> x(*this); x.minus(n); return (x); }
 		difference_type			operator-	(const dequeIterator & x) const			{ return (this->diff(x)); }
 		// Dereference
-		value_type &			operator[]	(size_type n) const						{ dequeIterator<IsConst> x(*this); x.plus(n); return (*(x.getPtr()); }
+		value_type &			operator[]	(size_type n) const						{ dequeIterator<IsConst> x(*this); x.plus(n); return (*(x.getPtr())); }
 		value_type &			operator*	(void) const							{ return (*_ptr); }
 		value_type *			operator->	(void) const							{ return (_ptr); }
 		// Member functions
 		value_type *			getPtr		(void) const							{ return (_ptr); }
-		value_type *			getDq		(void) const							{ return (_dq); }
+		deque *					getDq		(void) const							{ return (_dq); }
 		// Friend functions
 		friend dequeIterator	operator+	(int n, const dequeIterator & x)		{ return (x + n); }
 
 	private:
 		value_type *			_ptr;
-		const deque *			_dq;
-		size_type				_i = 0;
-		size_type				_j = 0;
+		deque *					_dq;
+		size_type				_i;
+		size_type				_j;
 
 		void init (value_type * const ptr, deque * const dq)
 		{
 			_ptr = ptr;
 			_dq = dq;
+			_i = 0;
+			_j = 0;
 
-			for (int i = 0 ; i < _dq._nbNodes() ; i++)
+			for (size_type i = 0 ; i < _dq->_size ; i++)
 			{
-				for (int j = 0 ; j < NODE_SIZE ; j++)
+				for (size_type j = 0 ; j < NODE_SIZE ; j++)
 				{
-					if (_ptr == _dq._map[i][j])
+					if (_ptr == _dq->_map[i] + j)
 					{
 						_i = i;
 						_j = j;
@@ -106,25 +108,25 @@ public:
 		void next (void)
 		{
 			_j++;
-			if (_j == NODE_SIZE || (_i == _dq._nbNodes() - 1 && _j == dq._end + 1))
+			if (_j == NODE_SIZE || (_i == _dq->_size - 1 && _j == _dq->_end + 1))
 			{
 				_i++;
 				_j = 0;
 			}
-			if (_i == _dq._nbNodes())
+			if (_i == _dq->_size)
 			{
 				_i = 0;
-				_j = _dq._start;
+				_j = _dq->_start;
 			}
-			_ptr = _dq._map[_i][_j];
+			_ptr = _dq->_map[_i] + _j;
 		}
 
 		void prev (void)
 		{
-			if (_i == 0 && _j == _dq._start)
+			if (_i == 0 && _j == _dq->_start)
 			{
-				_i = _dq.nbNodes() - 1;
-				_j = _dq._end + 1;
+				_i = _dq->_size - 1;
+				_j = _dq->_end + 1;
 			}
 			else if (_j == 0)
 			{
@@ -132,18 +134,18 @@ public:
 				_j = NODE_SIZE;
 			}
 			_j--;
-			_ptr = _dq._map[_i][_j];
+			_ptr = _dq->_map[_i] + _j;
 		}
 
 		difference_type diff (const dequeIterator & x) const
 		{
 			size_type xi = _i;
 			size_type xj = _j;
-			for (int i = 0 ; i < x.getDq()._nbNodes() ; i++)
+			for (size_type i = 0 ; i < x.getDq()->_size ; i++)
 			{
-				for (int j = 0 ; j < NODE_SIZE ; j++)
+				for (size_type j = 0 ; j < NODE_SIZE ; j++)
 				{
-					if (x.getPtr() == x.getDq()._map[i][j])
+					if (x.getPtr() == x.getDq()->_map[i] + j)
 					{
 						xi = i;
 						xj = j;
@@ -228,22 +230,22 @@ public:
 
 	iterator begin (void)
 	{
-		return (iterator(this->_firstNode()[_start]);
+		return (iterator(this->_firstNode() + _start, this));
 	}
 
 	const_iterator begin (void) const
 	{
-		return (const_iterator(this->_firstNode()[_start]));
+		return (const_iterator(this->_firstNode() + _start, this));
 	}
 
 	iterator end (void)
 	{
-		return (iterator(this->_lastNode()[_end]));
+		return (iterator(this->_lastNode() + _end, this));
 	}
 
 	const_iterator end (void) const
 	{
-		return (const_iterator(this->_lastNode()[_end]));
+		return (const_iterator(this->_lastNode() + _end, this));
 	}
 
 	//////////////////////////////
@@ -252,22 +254,22 @@ public:
 
 	reverse_iterator rbegin (void)
 	{
-		return (++reverse_iterator(this->_lastNode()[_end]));
+		return (reverse_iterator(this->end()));
 	}
 
 	const_reverse_iterator rbegin (void) const
 	{
-		return (++const_reverse_iterator(this->_lastNode()[_end]));
+		return (const_reverse_iterator(this->end()));
 	}
 
 	reverse_iterator rend (void)
 	{
-		return (++reverse_iterator(this->_firstNode()[_start]));
+		return (reverse_iterator(this->begin()));
 	}
 
 	const_reverse_iterator rend (void) const
 	{
-		return (++const_reverse_iterator(this->_firstNode()[_start]));
+		return (const_reverse_iterator(this->begin()));
 	}
 
 	//////////////////////////////
@@ -278,7 +280,7 @@ public:
 	{
 		if (this->empty())
 			return (0);
-		return ((this->_nbNodes() - 1) * NODE_SIZE + _end - _start);
+		return ((_size - 1) * NODE_SIZE + _end - _start);
 	}
 
 	size_type max_size (void) const
@@ -288,15 +290,21 @@ public:
 
 	void resize (size_type n, value_type val = value_type())
 	{
-		iterator it;
-		for (it = this->begin() ; it != this->end() && n ; it++)
-			n--;
-		this->erase(it, this->end());
+		if (n > this->size())
+		{
+			while (n-- > this->size())
+				this->push_back(val);
+		}
+		else if (n < this->size())
+		{
+			while (n++ < this->size())
+				this->pop_back();
+		}
 	}
 
 	bool empty (void) const
 	{
-		return (this->_nbNodes() == 0);
+		return (_size == 1 && this->_start == this->_end);
 	}
 
 	//////////////////////////////
@@ -337,22 +345,22 @@ public:
 
 	reference front (void)
 	{
-		return (this->_firstNode()[_start]);
+		return (*this->begin());
 	}
 
 	const_reference front (void) const
 	{
-		return (this->_firstNode()[_start]);
+		return (*this->begin());
 	}
 
 	reference back (void)
 	{
-		return (this->_lastNode()[_end]);
+		return (*this->rbegin());
 	}
 
 	const_reference back (void) const
 	{
-		return (this->_lastNode()[_end]);
+		return (*this->rbegin());
 	}
 
 	//////////////////////////////
@@ -428,7 +436,8 @@ public:
 
 	void push_back (const value_type & val)
 	{
-		_alloc.construct(this->_lastNode()[_end], val);
+		std::cerr << "Putting " << val << " at node " << _size - 1 << ", idx " << _end << " (address " << this->_lastNode() + _end << ")" << std::endl;
+		_alloc.construct(this->_lastNode() + _end, val);
 		if (_end == NODE_SIZE - 1)
 			this->_expandBack();
 		else
@@ -441,7 +450,7 @@ public:
 			this->_expandFront();
 		else
 			_start--;
-		_alloc.construct(this->_firstNode()[_start], val);
+		_alloc.construct(this->_firstNode() + _start, val);
 	}
 
 	void pop_back (void)
@@ -452,7 +461,7 @@ public:
 				this->_contractBack();
 			else
 				_end--;
-			_alloc.destroy(this->_lastNode()[_end]);
+			_alloc.destroy(this->_lastNode() + _end);
 		}
 	}
 
@@ -460,11 +469,11 @@ public:
 	{
 		if (!this->empty())
 		{
-			_alloc.destroy(this->_firstNode()[_start]);
+			_alloc.destroy(this->_firstNode() + _start);
 			if (_start == NODE_SIZE - 1)
-			this->_contractFront();
+				this->_contractFront();
 			else
-			_start++;
+				_start++;
 		}
 	}
 
@@ -501,13 +510,9 @@ private:
 		_alloc = alloc;
 		_map = new value_type * [1];
 		_map[0] = _alloc.allocate(NODE_SIZE);
+		_size = 1;
 		_start = 0;
 		_end = 0;
-	}
-
-	size_type _nbNodes (void) const
-	{
-		return (sizeof(_map) / sizeof(_map[0]));
 	}
 
 	value_type * _firstNode (void) const
@@ -517,32 +522,36 @@ private:
 
 	value_type * _lastNode (void) const
 	{
-		return (_map[this->_nbNodes() - 1]);
+		return (_map[_size - 1]);
 	}
 
 	void _expandBack (void)
 	{
-		this->_resizeMap(this->_nbNodes() + 1, 0, 0);
-		_map[this->_nbNodes()] = _alloc.allocate(NODE_SIZE);
+		this->_resizeMap(_size + 1, 0, 0);
+		_map[_size] = _alloc.allocate(NODE_SIZE);
+		_size++;
 		_end = 0;
 	}
 
 	void _expandFront (void)
 	{
-		this->_resizeMap(this->_nbNodes() + 1, 0, 1);
+		this->_resizeMap(_size + 1, 0, 1);
 		_map[0] = _alloc.allocate(NODE_SIZE);
+		_size++;
 		_start = NODE_SIZE - 1;
 	}
 
 	void _contractBack (void)
 	{
-		this->_resizeMap(this->_nbNodes() - 1, 0, 0);
+		this->_resizeMap(_size - 1, 0, 0);
+		_size--;
 		_end = NODE_SIZE - 1;
 	}
 
 	void _contractFront (void)
 	{
-		this->_resizeMap(this->_nbNodes() - 1, 1, 0);
+		this->_resizeMap(_size - 1, 1, 0);
+		_size--;
 		_start = 0;
 	}
 
@@ -550,10 +559,10 @@ private:
 	{
 		value_type ** _new = new value_type * [new_size];
 
-		while (offmap < this->_nbNodes() && offnew < new_size)
+		while (offmap < _size && offnew < new_size)
 			_new[offnew++] = _map[offmap++];
 
-		delete [] map;
+		delete [] _map;
 		_map = _new;
 	}
 
@@ -563,6 +572,7 @@ private:
 
 	allocator_type		_alloc;
 	value_type **		_map;
+	size_type			_size;
 	size_type			_start;
 	size_type			_end;
 }; // Deque

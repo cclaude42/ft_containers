@@ -1,27 +1,21 @@
 #include <iostream>
-#include "map.hpp"
-#include <map>
 #include <deque>
-#include "includes/utility.hpp"
+#include "deque.hpp"
 
-#ifndef TESTED
-# define TESTED ft
-#endif
-
-int main(void)
+int main ()
 {
-	ft::map<int, std::string>	mp;
+  ft::deque<int> mydeque;
+  int sum (0);
 
-	mp[15] = "";
-	mp[20] = "";
-	mp[10] = "";
-	mp[25] = "";
-	mp[22] = "";
-	mp[17] = "";
-	mp[7] = "";
+  for (int i=1;i<=10;i++) mydeque.push_back(i);
 
-	mp.erase(22);
-	mp.erase(20);
+  while (!mydeque.empty())
+  {
+     sum += mydeque.front();
+     mydeque.pop_front();
+  }
 
-	return (0);
+  std::cout << "total: " << sum << '\n';
+
+  return 0;
 }
