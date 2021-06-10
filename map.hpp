@@ -23,11 +23,19 @@ public:
 
 	typedef struct				s_node
 	{
+# if __APPLE__
+		ft::pair<const Key, T>	data;
+		bool					color;
+		struct s_node *			left;
+		struct s_node *			right;
+		struct s_node *			parent;
+# else
 		ft::pair<const Key, T>	data;
 		struct s_node *			left;
 		struct s_node *			right;
 		struct s_node *			parent;
 		bool					color;
+# endif
 
 		s_node (ft::pair<const Key, T> data) : data(data) {}
 		const Key &	key (void)	{ return (data.first); }
