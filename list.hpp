@@ -59,7 +59,7 @@ public:
 
 	private:
 		node_type *				_ptr;
-	};
+	}; // Iterator
 
 	//////////////////////////////
 	// Member types
@@ -625,7 +625,7 @@ private:
 
 	allocator_type		_alloc;
 	node *				_end;
-};
+}; // List
 
 	//////////////////////////////
 	// Relational operators

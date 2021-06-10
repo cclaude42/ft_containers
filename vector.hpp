@@ -82,7 +82,7 @@ public:
 
 	private:
 		value_type *			_ptr;
-	};
+	}; // Iterator
 
 	//////////////////////////////
 	// Member types
@@ -600,7 +600,7 @@ private:
 	size_type			_size;
 	size_type			_capacity;
 	value_type *		_vct;
-};
+}; // Vector
 
 	//////////////////////////////
 	// Relational operators

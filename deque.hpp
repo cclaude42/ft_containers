@@ -1,5 +1,5 @@
-#ifndef deque_HPP
-# define deque_HPP
+#ifndef DEQUE_HPP
+# define DEQUE_HPP
 
 # include "includes/containers.hpp"
 
@@ -26,54 +26,133 @@ public:
 		typedef					std::ptrdiff_t										difference_type;
 		typedef					std::size_t											size_type;
 		// -structors
-		dequeIterator			(void)												{ _ptr = NULL; _map = NULL }
-		dequeIterator			(value_type * const ptr, value_type ** const map)	{ _ptr = ptr; _map = map; }
+		dequeIterator			(void)												{ _ptr = NULL; _dq = NULL }
+		dequeIterator			(value_type * const ptr, deque * const dq)			{ this->init(ptr, dq); }
 		~dequeIterator			(void)												{}
 		// Const stuff
 		template <bool B>		dequeIterator
-			(const dequeIterator<B> & x, typename ft::enable_if<!B>::type* = 0)		{ _ptr = x.getPtr(); _map = x.getMap(); }
+			(const dequeIterator<B> & x, typename ft::enable_if<!B>::type* = 0)		{ this->init(x.getPtr(), x.getDq()); }
 
 		// Assignment
-		dequeIterator &			operator=	(const dequeIterator & x)				{ _ptr = x.getPtr(); _map = x.getMap(); return (*this); }
-		dequeIterator &			operator+=	(int n)									{ _ptr += n; return (*this); }
-		dequeIterator &			operator-=	(int n)									{ _ptr -= n; return (*this); }
+		dequeIterator &			operator=	(const dequeIterator & x)				{ this->init(x.getPtr(), x.getDq()); return (*this); }
+		dequeIterator &			operator+=	(int n)									{ this->plus(n); return (*this); }
+		dequeIterator &			operator-=	(int n)									{ this->minus(n); return (*this); }
 		// Comparison
 		template <bool B> bool	operator==	(const dequeIterator<B> & x) const		{ return (_ptr == x.getPtr()); }
 		template <bool B> bool	operator!=	(const dequeIterator<B> & x) const		{ return (_ptr != x.getPtr()); }
-		template <bool B> bool	operator<	(const dequeIterator<B> & x) const		{ return (_ptr < x.getPtr()); }
-		template <bool B> bool	operator>	(const dequeIterator<B> & x) const		{ return (_ptr > x.getPtr()); }
-		template <bool B> bool	operator<=	(const dequeIterator<B> & x) const		{ return (_ptr <= x.getPtr()); }
-		template <bool B> bool	operator>=	(const dequeIterator<B> & x) const		{ return (_ptr >= x.getPtr()); }
+		template <bool B> bool	operator<	(const dequeIterator<B> & x) const		{ return (this->diff(x) < 0); }
+		template <bool B> bool	operator>	(const dequeIterator<B> & x) const		{ return (this->diff(x) > 0); }
+		template <bool B> bool	operator<=	(const dequeIterator<B> & x) const		{ return (this->diff(x) <= 0); }
+		template <bool B> bool	operator>=	(const dequeIterator<B> & x) const		{ return (this->diff(x) >= 0); }
 		// -crementation
-		dequeIterator &			operator++	(void)									{ _ptr++; return (*this); }
-		dequeIterator &			operator--	(void)									{ _ptr--; return (*this); }
-		dequeIterator			operator++	(int)									{ dequeIterator<IsConst> x(*this); _ptr++; return (x); }
-		dequeIterator			operator--	(int)									{ dequeIterator<IsConst> x(*this); _ptr--; return (x); }
+		dequeIterator &			operator++	(void)									{ this->plus(1); return (*this); }
+		dequeIterator &			operator--	(void)									{ this->minus(1); return (*this); }
+		dequeIterator			operator++	(int)									{ dequeIterator<IsConst> x(*this); this->plus(1); return (x); }
+		dequeIterator			operator--	(int)									{ dequeIterator<IsConst> x(*this); this->minus(1); return (x); }
 		// Operation
-		dequeIterator			operator+	(int n) const							{ return (_ptr + n); }
-		dequeIterator			operator-	(int n) const							{ return (_ptr - n); }
-		difference_type			operator-	(const dequeIterator & x) const			{ return (_ptr - x.getPtr()); }
+		dequeIterator			operator+	(int n) const							{ dequeIterator<IsConst> x(*this); x.plus(n); return (x); }
+		dequeIterator			operator-	(int n) const							{ dequeIterator<IsConst> x(*this); x.minus(n); return (x); }
+		difference_type			operator-	(const dequeIterator & x) const			{ return (this->diff(x)); }
 		// Dereference
-		value_type &			operator[]	(size_type n) const						{ return (*(_ptr + n)); }
+		value_type &			operator[]	(size_type n) const						{ dequeIterator<IsConst> x(*this); x.plus(n); return (*(x.getPtr()); }
 		value_type &			operator*	(void) const							{ return (*_ptr); }
 		value_type *			operator->	(void) const							{ return (_ptr); }
 		// Member functions
 		value_type *			getPtr		(void) const							{ return (_ptr); }
-		value_type *			getMap		(void) const							{ return (_map); }
+		value_type *			getDq		(void) const							{ return (_dq); }
 		// Friend functions
-		friend dequeIterator	operator+	(int n, const dequeIterator & x)		{ return (x.getPtr() + n); }
+		friend dequeIterator	operator+	(int n, const dequeIterator & x)		{ return (x + n); }
 
 	private:
 		value_type *			_ptr;
-		const value_type **		_map;
+		const deque *			_dq;
 		size_type				_i = 0;
 		size_type				_j = 0;
 
-		void nextNode (void)
+		void init (value_type * const ptr, deque * const dq)
 		{
-			
+			_ptr = ptr;
+			_dq = dq;
+
+			for (int i = 0 ; i < _dq._nbNodes() ; i++)
+			{
+				for (int j = 0 ; j < NODE_SIZE ; j++)
+				{
+					if (_ptr == _dq._map[i][j])
+					{
+						_i = i;
+						_j = j;
+					}
+				}
+			}
 		}
-	};
+
+		void plus (int n)
+		{
+			while (n > 0 && n--)
+				this->next();
+			while (n < 0 && n++)
+				this->prev();
+		}
+
+		void minus (int n)
+		{
+			while (n > 0 && n--)
+				this->prev();
+			while (n < 0 && n++)
+				this->next();
+		}
+
+		void next (void)
+		{
+			_j++;
+			if (_j == NODE_SIZE || (_i == _dq._nbNodes() - 1 && _j == dq._end + 1))
+			{
+				_i++;
+				_j = 0;
+			}
+			if (_i == _dq._nbNodes())
+			{
+				_i = 0;
+				_j = _dq._start;
+			}
+			_ptr = _dq._map[_i][_j];
+		}
+
+		void prev (void)
+		{
+			if (_i == 0 && _j == _dq._start)
+			{
+				_i = _dq.nbNodes() - 1;
+				_j = _dq._end + 1;
+			}
+			else if (_j == 0)
+			{
+				_i--;
+				_j = NODE_SIZE;
+			}
+			_j--;
+			_ptr = _dq._map[_i][_j];
+		}
+
+		difference_type diff (const dequeIterator & x) const
+		{
+			size_type xi = _i;
+			size_type xj = _j;
+			for (int i = 0 ; i < x.getDq()._nbNodes() ; i++)
+			{
+				for (int j = 0 ; j < NODE_SIZE ; j++)
+				{
+					if (x.getPtr() == x.getDq()._map[i][j])
+					{
+						xi = i;
+						xj = j;
+					}
+				}
+			}
+			return ((_i - xi) * NODE_SIZE + (_j - xj));
+		}
+	}; // Iterator
 
 	//////////////////////////////
 	// Member types
@@ -486,7 +565,7 @@ private:
 	value_type **		_map;
 	size_type			_start;
 	size_type			_end;
-};
+}; // Deque
 
 	//////////////////////////////
 	// Relational operators
@@ -535,5 +614,7 @@ private:
 	}
 
 } // Namespace ft
+
+# undef NODE_SIZE
 
 #endif

@@ -110,7 +110,7 @@ public:
 				_ptr = _ptr->parent;
 			}
 		}
-	};
+	}; // Iterator
 
 	//////////////////////////////
 	// Member types
