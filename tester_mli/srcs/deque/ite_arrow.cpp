@@ -5,16 +5,16 @@
 int		main(void)
 {
 	const int size = 5;
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct(size);
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it(vct.begin());
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_iterator ite(vct.end());
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq(size);
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it(deq.begin());
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_iterator ite(deq.end());
 
 	for (int i = 1; it != ite; ++i)
 		*it++ = i;
-	printSize(vct, 1);
+	printSize(deq, 1);
 
-	it = vct.begin();
-	ite = vct.begin();
+	it = deq.begin();
+	ite = deq.begin();
 
 	std::cout << *(++ite) << std::endl;
 	std::cout << *(ite++) << std::endl;

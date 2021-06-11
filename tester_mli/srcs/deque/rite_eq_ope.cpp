@@ -10,26 +10,29 @@ void ft_eq_ope(const Ite_1 &first, const Ite_2 &second, const bool redo = 1)
 	std::cout << (first > second) << std::endl;
 	std::cout << (first >= second) << std::endl;
 	if (redo)
+	{
 		ft_eq_ope(second, first, 0);
+		std::cout << "=== ===" << std::endl;
+	}
 }
 
 int		main(void)
 {
 	const int size = 5;
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct(size);
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::reverse_iterator it_0(vct.rbegin());
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::reverse_iterator it_1(vct.rend());
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq(size);
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::reverse_iterator it_0(deq.rbegin());
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::reverse_iterator it_1(deq.rend());
 	TESTED_NAMESPACE::deque<TESTED_TYPE>::reverse_iterator it_mid;
-
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_reverse_iterator cit_0 = vct.rbegin();
+	//
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_reverse_iterator cit_0 = deq.rbegin();
 	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_reverse_iterator cit_1;
 	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_reverse_iterator cit_mid;
 
 	for (int i = size; it_0 != it_1; --i)
 		*it_0++ = i;
-	printSize(vct, 1);
-	it_0 = vct.rbegin();
-	cit_1 = vct.rend();
+	printSize(deq, 1);
+	it_0 = deq.rbegin();
+	cit_1 = deq.rend();
 	it_mid = it_0 + 3;
 	cit_mid = it_0 + 3; cit_mid = cit_0 + 3; cit_mid = it_mid;
 

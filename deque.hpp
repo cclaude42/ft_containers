@@ -26,15 +26,15 @@ public:
 		typedef					std::ptrdiff_t										difference_type;
 		typedef					std::size_t											size_type;
 		// -structors
-		dequeIterator			(void)												{ _ptr = NULL; _dq = NULL; }
-		dequeIterator			(value_type * const ptr, const deque * dq)			{ this->init(ptr, dq); }
+		dequeIterator			(void)												{ _ptr = NULL; _deq = NULL; }
+		dequeIterator			(value_type * const ptr, const deque * deq)			{ this->init(ptr, deq); }
 		~dequeIterator			(void)												{}
 		// Const stuff
 		template <bool B>		dequeIterator
-			(const dequeIterator<B> & x, typename ft::enable_if<!B>::type* = 0)		{ this->init(x.getPtr(), x.getDq()); }
+			(const dequeIterator<B> & x, typename ft::enable_if<!B>::type* = 0)		{ this->init(x.getPtr(), x.getDeq()); }
 
 		// Assignment
-		dequeIterator &			operator=	(const dequeIterator & x)				{ this->init(x.getPtr(), x.getDq()); return (*this); }
+		dequeIterator &			operator=	(const dequeIterator & x)				{ this->init(x.getPtr(), x.getDeq()); return (*this); }
 		dequeIterator &			operator+=	(int n)									{ this->plus(n); return (*this); }
 		dequeIterator &			operator-=	(int n)									{ this->minus(n); return (*this); }
 		// Comparison
@@ -59,28 +59,30 @@ public:
 		value_type *			operator->	(void) const							{ return (_ptr); }
 		// Member functions
 		value_type *			getPtr		(void) const							{ return (_ptr); }
-		deque *					getDq		(void) const							{ return (_dq); }
+		const deque *			getDeq		(void) const							{ return (_deq); }
 		// Friend functions
 		friend dequeIterator	operator+	(int n, const dequeIterator & x)		{ return (x + n); }
 
 	private:
 		value_type *			_ptr;
-		const deque *			_dq;
+		const deque *			_deq;
 		size_type				_i;
 		size_type				_j;
 
-		void init (value_type * const ptr, const deque * dq)
+		void init (value_type * const ptr, const deque * deq)
 		{
 			_ptr = ptr;
-			_dq = dq;
+			_deq = deq;
 			_i = 0;
 			_j = 0;
 
-			for (size_type i = 0 ; i < _dq->_size ; i++)
+			if (!_deq)
+				return ;
+			for (size_type i = 0 ; i < _deq->_size ; i++)
 			{
 				for (size_type j = 0 ; j < NODE_SIZE ; j++)
 				{
-					if (_ptr == _dq->_map[i] + j)
+					if (_ptr == _deq->_map[i] + j)
 					{
 						_i = i;
 						_j = j;
@@ -107,26 +109,30 @@ public:
 
 		void next (void)
 		{
+			if (!_deq)
+				return ;
 			_j++;
-			if (_j == NODE_SIZE || (_i == _dq->_size - 1 && _j == _dq->_end + 1))
+			if (_j == NODE_SIZE || (_i == _deq->_size - 1 && _j == _deq->_end + 1))
 			{
 				_i++;
 				_j = 0;
 			}
-			if (_i == _dq->_size)
+			if (_i == _deq->_size)
 			{
 				_i = 0;
-				_j = _dq->_start;
+				_j = _deq->_start;
 			}
-			_ptr = _dq->_map[_i] + _j;
+			_ptr = _deq->_map[_i] + _j;
 		}
 
 		void prev (void)
 		{
-			if (_i == 0 && _j == _dq->_start)
+			if (!_deq)
+				return ;
+			if (_i == 0 && _j == _deq->_start)
 			{
-				_i = _dq->_size - 1;
-				_j = _dq->_end + 1;
+				_i = _deq->_size - 1;
+				_j = _deq->_end + 1;
 			}
 			else if (_j == 0)
 			{
@@ -134,18 +140,21 @@ public:
 				_j = NODE_SIZE;
 			}
 			_j--;
-			_ptr = _dq->_map[_i] + _j;
+			_ptr = _deq->_map[_i] + _j;
 		}
 
-		difference_type diff (const dequeIterator & x) const
+		template <bool B>
+		difference_type diff (const dequeIterator<B> & x) const
 		{
+			if (!_deq)
+				return (0);
 			size_type xi = _i;
 			size_type xj = _j;
-			for (size_type i = 0 ; i < x.getDq()->_size ; i++)
+			for (size_type i = 0 ; i < x.getDeq()->_size ; i++)
 			{
 				for (size_type j = 0 ; j < NODE_SIZE ; j++)
 				{
-					if (x.getPtr() == x.getDq()->_map[i] + j)
+					if (x.getPtr() == x.getDeq()->_map[i] + j)
 					{
 						xi = i;
 						xj = j;
@@ -198,6 +207,7 @@ public:
 
 	deque (const deque & x)
 	{
+		this->_init(x._alloc);
 		*this = x;
 	}
 
@@ -292,12 +302,12 @@ public:
 	{
 		if (n > this->size())
 		{
-			while (n-- > this->size())
+			while (n > this->size())
 				this->push_back(val);
 		}
 		else if (n < this->size())
 		{
-			while (n++ < this->size())
+			while (n < this->size())
 				this->pop_back();
 		}
 	}
@@ -333,14 +343,14 @@ public:
 	{
 		if (this->size() < n)
 			throw std::out_of_range("deque");
-		return (*this[n]);
+		return ((*this)[n]);
 	}
 
 	const_reference at (size_type n) const
 	{
 		if (this->size() < n)
 			throw std::out_of_range("deque");
-		return (*this[n]);
+		return ((*this)[n]);
 	}
 
 	reference front (void)
@@ -390,8 +400,8 @@ public:
 	iterator insert (iterator position, const value_type & val)
 	{
 		this->push_back(val);
-		for (iterator it = position, next = ++iterator(it) ; next != this->end() ; it++, next++)
-			*next = *it;
+		for (iterator it = --(this->end()), prev = --iterator(it) ; it != position ; it--, prev--)
+			*it = *prev;
 		*position = val;
 		return (position);
 	}
@@ -407,7 +417,10 @@ public:
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		while (first != last)
+		{
 			this->insert(position, *first++);
+			position++;
+		}
 	}
 
 	//////////////////////////////
@@ -418,16 +431,19 @@ public:
 	{
 		if (!this->empty())
 		{
-			for (iterator it = position++ ; position != this->end() ; it++, position++)
-				*it = *position;
+			iterator next = position;
+			for (iterator it = next++ ; position != this->end() && next != this->end() ; it++, next++)
+				*it = *next;
 			this->pop_back();
 		}
+		return (position);
 	}
 
 	iterator erase (iterator first, iterator last)
 	{
 		for (size_type i = last - first ; i > 0 ; i--)
 			this->erase(first);
+		return (first);
 	}
 
 	//////////////////////////////

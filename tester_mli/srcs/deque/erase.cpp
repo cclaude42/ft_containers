@@ -2,41 +2,41 @@
 
 #define TESTED_TYPE std::string
 
-void	checkErase(TESTED_NAMESPACE::deque<TESTED_TYPE> const &vct,
+void	checkErase(TESTED_NAMESPACE::deque<TESTED_TYPE> const &deq,
 					TESTED_NAMESPACE::deque<TESTED_TYPE>::const_iterator const &it)
 {
 	static int i = 0;
-	std::cout << "[" << i++ << "] " << "erase: " << it - vct.begin() << std::endl;
-	printSize(vct);
+	std::cout << "[" << i++ << "] " << "erase: " << it - deq.begin() << std::endl;
+	printSize(deq);
 }
 
 int		main(void)
 {
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct(10);
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq(10);
 
-	for (unsigned long int i = 0; i < vct.size(); ++i)
-		vct[i] = std::string((vct.size() - i), i + 65);
-	printSize(vct);
+	for (unsigned long int i = 0; i < deq.size(); ++i)
+		deq[i] = std::string((deq.size() - i), i + 65);
+	printSize(deq);
 
-	checkErase(vct, vct.erase(vct.begin() + 2));
+	checkErase(deq, deq.erase(deq.begin() + 2));
 
-	checkErase(vct, vct.erase(vct.begin()));
-	checkErase(vct, vct.erase(vct.end() - 1));
+	checkErase(deq, deq.erase(deq.begin()));
+	checkErase(deq, deq.erase(deq.end() - 1));
 
-	checkErase(vct, vct.erase(vct.begin(), vct.begin() + 3));
-	checkErase(vct, vct.erase(vct.end() - 3, vct.end() - 1));
+	checkErase(deq, deq.erase(deq.begin(), deq.begin() + 3));
+	checkErase(deq, deq.erase(deq.end() - 3, deq.end() - 1));
 
-	vct.push_back("Hello");
-	vct.push_back("Hi there");
-	printSize(vct);
-	checkErase(vct, vct.erase(vct.end() - 3, vct.end()));
+	deq.push_back("Hello");
+	deq.push_back("Hi there");
+	printSize(deq);
+	checkErase(deq, deq.erase(deq.end() - 3, deq.end()));
 
-	vct.push_back("ONE");
-	vct.push_back("TWO");
-	vct.push_back("THREE");
-	vct.push_back("FOUR");
-	printSize(vct);
-	checkErase(vct, vct.erase(vct.begin(), vct.end()));
+	deq.push_back("ONE");
+	deq.push_back("TWO");
+	deq.push_back("THREE");
+	deq.push_back("FOUR");
+	printSize(deq);
+	checkErase(deq, deq.erase(deq.begin(), deq.end()));
 
 	return (0);
 }

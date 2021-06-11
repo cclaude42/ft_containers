@@ -4,9 +4,9 @@
 
 int		main(void)
 {
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct;
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it = vct.begin();
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_iterator cit = vct.begin();
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq;
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it = deq.begin();
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_iterator cit = deq.begin();
 
 	TESTED_NAMESPACE::deque<TESTED_TYPE>::reverse_iterator rit(it);
 

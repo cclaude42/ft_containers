@@ -16,20 +16,20 @@ void ft_eq_ope(const Ite_1 &first, const Ite_2 &second, const bool redo = 1)
 int		main(void)
 {
 	const int size = 5;
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct(size);
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it_0(vct.begin());
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it_1(vct.end());
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq(size);
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it_0(deq.begin());
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it_1(deq.end());
 	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it_mid;
 
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_iterator cit_0 = vct.begin();
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_iterator cit_0 = deq.begin();
 	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_iterator cit_1;
 	TESTED_NAMESPACE::deque<TESTED_TYPE>::const_iterator cit_mid;
 
 	for (int i = size; it_0 != it_1; --i)
 		*it_0++ = i;
-	printSize(vct, 1);
-	it_0 = vct.begin();
-	cit_1 = vct.end();
+	printSize(deq, 1);
+	it_0 = deq.begin();
+	cit_1 = deq.end();
 	it_mid = it_0 + 3;
 	cit_mid = it_0 + 3; cit_mid = cit_0 + 3; cit_mid = it_mid;
 

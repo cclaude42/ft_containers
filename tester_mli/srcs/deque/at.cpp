@@ -4,20 +4,20 @@
 
 int		main(void)
 {
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct(7);
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq(7);
 
-	for (unsigned long int i = 0; i < vct.size(); ++i)
+	for (unsigned long int i = 0; i < deq.size(); ++i)
 	{
-		vct[i] = (vct.size() - i) * 3;
-		std::cout << "vct.at(): " << vct.at(i) << std::endl;
+		deq[i] = (deq.size() - i) * 3;
+		std::cout << "deq.at(): " << deq.at(i) << std::endl;
 	}
-	printSize(vct, true);
+	printSize(deq, true);
 
-	TESTED_NAMESPACE::deque<TESTED_TYPE> const vct_c(vct);
+	TESTED_NAMESPACE::deque<TESTED_TYPE> const deq_c(deq);
 
-	std::cout << "front(): " << vct.front() << " " << vct_c.front() << std::endl;
-	std::cout << "back(): " << vct.back() << " " <<  vct_c.back() << std::endl;
+	std::cout << "front(): " << deq.front() << " " << deq_c.front() << std::endl;
+	std::cout << "back(): " << deq.back() << " " <<  deq_c.back() << std::endl;
 
-	vct.at(10) = 42;
+	deq.at(10) = 42;
 	return (0);
 }

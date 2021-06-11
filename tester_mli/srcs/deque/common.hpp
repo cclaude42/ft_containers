@@ -8,14 +8,14 @@
 #endif
 
 template <typename T>
-void	printSize(TESTED_NAMESPACE::deque<T> const &vct, bool print_content = 1)
+void	printSize(TESTED_NAMESPACE::deque<T> const &deq, bool print_content = 1)
 {
-	std::cout << "size: " << vct.size() << std::endl;
-	std::cout << "max_size: " << vct.max_size() << std::endl;
+	std::cout << "size: " << deq.size() << std::endl;
+	std::cout << "max_size: " << deq.max_size() << std::endl;
 	if (print_content)
 	{
-		typename TESTED_NAMESPACE::deque<T>::const_iterator it = vct.begin();
-		typename TESTED_NAMESPACE::deque<T>::const_iterator ite = vct.end();
+		typename TESTED_NAMESPACE::deque<T>::const_iterator it = deq.begin();
+		typename TESTED_NAMESPACE::deque<T>::const_iterator ite = deq.end();
 		std::cout << std::endl << "Content is:" << std::endl;
 		for (; it != ite; ++it)
 			std::cout << "- " << *it << std::endl;

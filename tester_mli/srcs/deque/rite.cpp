@@ -5,13 +5,13 @@
 int		main(void)
 {
 	const int size = 5;
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct(size);
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it_ = vct.begin();
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq(size);
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it_ = deq.begin();
 	TESTED_NAMESPACE::deque<TESTED_TYPE>::reverse_iterator it(it_);
 
 	for (int i = 0; i < size; ++i)
-		vct[i] = (i + 1) * 5;
-	printSize(vct);
+		deq[i] = (i + 1) * 5;
+	printSize(deq);
 
 	std::cout << (it_ == it.base()) << std::endl;
 	std::cout << (it_ == (it + 3).base()) << std::endl;

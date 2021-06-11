@@ -4,27 +4,27 @@
 
 int		main(void)
 {
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct(8);
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct2;
-	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it = vct.begin();
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq(8);
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq2;
+	TESTED_NAMESPACE::deque<TESTED_TYPE>::iterator it = deq.begin();
 
-	for (unsigned long int i = 0; i < vct.size(); ++i)
-		it[i] = std::string((vct.size() - i), i + 65);
-	printSize(vct, true);
+	for (unsigned long int i = 0; i < deq.size(); ++i)
+		it[i] = std::string((deq.size() - i), i + 65);
+	printSize(deq, true);
 
 	std::cout << "push_back():\n" << std::endl;
 
-	vct.push_back("One long string");
-	vct2.push_back("Another long string");
+	deq.push_back("One long string");
+	deq2.push_back("Another long string");
 
-	printSize(vct);
-	printSize(vct2);
+	printSize(deq);
+	printSize(deq2);
 
-	vct.pop_back();
-	vct2.pop_back();
+	deq.pop_back();
+	deq2.pop_back();
 
-	printSize(vct);
-	printSize(vct2);
+	printSize(deq);
+	printSize(deq2);
 
 	return (0);
 }

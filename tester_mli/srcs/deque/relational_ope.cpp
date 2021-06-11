@@ -15,26 +15,26 @@ void	cmp(const TESTED_NAMESPACE::deque<T, Alloc> &lhs, const TESTED_NAMESPACE::d
 
 int		main(void)
 {
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct(4);
-	TESTED_NAMESPACE::deque<TESTED_TYPE> vct2(4);
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq(4);
+	TESTED_NAMESPACE::deque<TESTED_TYPE> deq2(4);
 
-	cmp(vct, vct);  // 0
-	cmp(vct, vct2); // 1
+	cmp(deq, deq);  // 0
+	cmp(deq, deq2); // 1
 
-	vct2.resize(10);
+	deq2.resize(10);
 
-	cmp(vct, vct2); // 2
-	cmp(vct2, vct); // 3
+	cmp(deq, deq2); // 2
+	cmp(deq2, deq); // 3
 
-	vct[2] = 42;
+	deq[2] = 42;
 
-	cmp(vct, vct2); // 4
-	cmp(vct2, vct); // 5
+	cmp(deq, deq2); // 4
+	cmp(deq2, deq); // 5
 
-	swap(vct, vct2);
+	swap(deq, deq2);
 
-	cmp(vct, vct2); // 6
-	cmp(vct2, vct); // 7
+	cmp(deq, deq2); // 6
+	cmp(deq2, deq); // 7
 
 	return (0);
 }
