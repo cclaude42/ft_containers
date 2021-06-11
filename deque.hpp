@@ -27,7 +27,7 @@ public:
 		typedef					std::size_t											size_type;
 		// -structors
 		dequeIterator			(void)												{ _ptr = NULL; _dq = NULL; }
-		dequeIterator			(value_type * const ptr, deque * const dq)			{ this->init(ptr, dq); }
+		dequeIterator			(value_type * const ptr, const deque * dq)			{ this->init(ptr, dq); }
 		~dequeIterator			(void)												{}
 		// Const stuff
 		template <bool B>		dequeIterator
@@ -65,11 +65,11 @@ public:
 
 	private:
 		value_type *			_ptr;
-		deque *					_dq;
+		const deque *			_dq;
 		size_type				_i;
 		size_type				_j;
 
-		void init (value_type * const ptr, deque * const dq)
+		void init (value_type * const ptr, const deque * dq)
 		{
 			_ptr = ptr;
 			_dq = dq;
@@ -436,7 +436,7 @@ public:
 
 	void push_back (const value_type & val)
 	{
-		std::cerr << "Putting " << val << " at node " << _size - 1 << ", idx " << _end << " (address " << this->_lastNode() + _end << ")" << std::endl;
+		// std::cerr << "Putting " << val << " at node " << _size - 1 << ", idx " << _end << " (address " << this->_lastNode() + _end << ")" << std::endl;
 		_alloc.construct(this->_lastNode() + _end, val);
 		if (_end == NODE_SIZE - 1)
 			this->_expandBack();
