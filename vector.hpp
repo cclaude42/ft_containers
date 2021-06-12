@@ -3,14 +3,6 @@
 
 # include "includes/containers.hpp"
 
-# ifndef MACOS
-#  if __APPLE__
-#   define MACOS 1
-#  else
-#   define MACOS 0
-#  endif
-# endif
-
 # ifndef SIZE_OR_CAP
 #  if __APPLE__
 #   define SIZE_OR_CAP _capacity

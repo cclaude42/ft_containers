@@ -342,14 +342,24 @@ public:
 	reference at (size_type n)
 	{
 		if (this->size() < n)
-			throw std::out_of_range("deque");
+		{
+			if (MACOS)
+				throw std::out_of_range("deque");
+			else
+				throw std::out_of_range("deque::_M_range_check: __n (which is " + ft::to_string(n) + ")>= this->size() (which is " + ft::to_string(this->size()) + ")");
+		}
 		return ((*this)[n]);
 	}
 
 	const_reference at (size_type n) const
 	{
 		if (this->size() < n)
-			throw std::out_of_range("deque");
+		{
+			if (MACOS)
+				throw std::out_of_range("deque");
+			else
+				throw std::out_of_range("deque::_M_range_check: __n (which is " + ft::to_string(n) + ")>= this->size() (which is " + ft::to_string(this->size()) + ")");
+		}
 		return ((*this)[n]);
 	}
 
