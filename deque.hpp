@@ -60,6 +60,8 @@ public:
 		// Member functions
 		value_type *			getPtr		(void) const							{ return (_ptr); }
 		const deque *			getDeq		(void) const							{ return (_deq); }
+		size_type				getI		(void) const							{ return (_i); }
+		bool					getOut		(void) const							{ return (_out); }
 		// Friend functions
 		friend dequeIterator	operator+	(int n, const dequeIterator & x)		{ return (x + n); }
 
@@ -67,14 +69,14 @@ public:
 		value_type *			_ptr;
 		const deque *			_deq;
 		size_type				_i;
-		size_type				_j;
+		bool					_out;
 
 		void init (value_type * const ptr, const deque * deq)
 		{
 			_ptr = ptr;
 			_deq = deq;
 			_i = 0;
-			_j = 0;
+			_out = true;
 
 			if (!_deq)
 				return ;
@@ -85,7 +87,7 @@ public:
 					if (_ptr == _deq->_map[i] + j)
 					{
 						_i = i;
-						_j = j;
+						_out = false;
 					}
 				}
 			}
@@ -111,36 +113,32 @@ public:
 		{
 			if (!_deq)
 				return ;
-			_j++;
-			if (_j == NODE_SIZE || (_i == _deq->_size - 1 && _j == _deq->_end + 1))
+			if (_ptr == _deq->_lastNode() + NODE_SIZE - 1)
+				_out = true;
+			else if (_ptr == _deq->_firstNode() - 1)
+				_out = false;
+			else if (_ptr == _deq->_map[_i] + NODE_SIZE - 1)
 			{
-				_i++;
-				_j = 0;
+				_ptr = _deq->_map[++_i];
+				return ;
 			}
-			if (_i == _deq->_size)
-			{
-				_i = 0;
-				_j = _deq->_start;
-			}
-			_ptr = _deq->_map[_i] + _j;
+			_ptr++;
 		}
 
 		void prev (void)
 		{
 			if (!_deq)
 				return ;
-			if (_i == 0 && _j == _deq->_start)
+			if (_ptr == _deq->_firstNode())
+				_out = true;
+			else if (_ptr == _deq->_lastNode() + NODE_SIZE)
+				_out = false;
+			else if (_ptr == _deq->_map[_i])
 			{
-				_i = _deq->_size - 1;
-				_j = _deq->_end + 1;
+				_ptr = _deq->_map[--_i] + NODE_SIZE - 1;
+				return ;
 			}
-			else if (_j == 0)
-			{
-				_i--;
-				_j = NODE_SIZE;
-			}
-			_j--;
-			_ptr = _deq->_map[_i] + _j;
+			_ptr--;
 		}
 
 		template <bool B>
@@ -148,20 +146,10 @@ public:
 		{
 			if (!_deq)
 				return (0);
-			size_type xi = _i;
-			size_type xj = _j;
-			for (size_type i = 0 ; i < x.getDeq()->_size ; i++)
-			{
-				for (size_type j = 0 ; j < NODE_SIZE ; j++)
-				{
-					if (x.getPtr() == x.getDeq()->_map[i] + j)
-					{
-						xi = i;
-						xj = j;
-					}
-				}
-			}
-			return ((_i - xi) * NODE_SIZE + (_j - xj));
+			if (_out || x.getOut())
+				return (_ptr - x.getPtr());
+			else
+				return ((_i - x.getI()) * NODE_SIZE + _ptr - x.getPtr());
 		}
 	}; // Iterator
 
@@ -218,6 +206,7 @@ public:
 	~deque (void)
 	{
 		this->clear();
+		_alloc.deallocate(_map[0], NODE_SIZE);
 		delete [] _map;
 	}
 
@@ -341,7 +330,7 @@ public:
 
 	reference at (size_type n)
 	{
-		if (this->size() < n)
+		if (this->size() <= n)
 		{
 			if (MACOS)
 				throw std::out_of_range("deque");
@@ -353,7 +342,7 @@ public:
 
 	const_reference at (size_type n) const
 	{
-		if (this->size() < n)
+		if (this->size() <= n)
 		{
 			if (MACOS)
 				throw std::out_of_range("deque");
@@ -462,7 +451,6 @@ public:
 
 	void push_back (const value_type & val)
 	{
-		// std::cerr << "Putting " << val << " at node " << _size - 1 << ", idx " << _end << " (address " << this->_lastNode() + _end << ")" << std::endl;
 		_alloc.construct(this->_lastNode() + _end, val);
 		if (_end == NODE_SIZE - 1)
 			this->_expandBack();
@@ -507,6 +495,7 @@ public:
 	{
 		ft::swap(_alloc, x._alloc);
 		ft::swap(_map, x._map);
+		ft::swap(_size, x._size);
 		ft::swap(_start, x._start);
 		ft::swap(_end, x._end);
 	}
@@ -569,6 +558,7 @@ private:
 
 	void _contractBack (void)
 	{
+		_alloc.deallocate(_map[_size - 1], NODE_SIZE);
 		this->_resizeMap(_size - 1, 0, 0);
 		_size--;
 		_end = NODE_SIZE - 1;
@@ -576,6 +566,7 @@ private:
 
 	void _contractFront (void)
 	{
+		_alloc.deallocate(_map[0], NODE_SIZE);
 		this->_resizeMap(_size - 1, 1, 0);
 		_size--;
 		_start = 0;

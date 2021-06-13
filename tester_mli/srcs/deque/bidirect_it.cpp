@@ -18,7 +18,7 @@ int		main(void)
 		*lst_it++ = i * 5;
 	deq.assign(lst.begin(), lst.end());
 	printSize(deq);
-	
+
 	deq.insert(deq.end(), lst.rbegin(), lst.rend());
 	printSize(deq);
 	return (0);
