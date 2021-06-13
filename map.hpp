@@ -814,7 +814,7 @@ private:
 	allocator_type		_alloc;
 	key_compare			_comp;
 	node *				_nil;
-};
+}; // Map
 
 	//////////////////////////////
 	// Relational operators
