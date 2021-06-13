@@ -6,7 +6,7 @@
 /*   By: llefranc <llefranc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/13 16:31:55 by llefranc          #+#    #+#             */
-/*   Updated: 2021/02/17 10:52:31 by llefranc         ###   ########.fr       */
+/*   Updated: 2021/06/13 23:55:37 by cclaude          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void    listTest_Size(T& cont)
 {
     std::string name("size:");
     std::cout << "\n---------------------";
-        
+
     printTestName("24", name);  std::cout << cont.size();
 }
 
@@ -29,7 +29,7 @@ void    listTest_Empty(T& cont)
 {
     std::string name("empty:");
     std::cout << "\n---------------------";
-        
+
     printTestName("33", name);  std::cout << cont.empty();
 }
 
@@ -38,7 +38,7 @@ void    listTest_Iterators(T& cont)
 {
     std::string name("iterators:");
     std::cout << "\n---------------------";
-        
+
     printTestName("42", name, "operator++");
     for (typename T::const_iterator it = cont.begin(); it != cont.end(); it++)
         std::cout << *it << " | ";
@@ -66,14 +66,14 @@ void    listTest_ReverseIterators(T& cont)
 {
     std::string name("reverse iterators:");
     std::cout << "\n---------------------";
-        
+
     printTestName("70", name, "++operator");
     for (typename T::const_reverse_iterator it = cont.rbegin(); it != cont.rend(); ++it)
         std::cout << *it << " | ";
 
     printTestName("74", name, "operator++");
     for (typename T::const_reverse_iterator it = cont.rbegin(); it != cont.rend(); it++)
-        std::cout << *it << " | ";  
+        std::cout << *it << " | ";
 
     if (cont.size())
     {
@@ -94,7 +94,7 @@ void    listTest_Front(T& cont)
 {
     std::string name("front:");
     std::cout << "\n---------------------";
-        
+
     printTestName("98", name);
     if (cont.size()) // To prevent overflow
         std::cout << cont.front();
@@ -116,9 +116,9 @@ void    listTest_PushBack(T& cont)
 {
     std::string name("push_back:");
     std::cout << "\n---------------------";
-        
+
     printTestName("120", name);
-        
+
     // Allows to value initialize (case size is 0, we can't assign cont.front())
     typename T::value_type* x = new typename T::value_type ();
     if (cont.size())
@@ -137,9 +137,9 @@ void    listTest_PopBack(T& cont)
 {
     std::string name("pop_back:");
     std::cout << "\n---------------------";
-        
+
     printTestName("141", name);
-        
+
     if (cont.size())
     {
         T tmp = cont;
@@ -153,9 +153,9 @@ void    listTest_PushFront(T& cont)
 {
     std::string name("push_front:");
     std::cout << "\n---------------------";
-        
+
     printTestName("157", name);
-        
+
     // Allows to value initialize (case size is 0, we can't assign cont.front())
     typename T::value_type* x = new typename T::value_type ();
     if (cont.size())
@@ -174,9 +174,9 @@ void    listTest_PopFront(T& cont)
 {
     std::string name("pop_front:");
     std::cout << "\n---------------------";
-        
+
     printTestName("178", name);
-        
+
     if (cont.size())
     {
         T tmp = cont;
@@ -190,11 +190,11 @@ void    listTest_Clear(T& cont)
 {
     std::string name("clear:");
     std::cout << "\n---------------------";
-        
+
     T tmp = cont;
     printTestName("195", name); std::cout << "size before clear: " << tmp.size();
     tmp.clear();
-        
+
     printTestName("198", name); std::cout << "size after clear: " << tmp.size();
 
     // Allows to value initialize (case size is 0, we can't assign cont.front())
@@ -213,7 +213,7 @@ void    listTest_Swap(T& cont)
 {
     std::string name("swap:");
     std::cout << "\n---------------------";
-        
+
     T tmp(cont);
     T tmp2(cont);
 
@@ -223,7 +223,7 @@ void    listTest_Swap(T& cont)
         *x = cont.front();
 
     tmp.push_back(*x);
-        
+
     printTestName("227", name); std::cout << "size of tmp = " << tmp.size() << " and size of tmp2 = " << tmp2.size();
     tmp2.swap(tmp);
     printContainer("229", name, tmp2);
@@ -256,7 +256,7 @@ void    listTest_Resize(T& cont)
     printContainer("256", name, tmp);
 
     printTestName("258", name); std::cout << "size of tmp after resize = " << tmp.size();
-        
+
     delete x;
 }
 
@@ -305,7 +305,7 @@ void    listTest_AssignNElem(T& cont)
     typename T::value_type* x = new typename T::value_type ();
     if (cont.size())
         *x = cont.front();
-        
+
     tmp.resize(3, *x);
 
     T tmp2 = cont;
@@ -313,7 +313,7 @@ void    listTest_AssignNElem(T& cont)
 
     printTestName("314", name); std::cout << "size after assign = " << tmp2.size();
     printContainer("315", name, tmp2);
-        
+
     delete x;
 }
 
@@ -340,7 +340,7 @@ void    listTest_Insert1Elem(T& cont)
     }
     printTestName("341", name); std::cout << "return value: " << *tmp.insert(tmp.begin(), *x);
     printTestName("342", name); std::cout << "return value: " << *tmp.insert(tmp.end(), *x);
-        
+
     printTestName("344", name); std::cout << "size of tmp = " << tmp.size();
     printContainer("345", name, tmp);
 
@@ -368,7 +368,7 @@ void    listTest_InsertNElem(T& cont)
     }
     tmp.insert(tmp.begin(), 5, *x);
     tmp.insert(tmp.end(), 5, *x);
-        
+
     printTestName("372", name); std::cout << "size of tmp = " << tmp.size();
     printContainer("373", name, tmp);
 
@@ -396,7 +396,7 @@ void    listTest_InsertRange(T& cont)
     }
     tmp.insert(tmp.end(), cont.begin(), cont.end());
     tmp.insert(tmp.end(), cont.begin(), cont.begin());
-        
+
     printTestName("400", name); std::cout << "size of tmp = " << tmp.size();
     printContainer("401", name, tmp);
 }
@@ -425,12 +425,12 @@ void    listTest_EraseRange(T& cont)
     // Erase nothing
     {
         printTestName("427", name); std::cout << "----- erase nothing -----";
-        
+
         T tmp = cont;
         printTestName("430", name); std::cout << "size of tmp = " << tmp.size();
 
         typename T::iterator iter = tmp.erase(tmp.end(), tmp.end());
-        
+
         printTestName("434", name);
         for (typename T::iterator it = tmp.begin(); it != iter; ++it)
             std::cout << *it << " | ";
@@ -443,12 +443,12 @@ void    listTest_EraseRange(T& cont)
 
         printContainer("444", name, tmp);
     }
-        
+
     // Erase last elem
     if (cont.size())
     {
         printTestName("450", name); std::cout << "----- erase last elem -----";
-        
+
         T tmp = cont;
         printTestName("453", name); std::cout << "size of tmp = " << tmp.size();
 
@@ -468,7 +468,7 @@ void    listTest_EraseRange(T& cont)
     if (cont.size())
     {
         printTestName("470", name); std::cout << "----- erase everything except first elem -----";
-        
+
         T tmp = cont;
         printTestName("473", name); std::cout << "size of tmp = " << tmp.size();
 
@@ -513,7 +513,7 @@ void    listTest_Erase1Elem(T& cont)
     if (cont.size() > 1)
     {
         printTestName("515", name); std::cout << "----- erase first elem -----";
-        
+
         T tmp = cont;
         printTestName("518", name); std::cout << "size of tmp = " << tmp.size();
 
@@ -526,7 +526,7 @@ void    listTest_Erase1Elem(T& cont)
         printTestName("526", name);
         for (typename T::iterator it = tmp.begin(); it != iter; ++it)
             std::cout << *it << " | ";
-            
+
         printTestName("530", name); std::cout << "size of tmp = " << tmp.size();
     }
 
@@ -592,7 +592,7 @@ void    listTest_Splice1Elem(T& cont)
         printTestName("592", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("593", name, tmp);
         printContainer("594", name, tmp2);
-        
+
         tmp.splice(tmp.begin(), tmp2, tmp2.begin());
 
         printTestName("598", name); std::cout << "size of tmp = " << tmp.size();
@@ -620,7 +620,7 @@ void    listTest_Splice1Elem(T& cont)
         printTestName("620", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("621", name, tmp);
         printContainer("622", name, tmp2);
-        
+
         tmp.splice(tmp.end(), tmp2, tmp2.begin());
 
         printTestName("626", name); std::cout << "size of tmp = " << tmp.size();
@@ -649,7 +649,7 @@ void    listTest_Splice1Elem(T& cont)
         printTestName("649", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("650", name, tmp);
         printContainer("651", name, tmp2);
-        
+
         tmp.splice(++tmp.begin(), tmp2, tmp2.begin());
 
         printTestName("655", name); std::cout << "size of tmp = " << tmp.size();
@@ -684,7 +684,7 @@ void    listTest_SpliceAll(T& cont)
         printTestName("684", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("685", name, tmp);
         printContainer("686", name, tmp2);
-        
+
         tmp.splice(tmp.begin(), tmp2);
 
         printTestName("690", name); std::cout << "size of tmp = " << tmp.size();
@@ -712,7 +712,7 @@ void    listTest_SpliceAll(T& cont)
         printTestName("712", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("713", name, tmp);
         printContainer("714", name, tmp2);
-        
+
         tmp.splice(tmp.end(), tmp2);
 
         printTestName("718", name); std::cout << "size of tmp = " << tmp.size();
@@ -741,7 +741,7 @@ void    listTest_SpliceAll(T& cont)
         printTestName("741", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("742", name, tmp);
         printContainer("743", name, tmp2);
-        
+
         tmp.splice(++tmp.begin(), tmp2);
 
         printTestName("747", name); std::cout << "size of tmp = " << tmp.size();
@@ -776,14 +776,14 @@ void    listTest_SpliceRange(T& cont)
         printTestName("776", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("777", name, tmp);
         printContainer("778", name, tmp2);
-        
+
         tmp.splice(tmp.begin(), tmp2, tmp2.begin(), ++tmp2.begin());
 
         printTestName("782", name); std::cout << "size of tmp = " << tmp.size();
         printTestName("783", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("784", name, tmp);
         printContainer("785", name, tmp2);
-        
+
         delete x;
     }
 
@@ -804,14 +804,14 @@ void    listTest_SpliceRange(T& cont)
         printTestName("804", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("805", name, tmp);
         printContainer("806", name, tmp2);
-        
+
         tmp.splice(tmp.end(), tmp2, tmp2.begin(), tmp2.end());
 
         printTestName("810", name); std::cout << "size of tmp = " << tmp.size();
         printTestName("811", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("812", name, tmp);
         printContainer("813", name, tmp2);
-        
+
         delete x;
     }
 
@@ -833,14 +833,14 @@ void    listTest_SpliceRange(T& cont)
         printTestName("833", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("834", name, tmp);
         printContainer("835", name, tmp2);
-        
+
         tmp.splice(++tmp.begin(), tmp2, tmp2.begin(), --tmp2.end());
 
         printTestName("839", name); std::cout << "size of tmp = " << tmp.size();
         printTestName("840", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("841", name, tmp);
         printContainer("842", name, tmp2);
-        
+
         delete x;
     }
 
@@ -862,7 +862,7 @@ void    listTest_SpliceRange(T& cont)
         printTestName("862", name); std::cout << "size of tmp2 = " << tmp2.size();
         printContainer("863", name, tmp);
         printContainer("864", name, tmp2);
-        
+
         tmp.splice(++tmp.begin(), tmp2, tmp2.begin(), tmp2.begin());
         tmp.splice(++tmp.begin(), tmp2, ++tmp2.begin(), ++tmp2.begin());
         tmp.splice(++tmp.begin(), tmp2, tmp2.end(), tmp2.end());
@@ -886,14 +886,14 @@ void    listTest_Remove(T& cont)
     typename T::value_type* x = new typename T::value_type ();
     if (cont.size())
         *x = cont.front();
-        
+
     T tmp = cont;
 
     printTestName("892", name); std::cout << "size of tmp = " << tmp.size();
     printContainer("893", name, tmp);
 
     tmp.remove(*x);
-        
+
     printTestName("897", name); std::cout << "size of tmp = " << tmp.size();
     printContainer("898", name, tmp);
 
@@ -912,7 +912,7 @@ void    listTest_RemoveIf(T& cont)
     printContainer("912", name, tmp);
 
     tmp.remove_if(predicateTest<typename T::value_type>);
-        
+
     printTestName("916", name); std::cout << "size of tmp = " << tmp.size();
     printContainer("917", name, tmp);
 }
@@ -929,7 +929,7 @@ void    listTest_Unique(T& cont)
     printContainer("929", name, tmp);
 
     tmp.unique();
-        
+
     printTestName("933", name); std::cout << "size of tmp = " << tmp.size();
     printContainer("934", name, tmp);
 }
@@ -946,7 +946,7 @@ void    listTest_UniqueBinaryPredicate(T& cont)
     printContainer("946", name, tmp);
 
     tmp.unique(binaryPredicateTest<typename T::value_type>);
-        
+
     printTestName("950", name); std::cout << "size of tmp = " << tmp.size();
     printContainer("951", name, tmp);
 }
@@ -960,7 +960,7 @@ void    listTest_Merge(T& cont)
     // Merging 2 non empty list
     {
         printTestName("962", name); std::cout << "----- merging two non empty list -----";
-        
+
         T tmp = cont;
         T tmp2 = cont;
         typename T::value_type* x = new typename T::value_type ();
@@ -990,10 +990,10 @@ void    listTest_Merge(T& cont)
     // Merging one empty list into non empty list
     {
         printTestName("992", name); std::cout << "----- merging one empty list into non empty list -----";
-        
+
         T tmp = cont;
         T tmp2 = cont;
-        
+
         tmp2.clear();
 
         printTestName("999", name); std::cout << "size of tmp = " << tmp.size();
@@ -1015,7 +1015,7 @@ void    listTest_Merge(T& cont)
 
         T tmp = cont;
         T tmp2 = cont;
-        
+
         tmp.clear();
 
         printTestName("1021", name);    std::cout << "size of tmp = " << tmp.size();
@@ -1034,10 +1034,10 @@ void    listTest_Merge(T& cont)
     // Merging two empty list
     {
         printTestName("1036", name);    std::cout << "----- merging two empty list -----";
-        
+
         T tmp = cont;
         T tmp2 = cont;
-        
+
         tmp.clear();
         tmp2.clear();
 
@@ -1059,7 +1059,7 @@ void    listTest_Merge(T& cont)
         printTestName("1059", name);    std::cout << "----- merging the list with itself -----";
 
         T tmp = cont;
-        
+
         printTestName("1063", name);    std::cout << "size of tmp = " << tmp.size();
         printContainer("1064", name, tmp);
 
@@ -1079,7 +1079,7 @@ void    listTest_MergePredicate(T& cont)
     // Merging 2 non empty list
     {
         printTestName("1081", name);    std::cout << "----- merging two non empty list -----";
-        
+
         T tmp = cont;
         T tmp2 = cont;
         typename T::value_type* x = new typename T::value_type ();
@@ -1109,10 +1109,10 @@ void    listTest_MergePredicate(T& cont)
     // Merging one empty list into non empty list
     {
         printTestName("1111", name);    std::cout << "----- merging one empty list into non empty list -----";
-        
+
         T tmp = cont;
         T tmp2 = cont;
-        
+
         tmp2.clear();
 
         printTestName("1118", name);    std::cout << "size of tmp = " << tmp.size();
@@ -1134,7 +1134,7 @@ void    listTest_MergePredicate(T& cont)
 
         T tmp = cont;
         T tmp2 = cont;
-        
+
         tmp.clear();
 
         printTestName("1140", name);    std::cout << "size of tmp = " << tmp.size();
@@ -1153,10 +1153,10 @@ void    listTest_MergePredicate(T& cont)
     // Merging two empty list
     {
         printTestName("1155", name);    std::cout << "----- merging two empty list -----";
-        
+
         T tmp = cont;
         T tmp2 = cont;
-        
+
         tmp.clear();
         tmp2.clear();
 
@@ -1176,9 +1176,9 @@ void    listTest_MergePredicate(T& cont)
     // Merging the list with itself
     {
         printTestName("1178", name);    std::cout << "----- merging the list with itself -----";
-        
+
         T tmp = cont;
-        
+
         printTestName("1182", name);    std::cout << "size of tmp = " << tmp.size();
         printContainer("1183", name, tmp);
 
@@ -1200,7 +1200,7 @@ void    listTest_Sort(T& cont)
     printContainer("1200", name, tmp);
 
     tmp.sort();
-        
+
     printTestName("1204", name);    std::cout << "size after resize = " << tmp.size();
     printContainer("1205", name, tmp);
 }
@@ -1216,7 +1216,7 @@ void    listTest_SortPredicate(T& cont)
     printContainer("1216", name, tmp);
 
     tmp.sort(binaryPredicateTest<typename T::value_type>);
-        
+
     printTestName("1220", name);    std::cout << "size after resize = " << tmp.size();
     printContainer("1221", name, tmp);
 }
@@ -1232,7 +1232,7 @@ void    listTest_Reverse(T& cont)
     printContainer("1232", name, tmp);
 
     tmp.reverse();
-        
+
     printTestName("1236", name);    std::cout << "size after resize = " << tmp.size();
     printContainer("1237", name, tmp);
 }
@@ -1247,11 +1247,11 @@ void    listTest_OperatorEqualNotEqual(T& cont)
 
     printTestName("1248", name, "tmp == cont"); std::cout << (tmp == cont);
     printTestName("1249", name, "tmp != cont"); std::cout << (tmp != cont);
-        
+
     typename T::value_type* x = new typename T::value_type ();
     if (cont.size())
         *x = cont.front();
-        
+
     tmp.push_back(*x);
     printTestName("1256", name, "tmp == cont"); std::cout << (tmp == cont);
     printTestName("1257", name, "tmp != cont"); std::cout << (tmp != cont);
@@ -1281,11 +1281,11 @@ void    listTest_OperatorLessAndMore(T& cont)
     printTestName("1281", name, "tmp > cont");  std::cout << (tmp > cont);
     printTestName("1282", name, "tmp <= cont"); std::cout << (tmp <= cont);
     printTestName("1283", name, "tmp >= cont"); std::cout << (tmp >= cont);
-        
+
     if (cont.size())
         *x = cont.front();
     tmp.push_back(*x);
-        
+
     printTestName("1289", name, "tmp < cont");  std::cout << (cont < tmp);
     printTestName("1290", name, "tmp > cont");  std::cout << (cont > tmp);
     printTestName("1291", name, "tmp <= cont"); std::cout << (cont <= tmp);
@@ -1295,7 +1295,7 @@ void    listTest_OperatorLessAndMore(T& cont)
     if (cont.size())
         *x = cont.back();
     tmp2.push_back(*x);
-        
+
     printTestName("1299", name, "tmp < cont");  std::cout << (tmp2 < tmp);
     printTestName("1300", name, "tmp > cont");  std::cout << (tmp2 > tmp);
     printTestName("1301", name, "tmp <= cont"); std::cout << (tmp2 <= tmp);
@@ -1317,4 +1317,3 @@ void    listTest_OperatorLessAndMore(T& cont)
 }
 
 #endif
-

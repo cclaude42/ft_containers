@@ -382,7 +382,7 @@ public:
 
 	void splice (iterator position, list & x, iterator first, iterator last)
 	{
-		if (!x.empty())
+		if (!x.empty() && first != last)
 		{
 			last.getPtr()->prev->next = position.getPtr();
 			first.getPtr()->prev->next = last.getPtr();
@@ -440,7 +440,7 @@ public:
 	{
 		for (iterator it = ++this->begin() ; it != this->end() ; it++)
 		{
-			if (binary_pred(*it, *iterator(it.getPtr()->prev)))
+			if (binary_pred(it.getPtr()->prev->data, *it))
 			{
 				this->erase(it);
 				it = this->begin();

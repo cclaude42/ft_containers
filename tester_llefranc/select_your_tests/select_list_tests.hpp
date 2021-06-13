@@ -6,7 +6,7 @@
 /*   By: llefranc <llefranc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/03 15:51:32 by llefranc          #+#    #+#             */
-/*   Updated: 2021/02/17 10:51:25 by llefranc         ###   ########.fr       */
+/*   Updated: 2021/06/13 23:49:37 by cclaude          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ template <typename T>
 void    testNotConstList(T& l, int testNb)
 {
     printContainerInfo<T>("LIST", testNb);
-        
+
     listTest_Size(l);                       //  size
     listTest_Empty(l);                      //  empty
     listTest_Iterators(l);                  //  iterators / begin / end
@@ -60,7 +60,7 @@ template <typename T>
 void    testConstList(T& l, int testNb)
 {
     printContainerInfo<T>("CONST LIST", testNb);
-        
+
     listTest_Size(l);                       //  size
     listTest_Empty(l);                      //  empty
     listTest_Iterators(l);                  //  iterators / begin / end

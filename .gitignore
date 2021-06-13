@@ -41,4 +41,4 @@ tester_mazoise/*/logs
 tester_mazoise/*/out
 tester_mazoise/*/stderror
 
-tester_llefranc/*.txt
+tester_llefranc/results/*

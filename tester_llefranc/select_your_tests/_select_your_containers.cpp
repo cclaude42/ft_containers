@@ -6,7 +6,7 @@
 /*   By: hherin <hherin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/26 14:37:35 by hherin            #+#    #+#             */
-/*   Updated: 2021/06/13 18:41:27 by cclaude          ###   ########.fr       */
+/*   Updated: 2021/06/13 22:50:41 by cclaude          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int main(void)
 
 
     testVector(arrInt, arrString);
-    // testList(arrInt, arrString);
+    testList(arrInt, arrString);
     testStack(arrInt, arrString);
     testQueue(arrInt, arrString);
     testMap(arrInt, arrString);
