@@ -1,21 +1,13 @@
 #include "common.hpp"
 
-#define T1 char
-#define T2 foo<std::string>
+#define T1 int
+#define T2 int
 
 int		main(void)
 {
-	TESTED_NAMESPACE::multimap<T1, T2> mp;
+	TESTED_NAMESPACE::multimap<T1, T2> const mp;
 
-	mp['a'] = "an element";
-	mp['b'] = "another element";
-	mp['c'] = mp['b'];
-	mp['b'] = "old element";
+	mp[4] = 15; // <-- error expected
 
-	printSize(mp);
-
-	std::cout << "insert a new element via operator[]: " << mp['d'] << std::endl;
-
-	printSize(mp);
 	return (0);
 }

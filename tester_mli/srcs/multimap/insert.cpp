@@ -10,12 +10,11 @@ static int iter = 0;
 template <typename MAP, typename U>
 void	ft_insert(MAP &mp, U param)
 {
-	_pair<iterator, bool> tmp;
+	iterator tmp;
 
 	std::cout << "\t-- [" << iter++ << "] --" << std::endl;
 	tmp = mp.insert(param);
-	std::cout << "insert return: " << printPair(tmp.first);
-	std::cout << "Created new node: " << tmp.second << std::endl;
+	std::cout << "insert return: " << printPair(tmp);
 	printSize(mp);
 }
 

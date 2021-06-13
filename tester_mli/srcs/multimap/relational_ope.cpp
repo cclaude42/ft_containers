@@ -20,13 +20,22 @@ int		main(void)
 	TESTED_NAMESPACE::multimap<T1, T2> mp1;
 	TESTED_NAMESPACE::multimap<T1, T2> mp2;
 
-	mp1['a'] = 2; mp1['b'] = 3; mp1['c'] = 4; mp1['d'] = 5;
-	mp2['a'] = 2; mp2['b'] = 3; mp2['c'] = 4; mp2['d'] = 5;
+	mp1.insert(TESTED_NAMESPACE::make_pair('a', 2));
+	mp1.insert(TESTED_NAMESPACE::make_pair('b', 3));
+	mp1.insert(TESTED_NAMESPACE::make_pair('c', 4));
+	mp1.insert(TESTED_NAMESPACE::make_pair('d', 5));
+	mp2.insert(TESTED_NAMESPACE::make_pair('a', 2));
+	mp2.insert(TESTED_NAMESPACE::make_pair('b', 3));
+	mp2.insert(TESTED_NAMESPACE::make_pair('c', 4));
+	mp2.insert(TESTED_NAMESPACE::make_pair('d', 5));
 
 	cmp(mp1, mp1); // 0
 	cmp(mp1, mp2); // 1
 
-	mp2['e'] = 6; mp2['f'] = 7; mp2['h'] = 8; mp2['h'] = 9;
+	mp2.insert(TESTED_NAMESPACE::make_pair('e', 6));
+	mp2.insert(TESTED_NAMESPACE::make_pair('f', 7));
+	mp2.insert(TESTED_NAMESPACE::make_pair('h', 8));
+	mp2.insert(TESTED_NAMESPACE::make_pair('h', 9));
 
 	cmp(mp1, mp2); // 2
 	cmp(mp2, mp1); // 3

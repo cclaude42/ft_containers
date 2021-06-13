@@ -23,12 +23,12 @@ void	ft_count(T1 const &k)
 
 int		main(void)
 {
-	mp[42] = "fgzgxfn";
-	mp[25] = "funny";
-	mp[80] = "hey";
-	mp[12] = "no";
-	mp[27] = "bee";
-	mp[90] = "8";
+	mp.insert(TESTED_NAMESPACE::make_pair(42, "fgzgxfn"));
+	mp.insert(TESTED_NAMESPACE::make_pair(25, "funny"));
+	mp.insert(TESTED_NAMESPACE::make_pair(80, "hey"));
+	mp.insert(TESTED_NAMESPACE::make_pair(12, "no"));
+	mp.insert(TESTED_NAMESPACE::make_pair(27, "bee"));
+	mp.insert(TESTED_NAMESPACE::make_pair(90, "8"));
 	printSize(mp);
 
 	std::cout << "\t-- FIND --" << std::endl;

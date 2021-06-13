@@ -18,42 +18,42 @@ int		main(void)
 {
 	TESTED_NAMESPACE::multimap<T1, T2> mp;
 
-	mp[42] = "lol";
+	mp.insert(TESTED_NAMESPACE::make_pair(42, "lol"));
 
-	mp[50] = "mdr";
-	mp[25] = "funny";
+	mp.insert(TESTED_NAMESPACE::make_pair(50, "mdr"));
+	mp.insert(TESTED_NAMESPACE::make_pair(25, "funny"));
 
-	mp[46] = "bunny";
-	mp[21] = "fizz";
-	mp[30] = "buzz";
-	mp[55] = "fuzzy";
+	mp.insert(TESTED_NAMESPACE::make_pair(46, "bunny"));
+	mp.insert(TESTED_NAMESPACE::make_pair(21, "fizz"));
+	mp.insert(TESTED_NAMESPACE::make_pair(30, "buzz"));
+	mp.insert(TESTED_NAMESPACE::make_pair(55, "fuzzy"));
 
-	mp[18] = "bee";
-	mp[23] = "coconut";
-	mp[28] = "diary";
-	mp[35] = "fiesta";
-	mp[44] = "hello";
-	mp[48] = "world";
-	mp[53] = "this is a test";
-	mp[80] = "hey";
+	mp.insert(TESTED_NAMESPACE::make_pair(18, "bee"));
+	mp.insert(TESTED_NAMESPACE::make_pair(23, "coconut"));
+	mp.insert(TESTED_NAMESPACE::make_pair(28, "diary"));
+	mp.insert(TESTED_NAMESPACE::make_pair(35, "fiesta"));
+	mp.insert(TESTED_NAMESPACE::make_pair(44, "hello"));
+	mp.insert(TESTED_NAMESPACE::make_pair(48, "world"));
+	mp.insert(TESTED_NAMESPACE::make_pair(53, "this is a test"));
+	mp.insert(TESTED_NAMESPACE::make_pair(80, "hey"));
 
-	mp[12] = "no";
-	mp[20] = "idea";
-	mp[22] = "123";
-	mp[24] = "345";
-	mp[27] = "27";
-	mp[29] = "29";
-	mp[33] = "33";
-	mp[38] = "38";
+	mp.insert(TESTED_NAMESPACE::make_pair(12, "no"));
+	mp.insert(TESTED_NAMESPACE::make_pair(20, "idea"));
+	mp.insert(TESTED_NAMESPACE::make_pair(22, "123"));
+	mp.insert(TESTED_NAMESPACE::make_pair(24, "345"));
+	mp.insert(TESTED_NAMESPACE::make_pair(27, "27"));
+	mp.insert(TESTED_NAMESPACE::make_pair(29, "29"));
+	mp.insert(TESTED_NAMESPACE::make_pair(33, "33"));
+	mp.insert(TESTED_NAMESPACE::make_pair(38, "38"));
 
-	mp[43] = "1";
-	mp[45] = "2";
-	mp[47] = "3";
-	mp[49] = "4";
-	mp[51] = "5";
-	mp[54] = "6";
-	mp[60] = "7";
-	mp[90] = "8";
+	mp.insert(TESTED_NAMESPACE::make_pair(43, "1"));
+	mp.insert(TESTED_NAMESPACE::make_pair(45, "2"));
+	mp.insert(TESTED_NAMESPACE::make_pair(47, "3"));
+	mp.insert(TESTED_NAMESPACE::make_pair(49, "4"));
+	mp.insert(TESTED_NAMESPACE::make_pair(51, "5"));
+	mp.insert(TESTED_NAMESPACE::make_pair(54, "6"));
+	mp.insert(TESTED_NAMESPACE::make_pair(60, "7"));
+	mp.insert(TESTED_NAMESPACE::make_pair(90, "8"));
 
 	printSize(mp);
 

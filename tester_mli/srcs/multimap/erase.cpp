@@ -40,15 +40,15 @@ int		main(void)
 	ft_erase(mp, mp.begin(), ++(++(++mp.begin())));
 	ft_erase(mp, --(--(--mp.end())), --mp.end());
 
-	mp[10] = "Hello";
-	mp[11] = "Hi there";
+	mp.insert(TESTED_NAMESPACE::make_pair(10, "Hello"));
+	mp.insert(TESTED_NAMESPACE::make_pair(11, "Hi there"));
 	printSize(mp);
 	ft_erase(mp, --(--(--mp.end())), mp.end());
 
-	mp[12] = "ONE";
-	mp[13] = "TWO";
-	mp[14] = "THREE";
-	mp[15] = "FOUR";
+	mp.insert(TESTED_NAMESPACE::make_pair(12, "ONE"));
+	mp.insert(TESTED_NAMESPACE::make_pair(13, "TWO"));
+	mp.insert(TESTED_NAMESPACE::make_pair(14, "THREE"));
+	mp.insert(TESTED_NAMESPACE::make_pair(15, "FOUR"));
 	printSize(mp);
 	ft_erase(mp, mp.begin(), mp.end());
 

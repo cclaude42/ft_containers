@@ -1,23 +1,73 @@
-#include "queue.hpp"
-#include <deque>
-#include <queue>
+#include <vector>
+#include "vector.hpp"
 
-int main()
+#ifndef STD
+# define NAMESPACE ft
+#else
+# define NAMESPACE std
+#endif
+
+using namespace NAMESPACE;
+
+template <class T>
+void	print(vector<vector<T> >& lst)
 {
-	ft::queue<int> qu_;
+	for (typename vector<vector<T> >::iterator it = lst.begin(); it != lst.end(); it++)
+	{
+		for (typename vector<T>::iterator it2 = it->begin(); it2 != it->end(); it2++)
+			std::cout << *it2 << ' ';
+		std::cout << '\n';
+	}
+}
 
-	std::cout << "empty: " << qu_.empty() << std::endl;
-	std::cout << "size: " << qu_.size() << std::endl;
+template <class T>
+void	print(vector<T>& lst)
+{
+	for (typename vector<T>::iterator it = lst.begin(); it != lst.end(); it++)
+		std::cout << *it << ' ';
+	std::cout << '\n';
+}
 
-	qu_.push(41);
-	qu_.push(29);
-	qu_.push(10);
-	qu_.push(42);
-	std::cout << "Added some elements" << std::endl;
 
-	qu_.back() = 404;
+int main ()
+{
+  vector<int> myvector (3,100);
+  vector<int>::iterator it;
+  vector<int>::iterator bit;
 
-	std::cout << "empty: " << qu_.empty() << std::endl;
+  it = myvector.begin();
+  it = myvector.insert ( it , 200 );
 
-	return (0);
+  std::cout << "myvector contains:";
+  for (bit=myvector.begin(); bit<myvector.end(); bit++)
+	std::cout << ' ' << *bit;
+  std::cout << '\n';
+
+  myvector.insert (it,2,300);
+
+  // "it" no longer valid, get a new one:
+  it = myvector.begin();
+
+  std::cout << "myvector contains:";
+  for (bit=myvector.begin(); bit<myvector.end(); bit++)
+    std::cout << ' ' << *bit;
+  std::cout << '\n';
+
+  vector<int> anothervector (2,400);
+  myvector.insert (it+2,anothervector.begin(),anothervector.end());
+
+  std::cout << "myvector contains:";
+  for (bit=myvector.begin(); bit<myvector.end(); bit++)
+	std::cout << ' ' << *bit;
+  std::cout << '\n';
+
+  int myarray [] = { 501,502,503 };
+  myvector.insert (myvector.begin(), myarray, myarray+3);
+
+  std::cout << "myvector contains:";
+  for (it=myvector.begin(); it<myvector.end(); it++)
+    std::cout << ' ' << *it;
+  std::cout << '\n';
+
+  return 0;
 }

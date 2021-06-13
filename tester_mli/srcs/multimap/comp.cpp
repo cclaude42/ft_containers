@@ -22,10 +22,10 @@ int		main(void)
 {
 	_multimap	mp;
 
-	mp['a'] = 2.3;
-	mp['b'] = 1.4;
-	mp['c'] = 0.3;
-	mp['d'] = 4.2;
+	mp.insert(TESTED_NAMESPACE::make_pair('a', 2.3));
+	mp.insert(TESTED_NAMESPACE::make_pair('b', 1.4));
+	mp.insert(TESTED_NAMESPACE::make_pair('c', 0.3));
+	mp.insert(TESTED_NAMESPACE::make_pair('d', 4.2));
 	printSize(mp);
 
 	for (const_it it1 = mp.begin(); it1 != mp.end(); ++it1)

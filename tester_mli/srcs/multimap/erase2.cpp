@@ -30,9 +30,9 @@ int		main(void)
 	ft_erase(mp, mp.begin()->first);
 	ft_erase(mp, (--mp.end())->first);
 
-	mp[-1] = "Hello";
-	mp[10] = "Hi there";
-	mp[10] = "Hi there";
+	mp.insert(TESTED_NAMESPACE::make_pair(-1, "Hello"));
+	mp.insert(TESTED_NAMESPACE::make_pair(10, "Hi there"));
+	mp.insert(TESTED_NAMESPACE::make_pair(10, "Hi there"));
 	printSize(mp);
 
 	ft_erase(mp, 0);
