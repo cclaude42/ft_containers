@@ -6,7 +6,6 @@
 int		main(void)
 {
 	TESTED_NAMESPACE::multimap<T1, T2> mp;
-	mp[1] = 2;
 
 	TESTED_NAMESPACE::multimap<T1, T2>::const_iterator ite = mp.begin();
 	*ite = 42; // < -- error

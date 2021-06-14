@@ -1,5 +1,37 @@
-#include <vector>
-#include "vector.hpp"
+#include <list>
+#include "list.hpp"
+
+/*
+** This is a minimal set of ANSI/VT100 color codes
+*/
+# define _END			"\x1b[0m"
+# define _BOLD			"\x1b[1m"
+# define _UNDER			"\x1b[4m"
+# define _REV			"\x1b[7m"
+
+/*
+** Colors
+*/
+# define _GREY			"\x1b[30m"
+# define _RED			"\x1b[31m"
+# define _GREEN			"\x1b[32m"
+# define _YELLOW		"\x1b[33m"
+# define _BLUE			"\x1b[34m"
+# define _PURPLE		"\x1b[35m"
+# define _CYAN			"\x1b[36m"
+# define _WHITE			"\x1b[37m"
+
+/*
+** Inverted, i.e. colored backgrounds
+*/
+# define _IGREY			"\x1b[40m"
+# define _IRED			"\x1b[41m"
+# define _IGREEN		"\x1b[42m"
+# define _IYELLOW		"\x1b[43m"
+# define _IBLUE			"\x1b[44m"
+# define _IPURPLE		"\x1b[45m"
+# define _ICYAN			"\x1b[46m"
+# define _IWHITE		"\x1b[47m"
 
 #ifndef STD
 # define NAMESPACE ft
@@ -10,64 +42,173 @@
 using namespace NAMESPACE;
 
 template <class T>
-void	print(vector<vector<T> >& lst)
+void	print(list<list<T> >& lst)
 {
-	for (typename vector<vector<T> >::iterator it = lst.begin(); it != lst.end(); it++)
+	for (typename list<list<T> >::iterator it = lst.begin(); it != lst.end(); it++)
 	{
-		for (typename vector<T>::iterator it2 = it->begin(); it2 != it->end(); it2++)
+		for (typename list<T>::iterator it2 = it->begin(); it2 != it->end(); it2++)
 			std::cout << *it2 << ' ';
 		std::cout << '\n';
 	}
 }
 
 template <class T>
-void	print(vector<T>& lst)
+void	print(list<T>& lst)
 {
-	for (typename vector<T>::iterator it = lst.begin(); it != lst.end(); it++)
+	for (typename list<T>::iterator it = lst.begin(); it != lst.end(); it++)
 		std::cout << *it << ' ';
 	std::cout << '\n';
 }
 
 
-int main ()
+int	main(void)
 {
-  vector<int> myvector (3,100);
-  vector<int>::iterator it;
-  vector<int>::iterator bit;
+	std::cout << _WHITE << "# test_list" << _END << std::endl;
+	std::cout << _YELLOW <<  "/* ********************************************************************** */" << std::endl;
+	std::cout << "/*                          "<< _WHITE << "BASIC TESTS" << _YELLOW << "                                   */" << std::endl;
+	std::cout << "/* ********************************************************************** */" << _END << std::endl;
+	std::cout << std::endl;
+	list<int> mylist;
 
-  it = myvector.begin();
-  it = myvector.insert ( it , 200 );
+	std::cout << "list<" << _PURPLE << "int" << _END << "> mylist = list<" << _PURPLE << "int" << _END << ">();" << std::endl;
+	std::cout << std::endl;
 
-  std::cout << "myvector contains:";
-  for (bit=myvector.begin(); bit<myvector.end(); bit++)
-	std::cout << ' ' << *bit;
-  std::cout << '\n';
+	std::cout << "mylist.max_size(): " << (mylist.max_size() > 10000) << std::endl;
+	std::cout << std::endl;
 
-  myvector.insert (it,2,300);
+	//list.pop_back(); --> if empty list segfault
+	// mylist.pop_back();
+	//list.pop_front(); --> if empty list segfault
+	// mylist.pop_front();
 
-  // "it" no longer valid, get a new one:
-  it = myvector.begin();
+	print(mylist);
 
-  std::cout << "myvector contains:";
-  for (bit=myvector.begin(); bit<myvector.end(); bit++)
-    std::cout << ' ' << *bit;
-  std::cout << '\n';
+	for(int i = 0; i < 5; i++)
+	{
+		mylist.push_back(i);
+	print(mylist);
+	}
 
-  vector<int> anothervector (2,400);
-  myvector.insert (it+2,anothervector.begin(),anothervector.end());
 
-  std::cout << "myvector contains:";
-  for (bit=myvector.begin(); bit<myvector.end(); bit++)
-	std::cout << ' ' << *bit;
-  std::cout << '\n';
+	mylist.push_front(-1);
+	print(mylist);
 
-  int myarray [] = { 501,502,503 };
-  myvector.insert (myvector.begin(), myarray, myarray+3);
+	mylist.pop_back();
+	print(mylist);
 
-  std::cout << "myvector contains:";
-  for (it=myvector.begin(); it<myvector.end(); it++)
-    std::cout << ' ' << *it;
-  std::cout << '\n';
+	mylist.pop_back();
+	print(mylist);
+	mylist.pop_back();
+	print(mylist);
+	mylist.pop_back();
+	print(mylist);
+	mylist.pop_back();
+	print(mylist);
+	mylist.pop_back();
+	print(mylist);
 
-  return 0;
+	//list.pop_back(); --> if empty list segfault
+	// mylist.pop_back();
+
+	mylist.assign((size_t)10, 6);
+
+	print(mylist);
+	mylist.pop_front();
+
+	print(mylist);
+	mylist.unique();
+
+	print(mylist);
+	mylist.clear();
+
+	std::cout << _YELLOW <<  "/* ********************************************************************** */" << std::endl;
+	std::cout << "/*                        "<< _WHITE << "ADVANCED TESTS" << _YELLOW << "                                  */" << std::endl;
+	std::cout << "/* ********************************************************************** */" << _END << std::endl;
+	std::cout << std::endl;
+	int n;
+
+	std::cout << _WHITE << "// EMPTY LIST" << _END << std::endl;
+	print(mylist);
+	std::cout << _WHITE << "reverse" << _END << std::endl;
+	mylist.reverse();
+	print(mylist);
+	std::cout << _WHITE << "sort" << _END << std::endl;
+	mylist.sort();
+	print(mylist);
+	std::cout << _WHITE << "remove -1" << _END << std::endl;
+	mylist.remove(-1);
+
+	std::cout << _WHITE << "// 1 ELEMENT LIST" << _END << std::endl;
+	print(mylist);
+	mylist.push_back(-1);
+	print(mylist);
+	mylist.reverse();
+	print(mylist);
+	mylist.sort();
+	print(mylist);
+	mylist.remove(-1);
+	std::cout << _WHITE << "// MULTIPLE ELEMENTS LIST" << _END << std::endl;
+	for(int i = 0; i < 5; i++)
+	{
+		n = (i * 6578 + 56) + 3 * i / 4 - 6 + i;
+	print(mylist);
+		mylist.push_back(n);
+	}
+	print(mylist);
+	mylist.sort();
+
+	print(mylist);
+	mylist.sort();
+
+	print(mylist);
+	mylist.sort(std::greater<int>());
+
+	print(mylist);
+	mylist.reverse();
+	print(mylist);
+	mylist.remove(n);
+	print(mylist);
+	mylist.remove(-1);
+
+
+	list<int> mylist2 = list<int>((size_t)5, 500);
+
+	std::cout << "list<" << _PURPLE << "int" << _END << "> mylist2 = list<" << _PURPLE << "int" << _END << ">(5, 500);" << std::endl;
+	std::cout << "list<" << _PURPLE << "int" << _END << "> list2 = list<" << _PURPLE << "int" << _END << ">(5, 500);" << std::endl;
+	std::cout << std::endl;
+
+	print(mylist);
+	print(mylist2);
+	mylist.swap(mylist2);
+	print(mylist);
+	print(mylist2);
+	mylist.resize(10, 6);
+	print(mylist);
+	print(mylist2);
+	mylist.resize(1);
+	print(mylist);
+	print(mylist2);
+	mylist.resize(0);
+	print(mylist);
+	print(mylist2);
+	mylist.merge(mylist2);
+	print(mylist);
+	print(mylist2);
+	mylist.resize(3, 6);
+	print(mylist);
+	print(mylist2);
+	mylist.merge(mylist2);
+	print(mylist);
+	print(mylist2);
+	swap<int>(mylist, mylist2);
+	print(mylist);
+	print(mylist2);
+	swap<int>(mylist, mylist2);
+	print(mylist);
+	print(mylist2);
+	mylist2 = mylist;
+	print(mylist);
+	print(mylist2);
+
+	return 0;
 }
