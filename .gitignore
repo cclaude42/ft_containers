@@ -40,5 +40,6 @@ tester_mazoise/*/leak
 tester_mazoise/*/logs
 tester_mazoise/*/out
 tester_mazoise/*/stderror
+tester_mazoise/.INCLUDES/*
 
 tester_llefranc/results/*
