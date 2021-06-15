@@ -16,8 +16,8 @@ int		main(void)
 	for (unsigned int i = 0; i < lst_size; ++i)
 		lst.push_back('a' + i);
 
-	TESTED_NAMESPACE::set<T1> st(lst.begin(), lst.end()), st2;
-	TESTED_NAMESPACE::set<T1>::iterator it;
+	TESTED_NAMESPACE::multiset<T1> st(lst.begin(), lst.end()), st2;
+	TESTED_NAMESPACE::multiset<T1>::iterator it;
 
 	lst.clear();
 	is_empty(st);

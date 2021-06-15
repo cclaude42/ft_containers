@@ -512,7 +512,6 @@ private:
 		new_node->parent = parent;
 
 		this->_insertRB(new_node);
-		// this->_treecheck();
 
 		return (new_node);
 	}
@@ -580,7 +579,6 @@ private:
 	void _removeNode (node * ptr, node * child)
 	{
 		this->_deleteRB(ptr, child);
-		// this->_treecheck();
 
 		_alloc.destroy(ptr);
 		_alloc.deallocate(ptr, 1);
@@ -781,27 +779,6 @@ private:
 		parent->parent = x;
 		x->left = grandparent;
 		x->right = parent;
-	}
-
-	//////////////////////////////
-	// DELETE LATER
-	//////////////////////////////
-
-	void _treecheck (void) const
-	{
-		std::cout << "The tree is as follows :" << std::endl;
-		std::cout << "\e[90mNil points left to " << _nil->left->key() << " and right to " << _nil->right->key() << "\033[0m" << std::endl;
-		for (const_iterator it = this->begin() ; it != this->end() ; it++)
-		{
-			if (it.getPtr()->color == RED_)
-				std::cout << "\e[91m";
-			else
-				std::cout << "\e[90m";
-			std::cout << it->first << " is the child of " << it.getPtr()->parent->key();
-			std::cout << ", points left to " << it.getPtr()->left->key();
-			std::cout << " and right to " << it.getPtr()->right->key() << "\033[0m" << std::endl;
-		}
-		std::cout << "End of tree check" << std::endl;
 	}
 
 	//////////////////////////////

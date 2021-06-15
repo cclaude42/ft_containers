@@ -17,18 +17,20 @@ public:
 	typedef struct				s_node
 	{
 # if __APPLE__
-		T						data;
+		const T					data;
 		bool					color;
 		struct s_node *			left;
 		struct s_node *			right;
 		struct s_node *			parent;
 # else
-		T						data;
+		const T					data;
 		struct s_node *			left;
 		struct s_node *			right;
 		struct s_node *			parent;
 		bool					color;
 # endif
+
+		s_node (const T data) : data(data) {}
 	}							node;
 
 	//////////////////////////////
@@ -40,7 +42,7 @@ public:
 	public:
 		// Member types
 		typedef					const T													value_type;
-		typedef typename		ft::conditional<IsConst, const node, node>::type		node_type;
+		typedef					node													node_type;
 		typedef					std::ptrdiff_t											difference_type;
 		typedef					std::size_t												size_type;
 		// -structors
@@ -49,7 +51,7 @@ public:
 		~setIterator			(void)													{}
 		// Const stuff
 		template <bool B>		setIterator
-			(const setIterator<B> & x, typename ft::enable_if<!B>::type* = 0)			{ _ptr = x.getPtr(); }
+			(const setIterator<B> & x)													{ _ptr = x.getPtr(); }
 
 		// Assignment
 		setIterator &			operator=	(const setIterator & x)						{ _ptr = x.getPtr(); return (*this); }
@@ -370,18 +372,10 @@ public:
 	// Search operations
 	//////////////////////////////
 
-	iterator find (const value_type & val)
+	iterator find (const value_type & val) const
 	{
 		if (this->count(val))
 			return (iterator(this->_find_node(_nil->right, val)));
-		else
-			return (this->end());
-	}
-
-	const_iterator find (const value_type & val) const
-	{
-		if (this->count(val))
-			return (const_iterator(this->_find_node(_nil->right, val)));
 		else
 			return (this->end());
 	}
@@ -401,7 +395,7 @@ public:
 	// Range operations
 	//////////////////////////////
 
-	iterator lower_bound (const value_type & val)
+	iterator lower_bound (const value_type & val) const
 	{
 		iterator it = this->begin();
 		while (this->_comp(*it, val) && it != this->end())
@@ -409,15 +403,7 @@ public:
 		return (it);
 	}
 
-	const_iterator lower_bound (const value_type & val) const
-	{
-		const_iterator it = this->begin();
-		while (this->_comp(*it, val) && it != this->end())
-			it++;
-		return (it);
-	}
-
-	iterator upper_bound (const value_type & val)
+	iterator upper_bound (const value_type & val) const
 	{
 		iterator it = this->begin();
 		while (this->_comp(val, *it) == false && it != this->end())
@@ -425,20 +411,7 @@ public:
 		return (it);
 	}
 
-	const_iterator upper_bound (const value_type & val) const
-	{
-		const_iterator it = this->begin();
-		while (this->_comp(val, *it) == false && it != this->end())
-			it++;
-		return (it);
-	}
-
-	ft::pair<iterator,iterator> equal_range (const value_type & val)
-	{
-		return (ft::make_pair(this->lower_bound(val), this->upper_bound(val)));
-	}
-
-	ft::pair<const_iterator,const_iterator> equal_range (const value_type & val) const
+	ft::pair<iterator,iterator> equal_range (const value_type & val) const
 	{
 		return (ft::make_pair(this->lower_bound(val), this->upper_bound(val)));
 	}
@@ -483,8 +456,7 @@ private:
 
 	void _construct (node * ptr, const value_type & val = value_type())
 	{
-		node tmp;
-		tmp.data = val;
+		node tmp(val);
 		tmp.left = _nil;
 		tmp.right = _nil;
 		tmp.parent = _nil;
@@ -754,7 +726,7 @@ private:
 	allocator_type		_alloc;
 	key_compare			_comp;
 	node *				_nil;
-}; // Map
+}; // Set
 
 	//////////////////////////////
 	// Relational operators

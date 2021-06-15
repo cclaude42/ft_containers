@@ -2,8 +2,8 @@
 #include <list>
 
 #define T1 int
-typedef TESTED_NAMESPACE::set<T1>::iterator ft_iterator;
-typedef TESTED_NAMESPACE::set<T1>::const_iterator ft_const_iterator;
+typedef TESTED_NAMESPACE::multiset<T1>::iterator ft_iterator;
+typedef TESTED_NAMESPACE::multiset<T1>::const_iterator ft_const_iterator;
 
 static int iter = 0;
 
@@ -43,7 +43,7 @@ int		main(void)
 	unsigned int lst_size = 10;
 	for (unsigned int i = 0; i < lst_size; ++i)
 		lst.push_back((i + 1) * 3);
-	TESTED_NAMESPACE::set<T1> st(lst.begin(), lst.end());
+	TESTED_NAMESPACE::multiset<T1> st(lst.begin(), lst.end());
 	printSize(st);
 
 	ft_const_bound(st, -10);

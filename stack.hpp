@@ -77,7 +77,7 @@ private:
 	{
 		return (lhs._ctnr < rhs._ctnr);
 	}
-}; // Queue
+}; // Stack
 
 	template <class T, class Container>
 	bool operator!= (const stack<T,Container> & lhs, const stack<T,Container> & rhs)

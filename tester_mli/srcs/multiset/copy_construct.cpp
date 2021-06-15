@@ -10,15 +10,15 @@ int		main(void)
 	for (unsigned int i = 0; i < lst_size; ++i)
 		lst.push_back(lst_size - i);
 
-	TESTED_NAMESPACE::set<T1> st(lst.begin(), lst.end());
-	TESTED_NAMESPACE::set<T1>::iterator it = st.begin(), ite = st.end();
+	TESTED_NAMESPACE::multiset<T1> st(lst.begin(), lst.end());
+	TESTED_NAMESPACE::multiset<T1>::iterator it = st.begin(), ite = st.end();
 
-	TESTED_NAMESPACE::set<T1> st_range(it, --(--ite));
+	TESTED_NAMESPACE::multiset<T1> st_range(it, --(--ite));
 	for (int i = 0; i < 5; ++i)
 		st.insert(i * 5);
 
 	it = st.begin(); ite = --(--st.end());
-	TESTED_NAMESPACE::set<T1> st_copy(st);
+	TESTED_NAMESPACE::multiset<T1> st_copy(st);
 	for (int i = 0; i < 7; ++i)
 		st.insert(i * 7);
 

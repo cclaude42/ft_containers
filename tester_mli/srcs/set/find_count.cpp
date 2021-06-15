@@ -45,7 +45,7 @@ int		main(void)
 	ft_count(90);
 	ft_count(100);
 
-	*st.find(27) = 454;
+	st.erase(st.find(27));
 
 	printSize(st);
 
