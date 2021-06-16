@@ -29,7 +29,7 @@ int		main(void)
 	it = st.rbegin(); ite = st.rend();
 	while (it != ite)
 		std::cout << "[rev] " << printPair(it++, false) << std::endl;
-	printReverse(st);
+	// printReverse(st); <-- this causes a strange bug on the macos std lib ?
 
 	return (0);
 }
