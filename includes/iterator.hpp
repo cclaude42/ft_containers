@@ -10,6 +10,13 @@ namespace ft
 	template <class it>
 	class reverse_iterator {
 	public:
+		// Member types
+		typedef typename			it::value_type										value_type;
+		typedef typename			it::difference_type									difference_type;
+		typedef typename			it::size_type										size_type;
+		typedef typename			it::reference										reference;
+		typedef typename			it::pointer											pointer;
+		typedef typename			it::iterator_category								iterator_category;
 		// -structors
 		reverse_iterator			(void)												{ _it = it(); }
 		reverse_iterator			(typename it::value_type * ptr)						{ _it = it(ptr); }

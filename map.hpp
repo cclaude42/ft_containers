@@ -2,6 +2,7 @@
 # define MAP_HPP
 
 # include "includes/containers.hpp"
+# include "multimap.hpp"
 
 namespace ft
 {
@@ -48,6 +49,9 @@ public:
 		typedef typename		ft::conditional<IsConst, const node, node>::type			node_type;
 		typedef					std::ptrdiff_t												difference_type;
 		typedef					std::size_t													size_type;
+		typedef typename		Alloc::reference											reference;
+		typedef typename		Alloc::pointer												pointer;
+		typedef					std::random_access_iterator_tag								iterator_category;
 		// -structors
 		mapIterator				(void)														{ _ptr = NULL; }
 		mapIterator				(node_type * const ptr)										{ _ptr = ptr; }
@@ -125,10 +129,10 @@ public:
 	typedef		Compare											key_compare;
 	typedef		ValueCompare									value_compare;
 	typedef		typename Alloc::template rebind<node>::other	allocator_type;
-	typedef		typename allocator_type::reference				reference;
-	typedef		typename allocator_type::const_reference		const_reference;
-	typedef		typename allocator_type::pointer				pointer;
-	typedef		typename allocator_type::const_pointer			const_pointer;
+	typedef		typename Alloc::reference						reference;
+	typedef		typename Alloc::const_reference					const_reference;
+	typedef		typename Alloc::pointer							pointer;
+	typedef		typename Alloc::const_pointer					const_pointer;
 	typedef		mapIterator<false>								iterator;
 	typedef		mapIterator<true>								const_iterator;
 	typedef		ft::reverse_iterator<iterator>					reverse_iterator;

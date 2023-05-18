@@ -21,6 +21,9 @@ public:
 		typedef typename		ft::conditional<IsConst, const T, T>::type			value_type;
 		typedef					std::ptrdiff_t										difference_type;
 		typedef					std::size_t											size_type;
+		typedef typename		Alloc::reference									reference;
+		typedef typename		Alloc::pointer										pointer;
+		typedef					std::random_access_iterator_tag						iterator_category;
 		// -structors
 		vectorIterator			(void)												{ _ptr = NULL; }
 		~vectorIterator			(void)												{}

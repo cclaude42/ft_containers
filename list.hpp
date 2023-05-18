@@ -33,6 +33,9 @@ public:
 		typedef typename		ft::conditional<IsConst, const node, node>::type			node_type;
 		typedef					std::ptrdiff_t												difference_type;
 		typedef					std::size_t													size_type;
+		typedef typename		Alloc::reference											reference;
+		typedef typename		Alloc::pointer												pointer;
+		typedef					std::random_access_iterator_tag								iterator_category;
 		// -structors
 		listIterator			(void)														{ _ptr = NULL; }
 		listIterator			(node_type * const ptr)										{ _ptr = ptr; }
@@ -284,7 +287,7 @@ public:
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		while (first != last)
-			position = this->insert(position, *(--last));
+			this->insert(position, *(first++));
 	}
 
 	//////////////////////////////

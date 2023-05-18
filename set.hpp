@@ -2,6 +2,7 @@
 # define SET_HPP
 
 # include "includes/containers.hpp"
+# include "multiset.hpp"
 
 namespace ft
 {
@@ -45,6 +46,9 @@ public:
 		typedef					node													node_type;
 		typedef					std::ptrdiff_t											difference_type;
 		typedef					std::size_t												size_type;
+		typedef typename		Alloc::reference										reference;
+		typedef typename		Alloc::pointer											pointer;
+		typedef					std::random_access_iterator_tag							iterator_category;
 		// -structors
 		setIterator				(void)													{ _ptr = NULL; }
 		setIterator				(node_type * const ptr)									{ _ptr = ptr; }
@@ -119,10 +123,10 @@ public:
 	typedef		Compare											key_compare;
 	typedef		Compare											value_compare;
 	typedef		typename Alloc::template rebind<node>::other	allocator_type;
-	typedef		typename allocator_type::reference				reference;
-	typedef		typename allocator_type::const_reference		const_reference;
-	typedef		typename allocator_type::pointer				pointer;
-	typedef		typename allocator_type::const_pointer			const_pointer;
+	typedef		typename Alloc::reference						reference;
+	typedef		typename Alloc::const_reference					const_reference;
+	typedef		typename Alloc::pointer							pointer;
+	typedef		typename Alloc::const_pointer					const_pointer;
 	typedef		setIterator<false>								iterator;
 	typedef		setIterator<true>								const_iterator;
 	typedef		ft::reverse_iterator<iterator>					reverse_iterator;
@@ -372,7 +376,15 @@ public:
 	// Search operations
 	//////////////////////////////
 
-	iterator find (const value_type & val) const
+	iterator find (const value_type & val)
+	{
+		if (this->count(val))
+			return (iterator(this->_find_node(_nil->right, val)));
+		else
+			return (this->end());
+	}
+
+	const_iterator find (const value_type & val) const
 	{
 		if (this->count(val))
 			return (iterator(this->_find_node(_nil->right, val)));
@@ -395,7 +407,7 @@ public:
 	// Range operations
 	//////////////////////////////
 
-	iterator lower_bound (const value_type & val) const
+	iterator lower_bound (const value_type & val)
 	{
 		iterator it = this->begin();
 		while (this->_comp(*it, val) && it != this->end())
@@ -403,7 +415,15 @@ public:
 		return (it);
 	}
 
-	iterator upper_bound (const value_type & val) const
+	const_iterator lower_bound (const value_type & val) const
+	{
+		const_iterator it = this->begin();
+		while (this->_comp(*it, val) && it != this->end())
+			it++;
+		return (it);
+	}
+
+	iterator upper_bound (const value_type & val)
 	{
 		iterator it = this->begin();
 		while (this->_comp(val, *it) == false && it != this->end())
@@ -411,7 +431,20 @@ public:
 		return (it);
 	}
 
-	ft::pair<iterator,iterator> equal_range (const value_type & val) const
+	const_iterator upper_bound (const value_type & val) const
+	{
+		const_iterator it = this->begin();
+		while (this->_comp(val, *it) == false && it != this->end())
+			it++;
+		return (it);
+	}
+
+	ft::pair<iterator,iterator> equal_range (const value_type & val)
+	{
+		return (ft::make_pair(this->lower_bound(val), this->upper_bound(val)));
+	}
+
+	ft::pair<const_iterator,const_iterator> equal_range (const value_type & val) const
 	{
 		return (ft::make_pair(this->lower_bound(val), this->upper_bound(val)));
 	}
