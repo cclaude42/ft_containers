@@ -5,6 +5,7 @@
 #include "utils/basic_type.hpp"
 #include <set>
 #include "deque.hpp"
+#include <deque>
 
 void test_vector()
 {

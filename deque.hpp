@@ -19,11 +19,11 @@ public:
 	public:
 		// Member types
 		typedef typename		ft::conditional<IsConst, const T, T>::type			value_type;
-		typedef					std::ptrdiff_t										difference_type;
-		typedef					std::size_t											size_type;
-		typedef typename		Alloc::reference									reference;
-		typedef typename		Alloc::pointer										pointer;
-		typedef					std::random_access_iterator_tag						iterator_category;
+		typedef					value_type &										reference;
+		typedef					value_type *										pointer;
+		typedef					ft::ptrdiff_t										difference_type;
+		typedef					ft::size_t											size_type;
+		typedef					ft::random_access_iterator_tag						iterator_category;
 		// -structors
 		dequeIterator			(void)												{ _ptr = NULL; _deq = NULL; }
 		dequeIterator			(value_type * const ptr, const deque * deq)			{ this->init(ptr, deq); }
@@ -332,9 +332,9 @@ public:
 		if (this->size() <= n)
 		{
 			if (MACOS_)
-				throw std::out_of_range("deque");
+				throw ft::out_of_range("deque");
 			else
-				throw std::out_of_range("deque::_M_range_check: __n (which is " + ft::to_string(n) + ")>= this->size() (which is " + ft::to_string(this->size()) + ")");
+				throw ft::out_of_range("deque::_M_range_check: __n (which is " + ft::to_string(n) + ")>= this->size() (which is " + ft::to_string(this->size()) + ")");
 		}
 		return ((*this)[n]);
 	}
@@ -344,9 +344,9 @@ public:
 		if (this->size() <= n)
 		{
 			if (MACOS_)
-				throw std::out_of_range("deque");
+				throw ft::out_of_range("deque");
 			else
-				throw std::out_of_range("deque::_M_range_check: __n (which is " + ft::to_string(n) + ")>= this->size() (which is " + ft::to_string(this->size()) + ")");
+				throw ft::out_of_range("deque::_M_range_check: __n (which is " + ft::to_string(n) + ")>= this->size() (which is " + ft::to_string(this->size()) + ")");
 		}
 		return ((*this)[n]);
 	}

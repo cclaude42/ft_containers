@@ -24,45 +24,45 @@ public:
 
 	explicit stack (const container_type & ctnr = container_type())
 	{
-		_ctnr = ctnr;
+		c = ctnr;
 	}
 
 	size_type size (void) const
 	{
-		return (_ctnr.size());
+		return (c.size());
 	}
 
 	bool empty (void) const
 	{
-		return (_ctnr.empty());
+		return (c.empty());
 	}
 
 	value_type & top (void)
 	{
-		return (_ctnr.back());
+		return (c.back());
 	}
 
 	const value_type & top (void) const
 	{
-		return (_ctnr.back());
+		return (c.back());
 	}
 
 	void push (const value_type & val)
 	{
-		_ctnr.push_back(val);
+		c.push_back(val);
 	}
 
 	void pop (void)
 	{
-		_ctnr.pop_back();
+		c.pop_back();
 	}
 
 	//////////////////////////////
 	// Member variables
 	//////////////////////////////
 
-private:
-	container_type		_ctnr;
+protected:
+	container_type		c;
 
 	//////////////////////////////
 	// Relational operators
@@ -70,12 +70,12 @@ private:
 
 	friend bool operator== (const stack & lhs, const stack & rhs)
 	{
-		return (lhs._ctnr == rhs._ctnr);
+		return (lhs.c == rhs.c);
 	}
 
 	friend bool operator<  (const stack & lhs, const stack & rhs)
 	{
-		return (lhs._ctnr < rhs._ctnr);
+		return (lhs.c < rhs.c);
 	}
 }; // Stack
 

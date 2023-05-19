@@ -19,11 +19,11 @@ public:
 	public:
 		// Member types
 		typedef typename		ft::conditional<IsConst, const T, T>::type			value_type;
-		typedef					std::ptrdiff_t										difference_type;
-		typedef					std::size_t											size_type;
-		typedef typename		Alloc::reference									reference;
-		typedef typename		Alloc::pointer										pointer;
-		typedef					std::random_access_iterator_tag						iterator_category;
+		typedef					value_type &										reference;
+		typedef					value_type *										pointer;
+		typedef					ft::ptrdiff_t										difference_type;
+		typedef					ft::size_t											size_type;
+		typedef					ft::random_access_iterator_tag						iterator_category;
 		// -structors
 		vectorIterator			(void)												{ _ptr = NULL; }
 		~vectorIterator			(void)												{}
@@ -279,9 +279,9 @@ public:
 		if (n > _alloc.max_size())
 		{
 			if (MACOS_)
-				throw std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size");
+				throw ft::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size");
 			else
-				throw std::length_error("vector::reserve");
+				throw ft::length_error("vector::reserve");
 		}
 
 		if (n > _capacity)
@@ -319,9 +319,9 @@ public:
 		if (n >= _size)
 		{
 			if (MACOS_)
-				throw std::out_of_range("vector");
+				throw ft::out_of_range("vector");
 			else
-				throw std::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
+				throw ft::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
 		}
 		return (_vct[n]);
 	}
@@ -331,9 +331,9 @@ public:
 		if (n >= _size)
 		{
 			if (MACOS_)
-				throw std::out_of_range("vector");
+				throw ft::out_of_range("vector");
 			else
-				throw std::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
+				throw ft::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
 		}
 		return (_vct[n]);
 	}

@@ -8,6 +8,7 @@
 #include <set>
 #include <vector>
 #include <deque>
+#include <queue>
 
 template <class C, class Container>
 class check_protected : public C {

@@ -4,6 +4,8 @@
 # include <iostream>
 
 # include "algorithm.hpp"
+# include "exception.hpp"
+# include "functional.hpp"
 # include "iterator.hpp"
 # include "string.hpp"
 # include "type_traits.hpp"

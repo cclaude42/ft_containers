@@ -1,8 +1,20 @@
 #ifndef ITERATOR_HPP
 # define ITERATOR_HPP
 
+# include "utility.hpp"
+
 namespace ft
 {
+	//////////////////////////////
+	// Iterator tags
+	//////////////////////////////
+
+	typedef		std::input_iterator_tag				input_iterator_tag;
+	typedef		std::output_iterator_tag			output_iterator_tag;
+	typedef		std::forward_iterator_tag			forward_iterator_tag;
+	typedef		std::bidirectional_iterator_tag		bidirectional_iterator_tag;
+	typedef		std::random_access_iterator_tag		random_access_iterator_tag;
+
 	//////////////////////////////
 	// Reverse iterator
 	//////////////////////////////
@@ -19,7 +31,7 @@ namespace ft
 		typedef typename			it::iterator_category								iterator_category;
 		// -structors
 		reverse_iterator			(void)												{ _it = it(); }
-		reverse_iterator			(typename it::value_type * ptr)						{ _it = it(ptr); }
+		reverse_iterator			(value_type * ptr)									{ _it = it(ptr); }
 		reverse_iterator			(const it & x)										{ _it = x; --_it; }
 		~reverse_iterator			(void)												{}
 		// Conversion
@@ -46,11 +58,11 @@ namespace ft
 		// Operation
 		reverse_iterator			operator+	(int n) const							{ return (_it - n + 1); }
 		reverse_iterator			operator-	(int n) const							{ return (_it + n + 1); }
-		std::ptrdiff_t				operator-	(const reverse_iterator & x) const		{ return (x.getIt() - _it); }
+		ft::ptrdiff_t				operator-	(const reverse_iterator & x) const		{ return (x.getIt() - _it); }
 		// Dereference
-		typename it::value_type &	operator[]	(size_t n) const						{ return (*(_it - n)); }
-		typename it::value_type &	operator*	(void) const							{ return (*_it); }
-		typename it::value_type *	operator->	(void) const							{ return (&(*_it)); }
+		reference					operator[]	(size_t n) const						{ return (*(_it - n)); }
+		reference					operator*	(void) const							{ return (*_it); }
+		pointer						operator->	(void) const							{ return (&(*_it)); }
 		// Member functions
 		it							base		(void)									{ return (++it(_it)); }
 		it							getIt		(void) const							{ return (_it); }

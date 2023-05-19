@@ -1,4 +1,4 @@
-INCLUDE_PATH=../include
+INCLUDE_PATH=..
 
 CONTAINERS =list \
 	vector \

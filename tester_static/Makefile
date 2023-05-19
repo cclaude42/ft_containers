@@ -1,5 +1,5 @@
 
-INCLUDE_PATH := ../../containers # Path to your headers
+INCLUDE_PATH := .. # Path to your headers
 
 SRCS_DIR = srcs
 

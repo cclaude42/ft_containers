@@ -7,7 +7,7 @@
 namespace ft
 {
 
-template <class T, class Compare = std::less<T>, class Alloc = std::allocator<T> >
+template <class T, class Compare = ft::less<T>, class Alloc = std::allocator<T> >
 class set {
 public:
 
@@ -44,11 +44,11 @@ public:
 		// Member types
 		typedef					const T													value_type;
 		typedef					node													node_type;
-		typedef					std::ptrdiff_t											difference_type;
-		typedef					std::size_t												size_type;
-		typedef typename		Alloc::reference										reference;
-		typedef typename		Alloc::pointer											pointer;
-		typedef					std::random_access_iterator_tag							iterator_category;
+		typedef					value_type &											reference;
+		typedef					value_type *											pointer;
+		typedef					ft::ptrdiff_t											difference_type;
+		typedef					ft::size_t												size_type;
+		typedef					ft::bidirectional_iterator_tag							iterator_category;
 		// -structors
 		setIterator				(void)													{ _ptr = NULL; }
 		setIterator				(node_type * const ptr)									{ _ptr = ptr; }

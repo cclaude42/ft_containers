@@ -1,12 +1,12 @@
 #ifndef PRIORITY_QUEUE_HPP
 # define PRIORITY_QUEUE_HPP
 
-# include "deque.hpp"
+# include "vector.hpp"
 
 namespace ft
 {
 
-template <class T, class Container = vector<T>, class Compare = std::less<typename Container::value_type> >
+template <class T, class Container = ft::vector<T>, class Compare = ft::less<typename Container::value_type> >
 class priority_queue {
 public:
 
@@ -22,47 +22,52 @@ public:
 	// Member functions
 	//////////////////////////////
 
-	explicit priority_queue (const container_type & ctnr = container_type())
+	explicit priority_queue (const Compare & comp = Compare(), const Container& ctnr = Container())
 	{
-		_ctnr = ctnr;
+		this->comp = comp;
+		this->c = ctnr;
+	}
+
+	template <class InputIterator>
+	priority_queue (InputIterator first, InputIterator last, const Compare & comp = Compare(), const Container & ctnr = Container())
+	{
+		this->comp = comp;
+		this->c = ctnr;
+		this->c.assign(first, last);
 	}
 
 	size_type size (void) const
 	{
-		return (_ctnr.size());
+		return (c.size());
 	}
 
 	bool empty (void) const
 	{
-		return (_ctnr.empty());
+		return (c.empty());
 	}
 
-	// value_type & top (void)
-	// {
-	// 	return (_ctnr.back());
-	// }
+	const value_type & top (void) const
+	{
+		return (c.front());
+	}
 
-	// const value_type & top (void) const
-	// {
-	// 	return (_ctnr.back());
-	// }
+	void push (const value_type & val)
+	{
+		c.push_back(val);
+	}
 
-	// void push (const value_type & val)
-	// {
-	// 	_ctnr.push_back(val);
-	// }
-
-	// void pop (void)
-	// {
-	// 	_ctnr.pop_back();
-	// }
+	void pop (void)
+	{
+		c.erase(c.begin());
+	}
 
 	//////////////////////////////
 	// Member variables
 	//////////////////////////////
 
-private:
-	container_type		_ctnr;
+protected:
+	container_type		c;
+	Compare				comp;
 
 	//////////////////////////////
 	// Relational operators
@@ -70,34 +75,34 @@ private:
 
 	friend bool operator== (const priority_queue & lhs, const priority_queue & rhs)
 	{
-		return (lhs._ctnr == rhs._ctnr);
+		return (lhs.c == rhs.c);
 	}
 
 	friend bool operator<  (const priority_queue & lhs, const priority_queue & rhs)
 	{
-		return (lhs._ctnr < rhs._ctnr);
+		return (lhs.c < rhs.c);
 	}
 }; // Priority Queue
 
-	template <class T, class Container>
+	template <class T, class Container, class Compare>
 	bool operator!= (const priority_queue<T,Container,Compare> & lhs, const priority_queue<T,Container,Compare> & rhs)
 	{
 		return (!(lhs == rhs));
 	}
 
-	template <class T, class Container>
+	template <class T, class Container, class Compare>
 	bool operator<= (const priority_queue<T,Container,Compare> & lhs, const priority_queue<T,Container,Compare> & rhs)
 	{
 		return (!(rhs < lhs));
 	}
 
-	template <class T, class Container>
+	template <class T, class Container, class Compare>
 	bool operator>  (const priority_queue<T,Container,Compare> & lhs, const priority_queue<T,Container,Compare> & rhs)
 	{
 		return (rhs < lhs);
 	}
 
-	template <class T, class Container>
+	template <class T, class Container, class Compare>
 	bool operator>= (const priority_queue<T,Container,Compare> & lhs, const priority_queue<T,Container,Compare> & rhs)
 	{
 		return (!(lhs < rhs));

@@ -2,6 +2,7 @@
 # define QUEUE_HPP
 
 # include "deque.hpp"
+# include "priority_queue.hpp"
 
 namespace ft
 {
@@ -24,55 +25,55 @@ public:
 
 	explicit queue (const container_type & ctnr = container_type())
 	{
-		_ctnr = ctnr;
+		c = ctnr;
 	}
 
 	size_type size (void) const
 	{
-		return (_ctnr.size());
+		return (c.size());
 	}
 
 	bool empty (void) const
 	{
-		return (_ctnr.empty());
+		return (c.empty());
 	}
 
 	value_type & front (void)
 	{
-		return (_ctnr.front());
+		return (c.front());
 	}
 
 	const value_type & front (void) const
 	{
-		return (_ctnr.front());
+		return (c.front());
 	}
 
 	value_type & back (void)
 	{
-		return (_ctnr.back());
+		return (c.back());
 	}
 
 	const value_type & back (void) const
 	{
-		return (_ctnr.back());
+		return (c.back());
 	}
 
 	void push (const value_type & val)
 	{
-		_ctnr.push_back(val);
+		c.push_back(val);
 	}
 
 	void pop (void)
 	{
-		_ctnr.pop_front();
+		c.pop_front();
 	}
 
 	//////////////////////////////
 	// Member variables
 	//////////////////////////////
 
-private:
-	container_type		_ctnr;
+protected:
+	container_type		c;
 
 	//////////////////////////////
 	// Relational operators
@@ -80,12 +81,12 @@ private:
 
 	friend bool operator== (const queue & lhs, const queue & rhs)
 	{
-		return (lhs._ctnr == rhs._ctnr);
+		return (lhs.c == rhs.c);
 	}
 
 	friend bool operator<  (const queue & lhs, const queue & rhs)
 	{
-		return (lhs._ctnr < rhs._ctnr);
+		return (lhs.c < rhs.c);
 	}
 }; // Queue
 

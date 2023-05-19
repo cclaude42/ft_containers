@@ -7,7 +7,7 @@
 namespace ft
 {
 
-template <class Key, class T, class Compare = std::less<Key>, class Alloc = std::allocator< ft::pair<const Key, T> > >
+template <class Key, class T, class Compare = ft::less<Key>, class Alloc = std::allocator< ft::pair<const Key, T> > >
 class map {
 public:
 
@@ -47,11 +47,11 @@ public:
 		typedef					ft::pair<const Key, T>										pair_type;
 		typedef typename		ft::conditional<IsConst, const pair_type, pair_type>::type	value_type;
 		typedef typename		ft::conditional<IsConst, const node, node>::type			node_type;
-		typedef					std::ptrdiff_t												difference_type;
-		typedef					std::size_t													size_type;
-		typedef typename		Alloc::reference											reference;
-		typedef typename		Alloc::pointer												pointer;
-		typedef					std::random_access_iterator_tag								iterator_category;
+		typedef					value_type &												reference;
+		typedef					value_type *												pointer;
+		typedef					ft::ptrdiff_t												difference_type;
+		typedef					ft::size_t													size_type;
+		typedef					ft::bidirectional_iterator_tag								iterator_category;
 		// -structors
 		mapIterator				(void)														{ _ptr = NULL; }
 		mapIterator				(node_type * const ptr)										{ _ptr = ptr; }
