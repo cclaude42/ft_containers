@@ -152,6 +152,11 @@ int main()
 		(void)oor;
 		cout << "OOR error caught\n";
 	}
+	catch (ft::out_of_range& oor)
+	{
+		(void)oor;
+		cout << "OOR error caught\n";
+	}
 
 	// FRONT / BACK
 	cout << "\nFRONT / BACK\n";

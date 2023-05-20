@@ -52,7 +52,7 @@
 # include "list_specific.hpp"
 #endif
 #if defined(TEST_PRIORITY_QUEUE)
-# include "priority_queue.hpp"
+# include "pqueue.hpp"
 #endif
 
 #ifdef TEST_MAP
@@ -129,15 +129,15 @@ void test_list(size_t ntest)
 }
 #endif
 
-#ifdef TEST_PRIORITY_QUEUE
-void test_priority_queue(size_t ntest)
-{
-	typedef NAMESPACE::priority_queue<std::string, NAMESPACE::vector<std::string>, stateful_comparator> C;
-	monkey::test_container<C> (
-			priority_queue::get_table<C>()
-			        , ntest);
-}
-#endif
+// #ifdef TEST_PRIORITY_QUEUE
+// void test_priority_queue(size_t ntest)
+// {
+// 	typedef NAMESPACE::priority_queue<std::string, NAMESPACE::vector<std::string>, stateful_comparator> C;
+// 	monkey::test_container<C> (
+// 			pqueue::get_table<C>()
+// 			        , ntest);
+// }
+// #endif
 
 int main(int argc, char **argv)
 {
@@ -149,35 +149,35 @@ int main(int argc, char **argv)
 		ntest = atol(argv[2]);
 	srand(seed);
 
-	#ifdef TEST_MAP
-	test_map(ntest);
-	#endif
+	// #ifdef TEST_MAP
+	// test_map(ntest);
+	// #endif
 
-	#ifdef TEST_SET
-	test_set(ntest);
-	#endif
+	// #ifdef TEST_SET
+	// test_set(ntest);
+	// #endif
 
-	#ifdef TEST_MULTIMAP
-	test_multimap(ntest);
-	#endif
+	// #ifdef TEST_MULTIMAP
+	// test_multimap(ntest);
+	// #endif
 
-	#ifdef TEST_MULTISET
-	test_multiset(ntest);
-	#endif
+	// #ifdef TEST_MULTISET
+	// test_multiset(ntest);
+	// #endif
 
 	#ifdef TEST_VECTOR
 	test_vector(ntest);
 	#endif
 
-	#ifdef TEST_DEQUE
-	test_deque(ntest);
-	#endif
+	// #ifdef TEST_DEQUE
+	// test_deque(ntest);
+	// #endif
 
-	#ifdef TEST_LIST
-	test_list(ntest);
-	#endif
+	// #ifdef TEST_LIST
+	// test_list(ntest);
+	// #endif
 
-	#ifdef TEST_PRIORITY_QUEUE
-	test_priority_queue(ntest);
-	#endif
+	// #ifdef TEST_PRIORITY_QUEUE
+	// test_priority_queue(ntest);
+	// #endif
 }

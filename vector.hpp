@@ -115,17 +115,19 @@ public:
 	vector (InputIterator first, InputIterator last, const allocator_type & alloc = allocator_type(),
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		size_type		n = 0;
-		for (InputIterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
-			n++;
-
 		_alloc = alloc;
-		_size = n;
-		_capacity = n;
-		_vct = _alloc.allocate(n);
+		_size = 0;
+		_capacity = 0;
+		_vct = _alloc.allocate(0);
 
-		for (size_type i = 0 ; i < n ; i++)
-			_alloc.construct(_vct + i, *first++);
+		while (first != last)
+		{
+			this->reserve(_size + 1);
+			_alloc.construct(_vct + _size, *first);
+
+			++_size;
+			++first;
+		}
 	}
 
 	vector (const vector & x)
@@ -432,28 +434,26 @@ public:
 	void insert (iterator position, InputIterator first, InputIterator last,
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
-		size_type		off = position - this->begin();
-		size_type		n = 0;
-		for (InputIterator cpy = first ; cpy != last && n <= this->max_size() ; cpy++)
-			n++;
+		size_type		pos = position - this->begin();
+		size_type		old_cap = _capacity;
+		size_type		old_soc = SIZE_OR_CAP_;
 
-		if (_size + n > _capacity)
+		while (first != last)
 		{
-			if (_size + n > SIZE_OR_CAP_ * 2)
-				this->reserve(_size + n);
-			else if (SIZE_OR_CAP_ > 0)
-				this->reserve(SIZE_OR_CAP_ * 2);
-			else
-				this->reserve(1);
+			this->reserve(_size + 1);
+			_alloc.construct(_vct + _size, value_type());
+
+			for (int i = _size - 1 ; i >= 0 && i >= (int)pos ; i--)
+				_vct[i + 1] = _vct[i];
+			_vct[pos] = *first;
+
+			++pos;
+			++_size;
+			++first;
 		}
 
-		for (size_type i = 0 ; i < n ; i++)
-			_alloc.construct(_vct + _size + i, *first);
-		for (int i = _size - 1 ; i >= 0 && i >= (int)off ; i--)
-			_vct[i + n] = _vct[i];
-		for (size_type i = off ; i < off + n ; i++)
-			_vct[i] = *first++;
-		_size = _size + n;
+		if (_size > old_cap && _size < old_soc * 2)
+			this->reserve(old_soc * 2);
 	}
 
 	//////////////////////////////

@@ -137,11 +137,21 @@ int main()
 		(void)oor;
 		cout << "OOR error caught\n";
 	}
+	catch (ft::out_of_range& oor)
+	{
+		(void)oor;
+		cout << "OOR error caught\n";
+	}
 	try
 	{
 		fill.at(15) = -1;
 	}
 	catch (std::out_of_range& oor)
+	{
+		(void)oor;
+		cout << "OOR error caught\n";
+	}
+	catch (ft::out_of_range& oor)
 	{
 		(void)oor;
 		cout << "OOR error caught\n";

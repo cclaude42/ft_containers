@@ -12,12 +12,12 @@ namespace ft
 
 	class exception {
 	public:
-				exception					(void)					throw()		{};
-				exception					(const exception &)		throw()		{};
-		virtual ~exception					(void)					throw()		{};
+				exception						(void)					throw()		{};
+				exception						(const exception &)		throw()		{};
+		virtual ~exception						(void)					throw()		{};
 
-				exception &		operator=	(const exception &)		throw()		{ return (*this); };
-		virtual const char * 	what		(void) const			throw()		{ return "ft::exception"; };
+				exception &			operator=	(const exception &)		throw()		{ return (*this); };
+		virtual const std::string 	what		(void) const			throw()		{ return "ft::exception"; };
 	};
 
 	//////////////////////////////
@@ -26,10 +26,11 @@ namespace ft
 
 	class out_of_range : public ft::exception {
 	public:
-		explicit out_of_range	(const std::string & what_arg)		{ s = what_arg.c_str(); };
-		const char * what		(void) const throw()				{ return s; };
+		explicit out_of_range				(const std::string & what_arg) : s(what_arg)	{};
+		virtual ~out_of_range				(void)						throw()				{};
+				const std::string	what	(void) const				throw()				{ return s; };
 	private:
-		const char * s;
+		const std::string s;
 	};
 
 	//////////////////////////////
@@ -38,10 +39,11 @@ namespace ft
 
 	class length_error : public ft::exception {
 	public:
-		explicit length_error	(const std::string & what_arg)		{ s = what_arg.c_str(); };
-		const char * what		(void) const throw()				{ return s; };
+		explicit length_error				(const std::string & what_arg) : s(what_arg)	{};
+		virtual ~length_error				(void)						throw()				{};
+				const std::string	what	(void) const				throw()				{ return s; };
 	private:
-		const char * s;
+		const std::string s;
 	};
 }
 

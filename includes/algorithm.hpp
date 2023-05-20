@@ -37,7 +37,7 @@ namespace ft
 	{
 		while (lit != lend)
 		{
-			if (rit == rend || *rit < *lit || *rit < *lit)
+			if (rit == rend || *rit < *lit || *lit < *rit)
 				return (false);
 			++lit, ++rit;
 		}

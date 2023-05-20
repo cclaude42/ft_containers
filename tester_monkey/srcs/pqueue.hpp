@@ -3,7 +3,7 @@
 # include "common.hpp"
 # include "container.hpp"
 
-namespace priority_queue {
+namespace pqueue {
 	template<class C>
 	void underlying_constructor(C &a, C &) {
 		FNAME
@@ -46,6 +46,6 @@ namespace priority_queue {
 			push,
 			pop
 			)
-}
+};
 
 #endif

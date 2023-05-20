@@ -17,13 +17,13 @@ public:
 	typedef struct				s_node
 	{
 # if __APPLE__
-		const T					data;
+		T						data;
 		bool					color;
 		struct s_node *			left;
 		struct s_node *			right;
 		struct s_node *			parent;
 # else
-		const T					data;
+		T						data;
 		struct s_node *			left;
 		struct s_node *			right;
 		struct s_node *			parent;
@@ -41,7 +41,7 @@ public:
 	class multisetIterator {
 	public:
 		// Member types
-		typedef					const T													value_type;
+		typedef					T														value_type;
 		typedef					node													node_type;
 		typedef					value_type &											reference;
 		typedef					value_type *											pointer;

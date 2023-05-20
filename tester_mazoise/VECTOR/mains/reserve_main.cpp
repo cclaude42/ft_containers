@@ -72,5 +72,6 @@ int main ()
 	bar.reserve(bar.max_size() * 2);
   }
   catch(std::exception& e) { cout << e.what(); }
+  catch(ft::exception& e) { cout << e.what(); }
   return 0;
 }
