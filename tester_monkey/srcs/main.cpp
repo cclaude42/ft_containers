@@ -149,33 +149,33 @@ int main(int argc, char **argv)
 		ntest = atol(argv[2]);
 	srand(seed);
 
-	// #ifdef TEST_MAP
-	// test_map(ntest);
-	// #endif
+	#ifdef TEST_MAP
+	test_map(ntest);
+	#endif
 
-	// #ifdef TEST_SET
-	// test_set(ntest);
-	// #endif
+	#ifdef TEST_SET
+	test_set(ntest);
+	#endif
 
-	// #ifdef TEST_MULTIMAP
-	// test_multimap(ntest);
-	// #endif
+	#ifdef TEST_MULTIMAP
+	test_multimap(ntest);
+	#endif
 
-	// #ifdef TEST_MULTISET
-	// test_multiset(ntest);
-	// #endif
+	#ifdef TEST_MULTISET
+	test_multiset(ntest);
+	#endif
 
 	#ifdef TEST_VECTOR
 	test_vector(ntest);
 	#endif
 
-	// #ifdef TEST_DEQUE
-	// test_deque(ntest);
-	// #endif
+	#ifdef TEST_DEQUE
+	test_deque(ntest);
+	#endif
 
-	// #ifdef TEST_LIST
-	// test_list(ntest);
-	// #endif
+	#ifdef TEST_LIST
+	test_list(ntest);
+	#endif
 
 	// #ifdef TEST_PRIORITY_QUEUE
 	// test_priority_queue(ntest);

@@ -108,7 +108,10 @@ public:
 		this->_new_end_node();
 
 		while (first != last)
-			this->push_back(*first++);
+		{
+			this->push_back(*first);
+			++first;
+		}
 	}
 
 	list (const list & x)
@@ -287,7 +290,10 @@ public:
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		while (first != last)
-			this->insert(position, *(first++));
+		{
+			this->insert(position, *first);
+			++first;
+		}
 	}
 
 	//////////////////////////////
@@ -457,7 +463,7 @@ public:
 
 	void merge (list & x)
 	{
-		if (*this == x)
+		if (this == &x)
 			return ;
 		for (iterator it = this->begin() ; it != this->end() ; )
 		{
@@ -473,7 +479,7 @@ public:
 	template <class Compare>
 	void merge (list & x, Compare comp)
 	{
-		if (*this == x)
+		if (this == &x)
 			return ;
 		for (iterator it = this->begin() ; it != this->end() ; )
 		{
