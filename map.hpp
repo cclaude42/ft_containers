@@ -210,8 +210,11 @@ public:
 		_alloc = x._alloc;
 		_comp = x._comp;
 
-		for (const_iterator it = x.begin() ; it != x.end() ; it++)
+		for (const_iterator it = x.begin() ; it != x.end() ; )
+		{
 			this->insert(*it);
+			++it;
+		}
 		return (*this);
 	}
 
@@ -325,7 +328,10 @@ public:
 	typename ft::enable_if<!ft::is_same<InputIterator, int>::value>::type* = 0)
 	{
 		while (first != last)
-			this->insert(*first++);
+		{
+			this->insert(*first);
+			++first;
+		}
 	}
 
 	//////////////////////////////
@@ -348,6 +354,7 @@ public:
 
 			if (child != _nil)
 				child->parent = ptr->parent;
+
 			if (ptr->parent->left == ptr)
 				ptr->parent->left = child;
 			else
@@ -385,10 +392,13 @@ public:
 	}
 
 	void clear (void)
-	{
-		iterator first = this->begin();
-		for (iterator it = first++ ; it != this->end() ; it = first++)
-			this->erase(it);
+	{ std::cout << "heyo" << std::endl;
+		while (!this->empty()) { std::cout << "bruh" << std::endl;
+			this->erase(this->begin()); }
+		std::cout << "heyo" << std::endl;
+		// iterator first = this->begin();
+		// for (iterator it = first++ ; it != this->end() ; it = first++)
+		// 	this->erase(it);
 	}
 
 	//////////////////////////////
@@ -583,7 +593,7 @@ private:
 	void _removeNode (node * ptr, node * child)
 	{
 		this->_deleteRB(ptr, child);
-
+		std::cout << "done" << std::endl;
 		_alloc.destroy(ptr);
 		_alloc.deallocate(ptr, 1);
 	}
@@ -674,18 +684,20 @@ private:
 	{
 		if (v->color == RED_ || u->color == RED_)
 			u->color = BLACK_;
-		else
-			this->_doubleBlack(u, v->parent);
+		else { std::cout << "DB" << std::endl;
+			this->_doubleBlack(u, v->parent); }
 	}
 
 	void _doubleBlack (node * u, node * parent)
 	{
 		node * sibling = (parent->left != u) ? parent->left : parent->right;
 
-		if (u == _nil->right)
+		if (u == _nil)
+			std::cout << "hidden" << std::endl;
+		else if (u == _nil->right)
 			return ;
 		else if (sibling->color == BLACK_ && (sibling->left->color == RED_ || sibling->right->color == RED_))
-		{
+		{std::cout << "opttt1" << std::endl;
 			if (sibling == parent->left && sibling->left->color == RED_)
 				this->_LL(parent, sibling);
 			else if (sibling == parent->left && sibling->right->color == RED_)
@@ -701,7 +713,7 @@ private:
 				sibling->right->color = BLACK_;
 		}
 		else if (sibling->color == BLACK_)
-		{
+		{std::cout << "opttt2" << std::endl;
 			sibling->color = RED_;
 			if (parent->color == RED_)
 				parent->color = BLACK_;
@@ -709,7 +721,7 @@ private:
 				this->_doubleBlack(parent, parent->parent);
 		}
 		else if (sibling->color == RED_)
-		{
+		{std::cout << "opttt3" << std::endl;
 			if (sibling == parent->left)
 				this->_LL(parent, sibling);
 			else
